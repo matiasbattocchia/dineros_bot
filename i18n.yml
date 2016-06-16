@@ -1,0 +1,40 @@
+es:
+  welcome: >
+    Hola. Estoy programado para llevar un registro de los gastos grupales.
+    Más que nada usarás el comando interactivo /pago (también abreviado /p)
+    cada vez que efectúes un gasto compartido. Yo te preguntaré por el
+    concepto del mismo, quiénes aportaron y entre quiénes se reparte.
+
+    Podés usar el comando /ayuda para obtener más información, ver ejemplos
+    de uso y conocer mis funcionalidades avanzadas.
+
+    Para comenzar, cada miembro del grupo deberá elegir un apodo corto que lo
+    identifique—recomiendo que sea de *una sola letra*. No hago distinción
+    entre mayúsculas y minúsculas.
+
+    Usá el comando /yo seguido del apodo elegido. Por ejemplo `/yo m`.
+  alias:
+    good:  Enhorabuena %{user}, tu apodo es _%{alias}_.
+    taken: '%{user} el apodo %{alias} ya está siendo usado por %{other_user}.'
+    bad: >
+      %{user} no pude procesar tu mensaje. Asegurate que el comando sea de la
+      forma `/yo [apodo]` donde [apodo] consista en una palabra constituida
+      únicamente por letras (sin espacios, ni signos de puntuación,
+      ni números).
+  transaction:
+    success: 'Operación registrada. Código de operación: *%{code}*.'
+    match_error: >
+      No pude entender el argumento '%{chunk}'. Recordá que los argumentos
+      deben estar formados como '\[factor]apodo\[cantidad]'. Tanto _factor_
+      como _cantidad_ son números y son opcionales. _factor_ no puede ser
+      negativo. Los argumentos se separan entre sí con espacios pero no puede
+      haberlos dentro de un mismo argumento.
+    alias_error: >
+      No pude reconocer el apodo '%{alias}'. Para ver los apodos registrados
+      en este chat usá el comando /apodos. Para registrar un nuevo apodo
+      por favor consultá la /ayuda.
+    delete:
+      success: 'La operación *%{code}* fue eliminada.'
+      failure: 'La operación *%{code}* no se encuentra.'
+  unknown_command: >
+    Lo siento, no entendí la solicitud. ¿Quizás quieras consultar la /ayuda?
