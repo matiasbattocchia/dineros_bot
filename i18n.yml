@@ -14,8 +14,10 @@ es:
 
     Usá el comando /yo seguido del apodo elegido. Por ejemplo `/yo m`.
   alias:
-    good:  Enhorabuena %{user}, tu apodo es _%{alias}_.
-    taken: '%{user} el apodo %{alias} ya está siendo usado por %{other_user}.'
+    good:  'Enhorabuena. El apodo de %{user} será *%{alias}*.'
+    taken: 'El apodo *%{alias}* ya está siendo usado por %{other_user}.'
+    existent: >
+      Ya tenés el apodo *%{alias}* en esta conversación. ¿Para qué otro más?
     bad: >
       %{user} no pude procesar tu mensaje. Asegurate que el comando sea de la
       forma `/yo [apodo]` donde [apodo] consista en una palabra constituida
@@ -24,17 +26,142 @@ es:
   transaction:
     success: 'Operación registrada. Código de operación: *%{code}*.'
     match_error: >
-      No pude entender el argumento '%{chunk}'. Recordá que los argumentos
-      deben estar formados como '\[factor]apodo\[cantidad]'. Tanto _factor_
+      No pude entender el argumento *%{chunk}*.
+
+
+      Recordá que los argumentos
+      deben estar formados como `[factor]apodo[cantidad]`. Tanto _factor_
       como _cantidad_ son números y son opcionales. _factor_ no puede ser
       negativo. Los argumentos se separan entre sí con espacios pero no puede
       haberlos dentro de un mismo argumento.
     alias_error: >
-      No pude reconocer el apodo '%{alias}'. Para ver los apodos registrados
-      en este chat usá el comando /apodos. Para registrar un nuevo apodo
-      por favor consultá la /ayuda.
+      No pude reconocer el apodo *%{alias}*.
+
+
+      Para ver los apodos registrados
+      en este chat usá el comando /balance. Quizás quieras registrar un nuevo
+      /apodo.
+    repeated_alias_error: >
+      No pude registrar la operación. Al menos un apodo se encuentra repetido.
     delete:
       success: 'La operación *%{code}* fue eliminada.'
-      failure: 'La operación *%{code}* no se encuentra.'
+      failure: >
+        La operación *%{code}* no se encuentra. Quizás nunca existió o haya
+        sido eliminada en otra ocasión.
+  balance:
+    item: '(*%{alias}*) %{user}: %<balance>.2f'
+    nothing: >
+      No hay usuarios activos en esta conversación. Mirá la /ayuda para saber
+      cómo crearlos.
+  help: >
+    *Registrar un pago*:
+
+    `/pago concepto: argumento1 argumento2 ...`
+    donde _argumento_ es de la
+    forma `[factor]apodo[contribución]`. Tanto _factor_ como _contribución_
+    son opcionales y de estar ausentes toman los valores por defecto 1 y 0
+    respectivamente.
+
+
+    Notar que el _concepto_ va separado de los _argumentos_
+    por dos puntos (:) y que los argumentos se separan entre sí mediante
+    espacios. Dentro de un argumento no pueden haber espacios.
+
+
+    _factor_ significa la participación que un usuario tiene en una operación;
+    debe ser un número no negativo. Por lo general no hace falta usarlo.
+
+
+    _contribución_ es la cantidad de dinero que el usuario aporta a la
+    operación; esta cantidad puede ser negativa, en ese caso en vez de
+    significar dinero que se gasta o sale, es dinero que se gana o entra.
+
+
+    Hay /ejemplos de uso a disposición.
+
+
+    *Eliminar un pago*: `/borrar código_de_operación`.
+
+
+    *Ver estado de las cuentas*: `/balance`.
+
+
+    *Crear un usuario*: `/apodo apodo [nombre]`
+    donde _nombre_ es opcional y
+    de estar presente indica la creación de un usuario _dummy_ (maniquí),
+    útil cuando se quiere representar a alguien que no forma parte de la
+    conversación. Un usuario maniquí puede ser reclamado más adelante por
+    un usuario real al utilizar su mismo apodo.
+
+
+    El _apodo_ puede tener una longitud máxima de 8 caracteres alfabéticos.
+    Lo recomendable es que conste de un único caracter para mayor comodidad.
+    Necesitarás un apodo por cada conversación en la que utilices a Dineros.
+
+
+    _Por el momento los apodos no se pueden modificar ni eliminar._
+  examples: >
+    *Gasto equitativo*:
+
+    `/pago agüita: a200 b100 c`
+
+
+    Gasto total de $300 donde *a* aporta $200,
+    *b* $100 y *c* $0 (implícito).
+
+
+    Este es el tipo de operación más común, en el que todos los usuarios que
+    figuran tienen una participación equitativa en el gasto. Todos tienen un
+    _factor_ implícito de 1. En el ejemplo de _gasto no equitativo_ se puede
+    observar mejor el efecto de los factores.
+
+
+    *Gasto no equitativo*:
+
+    `/pago rolas: 3a600 2b c`
+
+
+    Gasto total de $600 en el que *a* hace todo
+    el aporte.
+
+
+    En esta operación se compraron 6 rolas que no fueron consumidas en forma
+    equitativa: 3 se las quedó *a*, 2 *b* y 1 *c*, que es lo que se ve
+    reflejado en los factores. La suma de los factores es 6, lo cual
+    representa el 100% del gasto.
+
+
+    El factor de *a* es 3, la mitad de 6, por lo que *a* debe afrontar el
+    50% del gasto ($300).
+
+
+    El factor de *b* es 2, un tercio de 6, el 33,3% del
+    gasto ($200).
+
+
+    El factor de *c* es 1 (implícito), un sexto de 6, el 16,6%
+    del total ($100).
+
+
+    En resumen, *a* aportó $200 por *b* y $100 por *c*.
+
+
+    *Préstamo*:
+
+    `/pago préstamo: 0a1000 b`
+
+
+    *a* le entrega $1000 a *b*.
+
+
+    En este ejemplo el usuario *a* tiene un _factor_ 0, lo
+    cual significa que no participa del gasto, al mismo tiempo que realiza
+    una _contribución_ de $1000. A su vez el usuario *b* tiene una
+    participación implícita de 1 (que termina siendo del 100%) con un aporte
+    (también implícito) de $0.
+
+
+    *Eliminar un pago*: `/borrar 606` eliminaría el pago registrado con el
+    código de operación *606*.
   unknown_command: >
     Lo siento, no entendí la solicitud. ¿Quizás quieras consultar la /ayuda?

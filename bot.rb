@@ -11,6 +11,9 @@ end
 
 DB = Sequel.connect('postgres://localhost/dineros')
 
+class BotError < StandardError
+end
+
 class Alias < Sequel::Model
   unrestrict_primary_key
 end
@@ -35,11 +38,13 @@ end
 # append the results of a help command to the error
 # message.
 
+# TODO: How to round money the right way?
+
 def process(bot, message)
-  case message.text
-  # TODO: Numeral separators.
-  when /^\/p(?:ay|aid|ague|agué|ago)?\s+(.+)\s*:\s*(.+)\s*/i
-    begin
+  begin
+    case message.text
+    # TODO: Numeral separators.
+    when /^\/p(?:ay|aid|ague|agué|ago)?\s+(.+)\s*:\s*(.+)\s*/i
       date    = Time.at(message.date).utc.to_date
       concept = Regexp.last_match[1]
       contributions = Regexp.last_match[2]
@@ -50,29 +55,30 @@ def process(bot, message)
         con = contributions.match /^(\S+)(?:\s+(.+))?\s*/
 
         # Just in case...
-        raise "Sadness hasn't got end: single contribution " \
-              "from '#{contributions}' is nil." if con.nil?
+        #raise "Sadness hasn't got end: single contribution " \
+        #      "from '#{contributions}' is nil." if con.nil?
 
-        r = /^(\d{0,19}(?:[\.,]\d{1,4})?)
+        r = /^(\d{0,15}(?:[\.,]\d{1,4})?)
               ([[:alpha:]]+)
-              ((?:-(?=[\.,]?\d))?\d{0,19}(?:[\.,]\d{1,4})?)$/x
+              ((?:-(?=[\.,]?\d))?\d{0,15}(?:[\.,]\d{1,4})?)$/x
 
         c = con[1].match(r)
 
-        raise text['transaction']['match_error'] % {chunk: con[1]} if c.nil?
+        raise BotError,
+          text['transaction']['match_error'] % {chunk: con[1]} if c.nil?
 
         a = Alias.find(chat_id: message.chat.id, alias: c[2])
 
-        raise text['transaction']['alias_error'] % {alias: c[2]} if a.nil?
+        raise BotError,
+          text['transaction']['alias_error'] % {alias: c[2]} if a.nil?
 
         t = Transaction.new
-        t.user_id    = a.user_id
-        t.chat_id    = message.chat.id
+        t.alias_id   = a.id
         t.message_id = message.message_id
         t.date       = date
         t.concept    = concept
-        t.contribution   = BigDecimal.new(c[3].empty? ? 0 : c[3].sub(',','.'))
-        t.expense_factor = BigDecimal.new(c[1].empty? ? 1 : c[1].sub(',','.'))
+        t.contribution = BigDecimal.new(c[3].empty? ? 0 : c[3].sub(',','.'))
+        t.factor       = BigDecimal.new(c[1].empty? ? 1 : c[1].sub(',','.'))
 
         transactions << t
 
@@ -81,107 +87,133 @@ def process(bot, message)
       end
 
       contribution_sum   = 0
-      expense_factor_sum = 0
+      factor_sum = 0
 
       transactions.each do |t|
         contribution_sum   += t.contribution
-        expense_factor_sum += t.expense_factor
+        factor_sum += t.factor
       end
 
-      DB.transaction do
-        transactions.each do |t|
-          individual_expense =
-            contribution_sum / expense_factor_sum * t.expense_factor
+      begin
+        DB.transaction do
+          transactions.each do |t|
+            co_contribution =
+              contribution_sum / factor_sum * t.factor
 
-          t.amount = t.contribution - individual_expense
-          t.save
+            t.amount = t.contribution - co_contribution
+            t.save
+          end
         end
+      rescue Sequel::UniqueConstraintViolation
+        raise BotError,
+          text['transaction']['repeated_alias_error']
       end
 
       bot.api.send_message(chat_id: message.chat.id,
                            text: text['transaction']['success'] %
                              {code: message.message_id},
                            parse_mode: 'Markdown')
-    rescue => e
-      bot.api.send_message(chat_id: message.chat.id,
-                           text: e.message,
-                           parse_mode: 'Markdown')
-    end
-  when /^\/balance\s*/i
-    Alias.where(chat_id: message.chat.id).order(:alias).each do |a|
-      m = bot.api
-        .get_chat_member(user_id: a.user_id, chat_id: message.chat.id)
 
-      balance =
-        Transaction
-        .where(user_id: a.user_id, chat_id: message.chat.id).sum(:amount)
+    when /^\/balance\s*/i
+      b = Transaction
+        .right_join(Alias.where(chat_id: message.chat.id), :id=>:alias_id)
+        .select_group(:alias, :name)
+        .select_append{sum(:amount).as(:balance)}.order(:name)
+        .map(&:values).map do |a|
+          (text['balance']['item'] %
+            {alias: a[:alias], user: a[:name], balance: a[:balance] || 0})
+            .sub('.',',')
+      end
 
-      bot.api.send_message(chat_id: message.chat.id,
-                           text: "#{m['result']['user']['first_name']}: #{balance}")
-    end
-  when /^\/borrar\s+([[:digit:]]+)\s*/i
-    code = Regexp.last_match[1]
+      t = if b.empty?
+        text['balance']['nothing']
+      else
+        b.join("\n")
+      end
 
-    n =
-      Transaction
-      .where(chat_id: message.chat.id, message_id: code)
-      .delete
+      bot.api.send_message(
+        chat_id: message.chat.id,
+        text: t,
+        parse_mode: 'Markdown')
 
-    t =
-      if n != 0
+    when /^\/borrar\s+([[:digit:]]+)\s*/i
+      code = Regexp.last_match[1]
+
+      n = Transaction
+            .where(chat_id: message.chat.id, message_id: code)
+            .delete
+
+      t = if n != 0
         text['transaction']['delete']['success']
       else
         text['transaction']['delete']['failure']
       end
 
-    bot.api.send_message(chat_id: message.chat.id,
-                         text: t % {code: code},
-                         parse_mode: 'Markdown')
-  when /^\/start\s*/i
-    bot.api.send_message(chat_id: message.chat.id,
-                         text: text['welcome'],
-                         parse_mode: 'Markdown')
-  when /^\/yo\s+([[:alpha:]]+)\s*/i
-    _alias = Regexp.last_match[1]
+      bot.api.send_message(chat_id: message.chat.id,
+                           text: t % {code: code},
+                           parse_mode: 'Markdown')
 
-    if _alias
-      _alias.downcase!
+    when /^\/ayuda\s*/i
+      bot.api.send_message(chat_id: message.chat.id,
+                           text: text['help'],
+                           parse_mode: 'Markdown')
 
-      a = Alias.find_or_create(user_id: message.from.id,
-                               chat_id: message.chat.id) do |r|
-        r.alias = _alias
+    when /^\/ejemplos\s*/i
+      bot.api.send_message(chat_id: message.chat.id,
+                           text: text['examples'],
+                           parse_mode: 'Markdown')
+
+    when /^\/apodo\s+([[:alpha:]]{1,8})(?:\s+(.+))?\s*/i
+      # When name is blank, an alias for the message originator
+      # will be created; when it is present a 'dummy user'
+      # will be created, which later can be claimed
+      # by a real user.
+      _alias = Regexp.last_match[1].downcase
+      name   = Regexp.last_match[2]
+
+      a = Alias.find(chat_id: message.chat.id, alias: _alias)
+
+      if a
+        raise BotError,
+          text['alias']['taken'] %
+            {alias: a.alias,
+             other_user: a.name} if a.user_id || name
+
+        a.user_id = message.from.id
+        a.name    = message.from.first_name
+      else
+        a = Alias.new
+        a.user_id = name ? nil : message.from.id
+        a.chat_id = message.chat.id
+        a.alias   = _alias
+        a.name    = "#{name} (dummy)" || message.from.first_name
       end
 
-      t =
-        if a.alias == _alias
-          text['alias']['good'] % {user:  message.from.first_name,
-                                   alias: _alias}
-        else
-          if b = Alias.find(chat_id: message.chat.id, alias: _alias)
-            text['alias']['taken'] % {user:  message.from.first_name,
-                                      alias: _alias,
-                                      other_user: b.user_id}
-          else
-            a.update(alias: _alias)
-            text['alias']['good'] % {user:  message.from.first_name,
-                                     alias: _alias}
-          end
-        end
-    else
-      t = text['alias']['bad'] % {user: message.from.first_name}
+      begin
+        a.save
+      rescue Sequel::UniqueConstraintViolation
+        a = Alias.find(user_id: message.from.id,
+                       chat_id: message.chat.id)
+
+        raise BotError,
+          text['alias']['existent'] % {alias: a.alias}
+      end
+
+      bot.api.send_message(chat_id: message.chat.id,
+                           text: text['alias']['good'] %
+                             {user:  a.name, alias: a.alias},
+                           parse_mode: 'Markdown')
     end
+  rescue => e
+    mode = e.instance_of?(BotError) ? 'Markdown' : nil
 
     bot.api.send_message(chat_id: message.chat.id,
-                         text: t,
-                         parse_mode: 'Markdown')
-  else
-    bot.api.send_message(chat_id: message.chat.id,
-                         text: text['unknown_command'],
-                         parse_mode: 'Markdown')
+                         text: e.message,
+                         parse_mode: mode)
   end
 end
 
-token = '184269339:AAHg3gCErtyTX9dkQAgSs8746Qs3kwTtDUk'
+token = ENV['DINEROS_BOT_TOKEN']
 
 Telegram::Bot::Client.run(token) do |bot|
   bot.listen do |message|
