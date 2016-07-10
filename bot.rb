@@ -186,7 +186,7 @@ def process(bot, message)
         a.user_id = name ? nil : message.from.id
         a.chat_id = message.chat.id
         a.alias   = _alias
-        a.name    = "#{name} (dummy)" || message.from.first_name
+        a.name    = name ? "#{name} (dummy)" : message.from.first_name
       end
 
       begin

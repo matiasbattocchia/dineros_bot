@@ -56,9 +56,11 @@ es:
   help: >
     *Registrar un pago*:
 
-    `/pago concepto: argumento1 argumento2 ...`
+    /pago concepto: argumento1 argumento2 ...
+
+
     donde _argumento_ es de la
-    forma `[factor]apodo[contribución]`. Tanto _factor_ como _contribución_
+    forma _[factor]apodo[contribución]_. Tanto _factor_ como _contribución_
     son opcionales y de estar ausentes toman los valores por defecto 1 y 0
     respectivamente.
 
@@ -80,13 +82,21 @@ es:
     Hay /ejemplos de uso a disposición.
 
 
-    *Eliminar un pago*: `/borrar código_de_operación`.
+    *Eliminar un pago*:
+
+    /borrar código_de_operación
 
 
-    *Ver estado de las cuentas*: `/balance`.
+    *Ver estado de las cuentas*:
+
+    /balance
 
 
-    *Crear un usuario*: `/apodo apodo [nombre]`
+    *Crear un usuario*:
+
+    /apodo apodo [nombre]
+
+
     donde _nombre_ es opcional y
     de estar presente indica la creación de un usuario _dummy_ (maniquí),
     útil cuando se quiere representar a alguien que no forma parte de la
@@ -103,7 +113,7 @@ es:
   examples: >
     *Gasto equitativo*:
 
-    `/pago agüita: a200 b100 c`
+    /pago agüita: a200 b100 c
 
 
     Gasto total de $300 donde *a* aporta $200,
@@ -118,7 +128,7 @@ es:
 
     *Gasto no equitativo*:
 
-    `/pago rolas: 3a600 2b c`
+    /pago rolas: 3a600 2b c
 
 
     Gasto total de $600 en el que *a* hace todo
@@ -148,7 +158,7 @@ es:
 
     *Préstamo*:
 
-    `/pago préstamo: 0a1000 b`
+    /pago préstamo: 0a1000 b
 
 
     *a* le entrega $1000 a *b*.
@@ -161,7 +171,11 @@ es:
     (también implícito) de $0.
 
 
-    *Eliminar un pago*: `/borrar 606` eliminaría el pago registrado con el
-    código de operación *606*.
+    *Eliminar un pago*:
+
+    /borrar 666
+
+
+    Elimina el pago registrado con el código de operación *666*.
   unknown_command: >
     Lo siento, no entendí la solicitud. ¿Quizás quieras consultar la /ayuda?
