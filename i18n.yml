@@ -1,181 +1,262 @@
 es:
+  unknown_command: Lo siento, no entendí la solicitud.
+  canceled: Operación cancelada.
   welcome: >
-    Hola. Estoy programado para llevar un registro de los gastos grupales.
-    Más que nada usarás el comando interactivo /pago (también abreviado /p)
-    cada vez que efectúes un gasto compartido. Yo te preguntaré por el
-    concepto del mismo, quiénes aportaron y entre quiénes se reparte.
+    Hola, yo soy *Dineros*. Llevo el registro de los gastos grupales.
+    Usá el comando /pago para registrar un gasto compartido.
+  hello: 'Bienvenido, %{name}.'
+  bye: 'Te echaré de menos, %{name}.'
+  helper:
+    alias_error: >
+      No pude reconocer el apodo. Esperaba algo así:
 
-    Podés usar el comando /ayuda para obtener más información, ver ejemplos
-    de uso y conocer mis funcionalidades avanzadas.
-
-    Para comenzar, cada miembro del grupo deberá elegir un apodo corto que lo
-    identifique—recomiendo que sea de *una sola letra*. No hago distinción
-    entre mayúsculas y minúsculas.
-
-    Usá el comando /yo seguido del apodo elegido. Por ejemplo `/yo m`.
-  alias:
-    good:  'Enhorabuena. El apodo de %{user} será *%{alias}*.'
-    taken: 'El apodo *%{alias}* ya está siendo usado por %{other_user}.'
-    existent: >
-      Ya tenés el apodo *%{alias}* en esta conversación. ¿Para qué otro más?
-    bad: >
-      %{user} no pude procesar tu mensaje. Asegurate que el comando sea de la
-      forma `/yo [apodo]` donde [apodo] consista en una palabra constituida
-      únicamente por letras (sin espacios, ni signos de puntuación,
-      ni números).
+      `(apodo) nombre del usuario`.
+    transactions_not_found_error: 'No existe la operación con código %{code}.'
+    expert_payment_advice: >
+      El pago guardado también pudo haberse expresado así:
+    user_not_found_error: 'No existe el usuario con apodo _%{alias}_.'
+    no_aliases_left_error: Se acabaron los apodos para este grupo.
   transaction:
-    success: 'Operación registrada. Código de operación: *%{code}*.'
-    match_error: >
+    concept_error: El concepto no puede quedar en blanco.
+    factor_error: El factor no puede ser negativo.
+    save_error: No hay transacciones para guardar.
+    success: >
+      Operación _%{concept}_ registrada.
+      Podés anularla presionando /eliminar_%{code}.
+    already_amended_error: >
+      La operación _%{concept}_ (%{code}) ya estaba anulada.
+    amended: 'La operación _%{concept}_ (%{code}) fue anulada.'
+  payment:
+    argument_error: >
       No pude entender el argumento *%{chunk}*.
 
 
-      Recordá que los argumentos
-      deben estar formados como `[factor]apodo[cantidad]`. Tanto _factor_
-      como _cantidad_ son números y son opcionales. _factor_ no puede ser
-      negativo. Los argumentos se separan entre sí con espacios pero no puede
+      Recordá que un argumento se conforma como `[factor]apodo[cantidad]`.
+
+      Tanto _factor_ como _cantidad_ son números y son opcionales.
+      _factor_ no puede ser negativo.
+
+      Los argumentos se separan entre sí con espacios pero no puede
       haberlos dentro de un mismo argumento.
-    alias_error: >
-      No pude reconocer el apodo *%{alias}*.
+    unequal_payment_explanation: >
+      En _pago desigual_ además se pregunta por el *factor de
+      participación* de cada participante.
+
+      Por ejemplo se puede asignar un factor de 2 a alguien
+      que le corresponda pagar el doble que los a los demás.
+
+      En un pago común (o _igual_) todos los participantes implícitamente
+      tienen factor 1.
+    concept?: >
+      ¿Cuál es el concepto del pago? (Presioná /cancelar para no
+      registrar el pago).
+    participants?: '¿Quiénes participaron en %{concept}?'
+    contribution?: '¿Cuánto aportó %{name}?'
+    factor?: >
+      %{name} aportó $%{contribution}. ¿Cuál fue su factor de participación?
+    next_participant?_skip_factor: >
+      %{name} aportó $%{contribution}. ¿Alguien más?
+    next_participant?: >
+      %{name} tuvo un factor de %{factor}. ¿Alguien más?
+  loan:
+    concept?:
+      ¿Cuál es el concepto del préstamo? (Presioná /cancelar para no
+      registrar el préstamo.)
+    lender?: '¿Quién prestó para %{concept}?'
+    borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
+    borrower_lender_error: Quien recibe el préstamo no puede ser quien lo da.
+    contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
+  delete:
+    delete_payment?: '¿Anular la operación _%{concept}_ (%{code})?'
+    what?: ¿Qué te gustaría eliminar?
+    option_error: Opción no reconocida.
 
 
-      Para ver los apodos registrados
-      en este chat usá el comando /balance. Quizás quieras registrar un nuevo
-      /apodo.
-    repeated_alias_error: >
-      No pude registrar la operación. Al menos un apodo se encuentra repetido.
-    delete:
-      success: 'La operación *%{code}* fue eliminada.'
-      failure: >
-        La operación *%{code}* no se encuentra. Quizás nunca existió o haya
-        sido eliminada en otra ocasión.
+      render('¿Cuál es el código de la operación a anular? (Presioná ' \
+             '/cancelar para no anular.)',
+
   balance:
     item: '(*%{alias}*) %{user}: %<balance>.2f'
-    nothing: >
-      No hay usuarios activos en esta conversación. Mirá la /ayuda para saber
-      cómo crearlos.
-  help: >
-    *Registrar un pago*:
-
-    /pago concepto: argumento1 argumento2 ...
-
-
-    donde _argumento_ es de la
-    forma _[factor]apodo[contribución]_. Tanto _factor_ como _contribución_
-    son opcionales y de estar ausentes toman los valores por defecto 1 y 0
-    respectivamente.
-
-
-    Notar que el _concepto_ va separado de los _argumentos_
-    por dos puntos (:) y que los argumentos se separan entre sí mediante
-    espacios. Dentro de un argumento no pueden haber espacios.
+    no_users: >
+      No hay usuarios registrados en Dineros para esta conversación.
+      Para registrar usuarios presioná /inicio.
+  alias:
+    created: 'El usuario %{name} (%{alias}) ha sido creado.'
+    updated: 'El usuario %{name} (%{alias}) ha sido actualizado.'
+    name_too_long_error: >
+      El nombre es demasiado largo. Se aceptan hasta 16
+      caracteres.
+    virtual_created: 'El usuario virtual %{name} (%{alias}) ha sido creado.'
+  virtual_user:
+    name?: >
+      Un usuario virtual sirve para representar a una persona
+      que todavía no usa Telegram. Luego (cuando lo use) se lo
+      puede promover a usuario normal con el comando /usuario.
 
 
-    _factor_ significa la participación que un usuario tiene en una operación;
-    debe ser un número no negativo. Por lo general no hace falta usarlo.
+      ¿Cuál será el nombre del usuario virtual?
+      (Presioná /cancelar para no crearlo.)
+    name_error: >
+      Todo usuario necesita un nombre. Los nombres pueden
+      contener números y espacios pero deben empezar con una letra.
+
+  old:
+    alias:
+      good:  'Enhorabuena. El apodo de %{user} será *%{alias}*.'
+      taken: 'El apodo *%{alias}* ya está siendo usado por %{other_user}.'
+      existent: >
+        Ya tenés el apodo *%{alias}* en esta conversación. ¿Para qué otro más?
+      bad: >
+        %{user} no pude procesar tu mensaje. Asegurate que el comando sea de la
+        forma `/yo [apodo]` donde [apodo] consista en una palabra constituida
+        únicamente por letras (sin espacios, ni signos de puntuación,
+        ni números).
 
 
-    _contribución_ es la cantidad de dinero que el usuario aporta a la
-    operación; esta cantidad puede ser negativa, en ese caso en vez de
-    significar dinero que se gasta o sale, es dinero que se gana o entra.
+      user_error: >
+        No pude reconocer el apodo *%{alias}*.
 
 
-    Hay /ejemplos de uso a disposición.
+        Para ver los apodos registrados
+        en este chat usá el comando /balance. Quizás quieras registrar un nuevo
+        /apodo.
+      repeated_alias_error: >
+        No pude registrar la operación. Al menos un apodo se encuentra repetido.
+    user:
+      boring_start: >
+        En principio en Telegram un bot no puede contactar a (u obtener
+        información de) un usuario humano por más de que el bot sea uno
+        de los integrantes del grupo. La forma de revertir esto es que
+        el usuario se dirija al bot; también funciona si un usuario le
+        _menciona_ usuarios al bot (es como si se los presentase).
+      start: >
+        Menciona a los integrantes de este grupo a los que les abriré
+        una cuenta. No olvides incluirte a vos mismo. _Para mencionar a
+        alguien presiona @ y elígelo de la lista._
+    welcome: >
+      Yo te preguntaré por el concepto del mismo, entre quiénes se reparte
+      y cuánto aportó cada uno.
+    help: >
+      *Registrar un pago*:
+
+      /pago concepto: argumento1 argumento2 ...
 
 
-    *Eliminar un pago*:
-
-    /borrar código_de_operación
-
-
-    *Ver estado de las cuentas*:
-
-    /balance
+      donde _argumento_ es de la
+      forma _[factor]apodo[contribución]_. Tanto _factor_ como _contribución_
+      son opcionales y de estar ausentes toman los valores por defecto 1 y 0
+      respectivamente.
 
 
-    *Crear un usuario*:
-
-    /apodo apodo [nombre]
-
-
-    donde _nombre_ es opcional y
-    de estar presente indica la creación de un usuario _dummy_ (maniquí),
-    útil cuando se quiere representar a alguien que no forma parte de la
-    conversación. Un usuario maniquí puede ser reclamado más adelante por
-    un usuario real al utilizar su mismo apodo.
+      Notar que el _concepto_ va separado de los _argumentos_
+      por dos puntos (:) y que los argumentos se separan entre sí mediante
+      espacios. Dentro de un argumento no pueden haber espacios.
 
 
-    El _apodo_ puede tener una longitud máxima de 8 caracteres alfabéticos.
-    Lo recomendable es que conste de un único caracter para mayor comodidad.
-    Necesitarás un apodo por cada conversación en la que utilices a Dineros.
+      _factor_ significa la participación que un usuario tiene en una operación;
+      debe ser un número no negativo. Por lo general no hace falta usarlo.
 
 
-    _Por el momento los apodos no se pueden modificar ni eliminar._
-  examples: >
-    *Gasto equitativo*:
-
-    /pago agüita: a200 b100 c
+      _contribución_ es la cantidad de dinero que el usuario aporta a la
+      operación; esta cantidad puede ser negativa, en ese caso en vez de
+      significar dinero que se gasta o sale, es dinero que se gana o entra.
 
 
-    Gasto total de $300 donde *a* aporta $200,
-    *b* $100 y *c* $0 (implícito).
+      Hay /ejemplos de uso a disposición.
 
 
-    Este es el tipo de operación más común, en el que todos los usuarios que
-    figuran tienen una participación equitativa en el gasto. Todos tienen un
-    _factor_ implícito de 1. En el ejemplo de _gasto no equitativo_ se puede
-    observar mejor el efecto de los factores.
+      *Eliminar un pago*:
+
+      /borrar código_de_operación
 
 
-    *Gasto no equitativo*:
+      *Ver estado de las cuentas*:
 
-    /pago rolas: 3a600 2b c
-
-
-    Gasto total de $600 en el que *a* hace todo
-    el aporte.
+      /balance
 
 
-    En esta operación se compraron 6 rolas que no fueron consumidas en forma
-    equitativa: 3 se las quedó *a*, 2 *b* y 1 *c*, que es lo que se ve
-    reflejado en los factores. La suma de los factores es 6, lo cual
-    representa el 100% del gasto.
+      *Crear un usuario*:
+
+      /apodo apodo [nombre]
 
 
-    El factor de *a* es 3, la mitad de 6, por lo que *a* debe afrontar el
-    50% del gasto ($300).
+      donde _nombre_ es opcional y
+      de estar presente indica la creación de un usuario _dummy_ (maniquí),
+      útil cuando se quiere representar a alguien que no forma parte de la
+      conversación. Un usuario maniquí puede ser reclamado más adelante por
+      un usuario real al utilizar su mismo apodo.
 
 
-    El factor de *b* es 2, un tercio de 6, el 33,3% del
-    gasto ($200).
+      El _apodo_ puede tener una longitud máxima de 8 caracteres alfabéticos.
+      Lo recomendable es que conste de un único caracter para mayor comodidad.
+      Necesitarás un apodo por cada conversación en la que utilices a Dineros.
 
 
-    El factor de *c* es 1 (implícito), un sexto de 6, el 16,6%
-    del total ($100).
+      _Por el momento los apodos no se pueden modificar ni eliminar._
+    examples: >
+      *Gasto equitativo*:
+
+      /pago agüita: a200 b100 c
 
 
-    En resumen, *a* aportó $200 por *b* y $100 por *c*.
+      Gasto total de $300 donde *a* aporta $200,
+      *b* $100 y *c* $0 (implícito).
 
 
-    *Préstamo*:
-
-    /pago préstamo: 0a1000 b
-
-
-    *a* le entrega $1000 a *b*.
+      Este es el tipo de operación más común, en el que todos los usuarios que
+      figuran tienen una participación equitativa en el gasto. Todos tienen un
+      _factor_ implícito de 1. En el ejemplo de _gasto no equitativo_ se puede
+      observar mejor el efecto de los factores.
 
 
-    En este ejemplo el usuario *a* tiene un _factor_ 0, lo
-    cual significa que no participa del gasto, al mismo tiempo que realiza
-    una _contribución_ de $1000. A su vez el usuario *b* tiene una
-    participación implícita de 1 (que termina siendo del 100%) con un aporte
-    (también implícito) de $0.
+      *Gasto no equitativo*:
+
+      /pago rolas: 3a600 2b c
 
 
-    *Eliminar un pago*:
+      Gasto total de $600 en el que *a* hace todo
+      el aporte.
 
-    /borrar 666
+
+      En esta operación se compraron 6 rolas que no fueron consumidas en forma
+      equitativa: 3 se las quedó *a*, 2 *b* y 1 *c*, que es lo que se ve
+      reflejado en los factores. La suma de los factores es 6, lo cual
+      representa el 100% del gasto.
 
 
-    Elimina el pago registrado con el código de operación *666*.
-  unknown_command: >
-    Lo siento, no entendí la solicitud. ¿Quizás quieras consultar la /ayuda?
+      El factor de *a* es 3, la mitad de 6, por lo que *a* debe afrontar el
+      50% del gasto ($300).
+
+
+      El factor de *b* es 2, un tercio de 6, el 33,3% del
+      gasto ($200).
+
+
+      El factor de *c* es 1 (implícito), un sexto de 6, el 16,6%
+      del total ($100).
+
+
+      En resumen, *a* aportó $200 por *b* y $100 por *c*.
+
+
+      *Préstamo*:
+
+      /pago préstamo: 0a1000 b
+
+
+      *a* le entrega $1000 a *b*.
+
+
+      En este ejemplo el usuario *a* tiene un _factor_ 0, lo
+      cual significa que no participa del gasto, al mismo tiempo que realiza
+      una _contribución_ de $1000. A su vez el usuario *b* tiene una
+      participación implícita de 1 (que termina siendo del 100%) con un aporte
+      (también implícito) de $0.
+
+
+      *Eliminar un pago*:
+
+      /borrar 666
+
+
+      Elimina el pago registrado con el código de operación *666*.
