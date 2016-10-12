@@ -2,7 +2,7 @@ class Machine
   def loan_initial_state(msg)
     transaction_init(msg)
 
-    render(t[:loan][:concept?].
+    render(t[:loan][:concept?],
            keyboard: FORCE_KB,
            reply_to: msg)
 
@@ -10,16 +10,14 @@ class Machine
   end
 
   def loan_concept_state(msg)
-    transaction_concept(msg.text)
+    @loan = # chat_id, payment_id, date, concept
+      Payment.build(@chat_id, msg.message_id, date_helper(msg), msg.text)
 
-    user_names = Alias.where(chat_id: @chat_id).map { |a|
-      ['(' + a.alias + ')', a.first_name, a.last_name].join(' ')
-    }
+    @users_kb = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
+      keyboard: user_buttons(@chat_id),
+      one_time_keyboard: true, selective: true)
 
-    @users_kb = Telegram::Bot::Types::ReplyKeyboardMarkup
-      .new(keyboard: user_names, one_time_keyboard: true, selective: true)
-
-    render(t[:loan][:lender?] % {concept: @concept},
+    render(t[:loan][:lender?] % {concept: @loan.concept},
            keyboard: @users_kb,
            reply_to: msg)
 
@@ -27,8 +25,7 @@ class Machine
   end
 
   def loan_lender_state(msg)
-    @lender = find_user(alias_helper(msg))
-    transaction_user(@lender)
+    @lender = Alias.find_user(alias_helper(msg))
 
     render(t[:loan][:borrower?] % {lender_name: @lender.first_name},
            keyboard: @users_kb,
@@ -38,13 +35,9 @@ class Machine
   end
 
   def loan_borrower_state(msg)
-    @borrower = find_user(alias_helper(msg))
+    @borrower = Alias.find_user(alias_helper(msg))
 
-    if @borrower == @lender
-      raise BotError, t[:loan][:borrower_lender_error]
-    end
-
-    transaction_user(@lender)
+    raise BotError, t[:loan][:borrower_lender] if @borrower == @lender
 
     render(t[:loan][:contribution?] % {borrower_name: @borrower.first_name},
            keyboard: FORCE_KB,
@@ -54,11 +47,21 @@ class Machine
   end
 
   def loan_contribution_state(msg)
-    transaction_contribution(@lender, msg.text)
-    transaction_factor(@lender, 0)
-    transaction_save
+    @loan.contribution(@lender, msg.text)
+    @loan.factor(@lender, 0)
 
-    expert_payment_advice
+    @loan.contribution(@borrower)
+
+    @loan.save
+
+    render(t[:loan][:success] %
+           {concept: @loan.concept,
+            total:   @loan.total,
+            code:    @loan.payment_id},
+           keyboard: HIDE_KB)
+
+    render(t[:payment][:expert_payment_advice] %
+           {concept: @loan.concept, transactions: @loan})
 
     :final_state
   end

@@ -7,7 +7,7 @@ DB.create_table? :aliases do
 
   Bignum :chat_id, null: false
   Fixnum :user_id
-  String :alias, null: false
+  String :alias
 
   String :first_name, null: false
   String :last_name
@@ -18,20 +18,20 @@ DB.create_table? :aliases do
 end
 
 DB.create_table? :transactions do
-  foreign_key :alias_id, :aliases
+  foreign_key :alias_id, :aliases, on_delete: :cascade
 
-  Bignum  :chat_id, null: false
-  Fixnum  :payment_id, null: false
-  Date    :date, null: false
-  String  :concept, null: false
-  Boolean :correction, null: false
+  Bignum :chat_id,    null: false
+  Fixnum :payment_id, null: false
+  Fixnum :amended_payment_id
+  Date   :date,       null: false
+  String :concept,    null: false
   BigDecimal :contribution, size: [19, 4], null: false
   BigDecimal :factor, size: [19, 4], null: false
   BigDecimal :amount, size: [19, 4], null: false
 
-  unique [:alias_id, :payment_id]
-  index   :alias_id
   index  [:chat_id,  :payment_id]
+  #index  [:chat_id,  :amended_payment_id]
+  unique [:alias_id, :payment_id]
 end
 
 DB.create_table? :accounts do

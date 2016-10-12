@@ -1,22 +1,18 @@
 class Machine
   def delete_initial_state(msg)
-    @date = date_helper(msg)
-
-    msg.text.match /^eliminar(?:_|\s+)([[:digit:]]+)/
+    msg.text.match /^\/eliminar(?:_|\s+)([[:digit:]]+)/
 
     if Regexp.last_match
       code = Regexp.last_match[1]
-      @transactions = find_payment(code)
-
-      concept = @transactions.first.concept
+      @payment = Payment.find(@chat_id, code)
 
       confirmation_kb = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
-        keyboard: DIALOG_BUTTONS,
+        keyboard: [DIALOG_BUTTONS],
         one_time_keyboard: true,
         selective: true)
 
-      render(t[:delete][:delete_payment?] %
-               {concept: concept, code: payment_id},
+      render(t[:payment][:amend?] %
+             {concept: @payment.concept, code: @payment.payment_id},
              keyboard: confirmation_kb,
              reply_to: msg)
 
@@ -32,7 +28,11 @@ class Machine
 
   def delete_confirmation_status(msg)
     if msg.text.match /^\/confirmar/
-      transaction_amendment(@transactions)
+      amendment = @payment.amend(msg.message_id, date_helper(msg))
+
+      render(t[:payment][:amended] %
+             {concept: amendment.concept, code: amendment.payment_id})
+
       :final_state
     else
       raise BotError, t[:unknown_command]

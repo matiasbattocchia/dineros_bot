@@ -1,39 +1,38 @@
 require 'pry'
 require 'sequel'
 require 'telegram/bot'
+require 'telegram/bot/botan'
 require 'bigdecimal'
 require 'yaml'
 
+BOT_NAME    = 'dev_dineros_bot'
+BOT_TOKEN   = ENV['DINEROS_BOT_TOKEN']
+BOTAN_TOKEN = ENV['DINEROS_BOTAN_TOKEN']
+
+DB = Sequel.connect('postgres://localhost/dineros')
+
+module Kernel
+  @@text ||= YAML.load_file('i18n.yml')
+
+  def t(locale = 'es')
+    @@text[locale]
+  end
+end
+
 require_relative 'helpers'
 require_relative 'alias'
-require_relative 'transaction'
+require_relative 'payment'
 require_relative 'payment_states'
 require_relative 'loan_states'
 require_relative 'balance_states'
+require_relative 'user_states'
 require_relative 'delete_states'
-
-BOT_NAME = 'dineros_bot'
-
-DB = Sequel.connect('postgres://localhost/dineros')
 
 class BotError < StandardError
 end
 
-class Alias < Sequel::Model
-  unrestrict_primary_key
-end
-
-class Transaction < Sequel::Model
-  unrestrict_primary_key
-end
-
-class Account < Sequel::Model
-  unrestrict_primary_key
-end
-
 class Machine
   @@machines = {}
-  @@text ||= YAML.load_file('i18n.yml')
 
   DIALOG_BUTTONS = ['/cancelar', '/confirmar']
 
@@ -51,10 +50,6 @@ class Machine
     return m
   end
 
-  def t(locale = 'es')
-    @@text[locale]
-  end
-
   def initialize(bot, chat_id)
     @bot     = bot
     @chat_id = chat_id
@@ -66,7 +61,7 @@ class Machine
   end
 
   def render(text, keyboard: nil, reply_to: nil)
-    puts text
+    puts 'SENT:', text, '----'
 
     @bot.api.send_message(
       chat_id: @chat_id,
@@ -77,10 +72,15 @@ class Machine
   end
 
   def dispatch(msg)
+    puts 'RECEIVED:', msg.text, '----'
+
     if msg.text
       if msg.text.match /^\/cancelar/
         render(t[:canceled], keyboard: HIDE_KB)
         @state = :final_state
+      elsif @state != :initial_state &&
+        msg.text.match(/^\/(p|balance|usuarios|eliminar)/)
+        render(t[:ongoing_command] % {command: Regexp.last_match[1]})
       else
         begin
           # State methods must return the next state.
@@ -97,6 +97,7 @@ class Machine
         render(t[:welcome])
       else
         # The chat has a new member.
+        Alias.create_real_user(@chat_id, msg.new_chat_member)
         render(t[:hello] % {name: msg.new_chat_member.first_name})
       end
     elsif msg.left_chat_member
@@ -105,46 +106,36 @@ class Machine
         # x_x
       else
         # A member was kicked from the chat instead.
+        user = Alias[chat_id: chat_id, user_id: msg.left_chat_member.id]
+        user.to_virtual_user
         render(t[:bye] % {name: msg.left_chat_member.first_name})
       end
     else
-      binding.pry
+      #binding.pry
     end
   end
 
   def initial_state(msg)
     case msg.text
-    when /^\/inicio/   then start
     when /^\/p(ago)?/  then payment_initial_state(msg)
     when /^\/préstamo/ then loan_initial_state(msg)
     when /^\/balance/  then balance_initial_state(msg)
+    when /^\/usuarios/ then users_initial_state(msg)
     when /^\/eliminar/ then delete_initial_state(msg)
     else
       render(t[:unknown_command])
       :final_state
     end
-
-  def start(msg)
-    users = msg
-      .entities
-      .select{ |e| e.type =~ /mention/ }
-      .map(&:user)
-
-    if users.any?
-      @text = []
-
-      users.each do |user|
-        @text << create_or_update_alias(user)
-      end
-
-    @state = :final_state
   end
+
 end
 
-token = ENV['DINEROS_BOT_TOKEN']
+Telegram::Bot::Client.run(BOT_TOKEN) do |bot|
+  bot.enable_botan!(BOTAN_TOKEN)
+  puts 'Dineros is running.'
 
-Telegram::Bot::Client.run(token) do |bot|
   bot.listen do |message|
+    #bot.track(message.text, message.from.id)
     Machine.dispatch(bot, message)
   end
 end

@@ -1,33 +1,30 @@
 es:
-  unknown_command: Lo siento, no entendí la solicitud.
-  canceled: Operación cancelada.
-  welcome: >
+  :unknown_command: Lo siento, no entendí la solicitud.
+  :canceled: Operación cancelada.
+  :welcome: >
     Hola, yo soy *Dineros*. Llevo el registro de los gastos grupales.
     Usá el comando /pago para registrar un gasto compartido.
-  hello: 'Bienvenido, %{name}.'
-  bye: 'Te echaré de menos, %{name}.'
-  helper:
-    alias_error: >
+  :hello: 'Bienvenido, %{name}.'
+  :bye: 'Te echaré de menos, %{name}.'
+  :ongoing_command: >
+    No puedo ejecutar /%{command}, ya hay un comando en progreso. Si querés
+    abandonar el comando actual apretá /cancelar.
+  :helper:
+    :alias_error: >
       No pude reconocer el apodo. Esperaba algo así:
 
       `(apodo) nombre del usuario`.
-    transactions_not_found_error: 'No existe la operación con código %{code}.'
-    expert_payment_advice: >
-      El pago guardado también pudo haberse expresado así:
-    user_not_found_error: 'No existe el usuario con apodo _%{alias}_.'
-    no_aliases_left_error: Se acabaron los apodos para este grupo.
-  transaction:
-    concept_error: El concepto no puede quedar en blanco.
-    factor_error: El factor no puede ser negativo.
-    save_error: No hay transacciones para guardar.
-    success: >
-      Operación _%{concept}_ registrada.
-      Podés anularla presionando /eliminar_%{code}.
-    already_amended_error: >
-      La operación _%{concept}_ (%{code}) ya estaba anulada.
-    amended: 'La operación _%{concept}_ (%{code}) fue anulada.'
-  payment:
-    argument_error: >
+  :payment:
+    :not_found: 'No existe la operación con código %{code}.'
+    :empty_concept: El concepto no puede quedar en blanco.
+    :long_concept: El concepto puede tener hasta 32 caracteres de extensión.
+    :negative_factor: El factor no puede ser negativo.
+    :no_transactions: No hay transacciones para guardar.
+    :existent: >
+      La operación _%{concept}_ no se pudo guardar porque ya existe una
+      con código %{code}.
+    :already_amended: 'La operación _%{concept}_ (%{code}) ya estaba anulada.'
+    :argument_error: >
       No pude entender el argumento *%{chunk}*.
 
 
@@ -38,70 +35,116 @@ es:
 
       Los argumentos se separan entre sí con espacios pero no puede
       haberlos dentro de un mismo argumento.
-    unequal_payment_explanation: >
-      En _pago desigual_ además se pregunta por el *factor de
+
+    :unequal_payment: >
+      En un _pago desigual_ además se pregunta por el *factor de
       participación* de cada participante.
 
       Por ejemplo se puede asignar un factor de 2 a alguien
       que le corresponda pagar el doble que los a los demás.
 
-      En un pago común (o _igual_) todos los participantes implícitamente
+      En un _pago igual_ todos los participantes implícitamente
       tienen factor 1.
-    concept?: >
+
+    :concept?: >
       ¿Cuál es el concepto del pago? (Presioná /cancelar para no
       registrar el pago).
-    participants?: '¿Quiénes participaron en %{concept}?'
-    contribution?: '¿Cuánto aportó %{name}?'
-    factor?: >
-      %{name} aportó $%{contribution}. ¿Cuál fue su factor de participación?
-    next_participant?_skip_factor: >
-      %{name} aportó $%{contribution}. ¿Alguien más?
-    next_participant?: >
-      %{name} tuvo un factor de %{factor}. ¿Alguien más?
-  loan:
-    concept?:
+    :participants?: '¿Quiénes participaron en _%{concept}_?'
+    :contribution?: '¿Cuánto aportó %{name}?'
+    :factor?: >
+      %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
+    :next_participant_without_factor?: >
+      %{name} aportó *$%{contribution}*. ¿Alguien más?
+    :next_participant?: >
+      %{name} participó con un factor de *%{factor}*. ¿Alguien más?
+    :success: >
+      Operación _%{concept}_ registrada por un total de *$%<total>.2f*.
+      Podés anularla presionando
+
+      /eliminar\_%{code}.
+    :expert_payment_advice: >
+      El pago guardado también pudo haberse expresado en un sólo paso:
+
+
+      /pago %{concept}: %{transactions}
+    :amend?: '¿Anular la operación _%{concept}_ (%{code})?'
+    :amended: 'La operación _%{concept}_ fue anulada (%{code}).'
+  :loan:
+    :concept?: >
       ¿Cuál es el concepto del préstamo? (Presioná /cancelar para no
       registrar el préstamo.)
-    lender?: '¿Quién prestó para %{concept}?'
-    borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
-    borrower_lender_error: Quien recibe el préstamo no puede ser quien lo da.
-    contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
-  delete:
-    delete_payment?: '¿Anular la operación _%{concept}_ (%{code})?'
-    what?: ¿Qué te gustaría eliminar?
-    option_error: Opción no reconocida.
-
-
-      render('¿Cuál es el código de la operación a anular? (Presioná ' \
-             '/cancelar para no anular.)',
-
-  balance:
-    item: '(*%{alias}*) %{user}: %<balance>.2f'
-    no_users: >
-      No hay usuarios registrados en Dineros para esta conversación.
-      Para registrar usuarios presioná /inicio.
-  alias:
-    created: 'El usuario %{name} (%{alias}) ha sido creado.'
-    updated: 'El usuario %{name} (%{alias}) ha sido actualizado.'
-    name_too_long_error: >
+    :lender?: '¿Quién prestó para %{concept}?'
+    :borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
+    :borrower_lender_error: Quien recibe el préstamo no puede ser quien lo da.
+    :contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
+  :balance:
+    :item: '(*%{alias}*) %{name}: %<balance>.2f'
+    :no_users: >
+      No hay usuarios registrados en Dineros para este grupo.
+      Para registrar usuarios presioná /usuarios.
+  :alias:
+    :no_alias: Necesito el apodo del usuario para poder encontrarlo.
+    :not_found: 'No existe el usuario con apodo _%{alias}_.'
+    :long_name: >
       El nombre es demasiado largo. Se aceptan hasta 16
       caracteres.
-    virtual_created: 'El usuario virtual %{name} (%{alias}) ha sido creado.'
-  virtual_user:
-    name?: >
-      Un usuario virtual sirve para representar a una persona
-      que todavía no usa Telegram. Luego (cuando lo use) se lo
-      puede promover a usuario normal con el comando /usuario.
+    :existent: >
+      No puedo crear un usuario para _%{to_be_created}_ porque ya existe un
+      usuario en este grupo (_%{existent}_) con la misma ID de Telegram.
+    :already_real_user: >
+      _%{existent}_ ya es un usuario real, consecuentemente _%{to_be_created}_
+      no puede tomar el control de este usuario.
+    :already_virtual_user: _%{name}_ ya es un usuario virtual.
+    :already_inactive_user: _%{name}_ ya es un usuario inactivo.
+    :non_zero_balance: >
+      _%{name}_ no puede ser convertido en usuario inactivo ya que su balance
+      es de $%<balance>.2f. Sólo los usuarios con balance nulo pueden
+      ser desactivados (no se les debe dinero ni lo deben).
+    :no_aliases_left: >
+      No puedo crear un usuario para _%{name}_ porque la cantidad máxima
+      de usuarios activos para este grupo ha sido alcanzada (26 usuarios).
+      Por favor contacta a los desarrolladores de Dineros si es necesario
+      eludir esta restricción.
+  :user:
+    :option?: >
+      (*Opción 1*) Registra a un miembro de este grupo para que pueda usar
+      Dineros.
+
+      (*Opción 2*) Un *usuario virtual* sirve para representar a una persona
+      que todavía no usa Telegram.
+
+      (*Opción 3*) Un usuario virtual puede convertirse en usuario real
+      manteniendo los pagos registrados a su nombre.
+
+      (*Opción 4*) Eliminar a un usuario. Como condición debe tener balance en
+      cero (no debe ser deudor ni acreedor). Esta acción no se puede deshacer.
+
+  :real_user:
+    :explanation: >
+      Menciona a los miembros del grupo. Las menciones comienzan con @,
+      escríbela y selecciona al usuario de la lista. Puedes mencionarlos
+      a todos en el mismo mensaje.
+    :created: 'El usuario %{name} (%{alias}) ha sido creado.'
+  :virtual_user:
+    :name?: >
 
 
       ¿Cuál será el nombre del usuario virtual?
       (Presioná /cancelar para no crearlo.)
-    name_error: >
+    :name_error: >
       Todo usuario necesita un nombre. Los nombres pueden
       contener números y espacios pero deben empezar con una letra.
+  :delete:
+    :what?: ¿Qué te gustaría eliminar?
+    :option_error: Opción no reconocida.
+    :nada: >
+      ¿Cuál es el código de la operación a anular? (Presioná
+      /cancelar para no anular.)
+
 
   old:
     alias:
+      updated: 'El usuario %{name} (%{alias}) ha sido actualizado.'
       good:  'Enhorabuena. El apodo de %{user} será *%{alias}*.'
       taken: 'El apodo *%{alias}* ya está siendo usado por %{other_user}.'
       existent: >
@@ -111,8 +154,6 @@ es:
         forma `/yo [apodo]` donde [apodo] consista en una palabra constituida
         únicamente por letras (sin espacios, ni signos de puntuación,
         ni números).
-
-
       user_error: >
         No pude reconocer el apodo *%{alias}*.
 
