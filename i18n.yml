@@ -1,19 +1,35 @@
 es:
   :unknown_command: Lo siento, no entendí la solicitud.
-  :canceled: Operación cancelada.
-  :welcome: >
-    Hola, yo soy *Dineros*. Llevo el registro de los gastos grupales.
-    Usá el comando /pago para registrar un gasto compartido.
-  :hello: 'Bienvenido, %{name}.'
-  :bye: 'Te echaré de menos, %{name}.'
   :ongoing_command: >
-    No puedo ejecutar /%{command}, ya hay un comando en progreso. Si querés
-    abandonar el comando actual apretá /cancelar.
+    No puedo ejecutar %{command} porque hay otro comando en progreso.
+  :canceled: Operación cancelada.
+
+  :welcome: >
+    Hola, soy *Dineros*. Llevo el registro de los gastos grupales.
+
+
+    _Para llevar un historial de gastos prolijo recomiendo usarme en
+    un grupo destinado exclusivamente a tal fin._ Me refiero a separar
+    la contabilidad de la conversación diaria mediante un grupo paralelo.
+
+
+    Si el grupo está preparado para comenzar, procedé a inscribir a los
+    miembros en Dineros. Para ello presioná el siguiente enlace: /usuarios.
+  :hello: >
+    Bienvenido, %{name}. Recuerda crearte un usuario
+    usando el comando /usuarios.
+  :bye: >
+    El usuario (*%{alias}*) %{name} fue convertido en usuario virtual
+    por haber dejado el grupo.
+
   :helper:
     :alias_error: >
-      No pude reconocer el apodo. Esperaba algo así:
+      No pude reconocer al usuario. Esperaba algo así:
 
-      `(apodo) nombre del usuario`.
+
+      `apodo) nombre del usuario`
+    :virtual: virtual
+
   :payment:
     :not_found: 'No existe la operación con código %{code}.'
     :empty_concept: El concepto no puede quedar en blanco.
@@ -22,16 +38,23 @@ es:
     :no_transactions: No hay transacciones para guardar.
     :existent: >
       La operación _%{concept}_ no se pudo guardar porque ya existe una
-      con código %{code}.
-    :already_amended: 'La operación _%{concept}_ (%{code}) ya estaba anulada.'
+      con el mismo código (%{code}).
+    :single_transaction: >
+      No tiene sentido guardar un pago en el que participó una sola persona.
+    :already_amended: >
+      La operación _%{concept}_ (%{code}) ya estaba anulada.
+
+  #### Payment states ####
     :argument_error: >
       No pude entender el argumento *%{chunk}*.
 
 
       Recordá que un argumento se conforma como `[factor]apodo[cantidad]`.
 
+
       Tanto _factor_ como _cantidad_ son números y son opcionales.
       _factor_ no puede ser negativo.
+
 
       Los argumentos se separan entre sí con espacios pero no puede
       haberlos dentro de un mismo argumento.
@@ -46,10 +69,21 @@ es:
       En un _pago igual_ todos los participantes implícitamente
       tienen factor 1.
 
-    :concept?: >
-      ¿Cuál es el concepto del pago? (Presioná /cancelar para no
-      registrar el pago).
-    :participants?: '¿Quiénes participaron en _%{concept}_?'
+      Alguien con factor 0 significa que aportó pero que no corresponde
+      hacerlo partícipe del gasto.
+
+    :concept?: ¿Cuál es el concepto del pago?
+    :participants?: >
+      Si todos los miembros del grupo participaron y hubo un único pagador,
+      podés guardar el pago nombrando a esa sola persona; yo me encargaré de
+      añadir al resto.
+
+
+      Podés volver a elegir a un participante para corregir su aporte, su
+      última entrada es la que vale.
+
+
+      ¿Quiénes participaron en _%{concept}_?
     :contribution?: '¿Cuánto aportó %{name}?'
     :factor?: >
       %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
@@ -58,82 +92,124 @@ es:
     :next_participant?: >
       %{name} participó con un factor de *%{factor}*. ¿Alguien más?
     :success: >
-      Operación _%{concept}_ registrada por un total de *$%<total>.2f*.
-      Podés anularla presionando
+      Operación _%{concept}_ registrada por un total de *$%{total}*.
 
-      /eliminar\_%{code}.
+      Podés anularla presionando /eliminar\_%{code}.
     :expert_payment_advice: >
-      El pago guardado también pudo haberse expresado en un sólo paso:
+      *Consejo*: El pago guardado también pudo haberse expresado en
+      un sólo paso usando la forma abreviada.
 
 
       /pago %{concept}: %{transactions}
     :amend?: '¿Anular la operación _%{concept}_ (%{code})?'
     :amended: 'La operación _%{concept}_ fue anulada (%{code}).'
+
   :loan:
-    :concept?: >
-      ¿Cuál es el concepto del préstamo? (Presioná /cancelar para no
-      registrar el préstamo.)
-    :lender?: '¿Quién prestó para %{concept}?'
+    :concept?: ¿Cuál es el concepto del préstamo?
+    :lender?: '¿Quién prestó para _%{concept}_?'
     :borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
     :borrower_lender_error: Quien recibe el préstamo no puede ser quien lo da.
     :contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
+
   :balance:
-    :item: '(*%{alias}*) %{name}: %<balance>.2f'
+    :item: '(*%{alias}*) %{name}: %{balance}'
     :no_users: >
-      No hay usuarios registrados en Dineros para este grupo.
-      Para registrar usuarios presioná /usuarios.
+      No hay gastos registrados en Dineros para este grupo.
+    :legend: >
+      _Saldo positivo significa acreedor; saldo negativo, deudor._
+
   :alias:
     :no_alias: Necesito el apodo del usuario para poder encontrarlo.
-    :not_found: 'No existe el usuario con apodo _%{alias}_.'
+    :not_found: 'No existe el usuario con el apodo _%{alias}_.'
     :long_name: >
       El nombre es demasiado largo. Se aceptan hasta 16
       caracteres.
-    :existent: >
-      No puedo crear un usuario para _%{to_be_created}_ porque ya existe un
-      usuario en este grupo (_%{existent}_) con la misma ID de Telegram.
     :already_real_user: >
       _%{existent}_ ya es un usuario real, consecuentemente _%{to_be_created}_
       no puede tomar el control de este usuario.
     :already_virtual_user: _%{name}_ ya es un usuario virtual.
     :already_inactive_user: _%{name}_ ya es un usuario inactivo.
     :non_zero_balance: >
-      _%{name}_ no puede ser convertido en usuario inactivo ya que su balance
-      es de $%<balance>.2f. Sólo los usuarios con balance nulo pueden
+      _%{name}_ no puede ser eliminado ya que su balance
+      es de *$%{balance}*. Sólo los usuarios con balance nulo pueden
       ser desactivados (no se les debe dinero ni lo deben).
     :no_aliases_left: >
       No puedo crear un usuario para _%{name}_ porque la cantidad máxima
       de usuarios activos para este grupo ha sido alcanzada (26 usuarios).
       Por favor contacta a los desarrolladores de Dineros si es necesario
       eludir esta restricción.
+
   :user:
     :option?: >
       (*Opción 1*) Registra a un miembro de este grupo para que pueda usar
       Dineros.
 
+
       (*Opción 2*) Un *usuario virtual* sirve para representar a una persona
       que todavía no usa Telegram.
+
 
       (*Opción 3*) Un usuario virtual puede convertirse en usuario real
       manteniendo los pagos registrados a su nombre.
 
-      (*Opción 4*) Eliminar a un usuario. Como condición debe tener balance en
-      cero (no debe ser deudor ni acreedor). Esta acción no se puede deshacer.
+
+      (*Opción 4*) Eliminar a un usuario. Como condición debe tener
+      *balance en cero* (no debe ser deudor ni acreedor). Esta acción no
+      se puede deshacer.
+    :no_users: >
+      No hay usuarios registrados en Dineros para este grupo.
+    :deletable_item: >
+      (*%{alias}*) %{name} /eliminar\_%{alias}
+    :undeletable_item: >
+      (*%{alias}*) %{name}: %{balance}
+    :delete_legend: >
+      _Presioná el enlace correspondiente para eliminar al usuario_.
+
+
+      Los usuarios sin enlace no tienen su balance en cero; arreglá
+      sus cuentas para poder eliminarlos.
+    :deactivate?: '¿Eliminar al usuario %{name}?'
+    :deactivated: El usuario fue eliminado.
 
   :real_user:
-    :explanation: >
-      Menciona a los miembros del grupo. Las menciones comienzan con @,
-      escríbela y selecciona al usuario de la lista. Puedes mencionarlos
-      a todos en el mismo mensaje.
-    :created: 'El usuario %{name} (%{alias}) ha sido creado.'
+    :mentions?: >
+      Mencioná a los miembros del grupo. Las menciones comienzan el caracter
+      @, por ejemplo @dineros\_bot; escríbela y selecciona al usuario de la
+      lista que se desplegará. Podés mencionarlos a todos en el mismo mensaje.
+
+
+      _Verás que no te podés mencionar a vos mismo. No importa, escribí
+      simplemente una @ sin ninguna añadidura y sabré que se trata de vos._
+    :no_mentions: No has mencionado a nadie. Usá el poder de la arroba.
+    :existent: >
+      No creé un usuario para %{mention} porque ya existe en este grupo
+      con el nombre de _%{existent}_.
+    :created: >
+      El usuario (*%{alias}*) %{name} ha sido creado para %{mention}.
+    :no_telegram_user: >
+      La mención %{mention} no corresponde a ninguno de los usuarios
+      de este grupo. Agrega al usuario al grupo previo a registrarlo
+      en Dineros.
+
   :virtual_user:
-    :name?: >
-
-
-      ¿Cuál será el nombre del usuario virtual?
-      (Presioná /cancelar para no crearlo.)
-    :name_error: >
+    :name?: ¿Cuál será el nombre del usuario virtual?
+    :no_name: >
       Todo usuario necesita un nombre. Los nombres pueden
       contener números y espacios pero deben empezar con una letra.
+    :created: >
+      El usuario (*%{alias}*) %{name} ha sido creado.
+
+  :virtual_to_real_user:
+    :virtual_user?: >
+      Elegí al usuario virtual que pasará a ser controlado por un
+      usuario real.
+    :mention?: >
+      Mencioná al miembro del grupo que pasará a tener control de %{name}.
+      Las menciones comienzan el caracter @, por ejemplo @dineros\_bot;
+      escríbela y selecciona al usuario de la lista que se desplegará.
+    :success: >
+      El usuario (*%{alias}*) %{name} ahora pertenece a %{mention}.
+
   :delete:
     :what?: ¿Qué te gustaría eliminar?
     :option_error: Opción no reconocida.
@@ -142,162 +218,3 @@ es:
       /cancelar para no anular.)
 
 
-  old:
-    alias:
-      updated: 'El usuario %{name} (%{alias}) ha sido actualizado.'
-      good:  'Enhorabuena. El apodo de %{user} será *%{alias}*.'
-      taken: 'El apodo *%{alias}* ya está siendo usado por %{other_user}.'
-      existent: >
-        Ya tenés el apodo *%{alias}* en esta conversación. ¿Para qué otro más?
-      bad: >
-        %{user} no pude procesar tu mensaje. Asegurate que el comando sea de la
-        forma `/yo [apodo]` donde [apodo] consista en una palabra constituida
-        únicamente por letras (sin espacios, ni signos de puntuación,
-        ni números).
-      user_error: >
-        No pude reconocer el apodo *%{alias}*.
-
-
-        Para ver los apodos registrados
-        en este chat usá el comando /balance. Quizás quieras registrar un nuevo
-        /apodo.
-      repeated_alias_error: >
-        No pude registrar la operación. Al menos un apodo se encuentra repetido.
-    user:
-      boring_start: >
-        En principio en Telegram un bot no puede contactar a (u obtener
-        información de) un usuario humano por más de que el bot sea uno
-        de los integrantes del grupo. La forma de revertir esto es que
-        el usuario se dirija al bot; también funciona si un usuario le
-        _menciona_ usuarios al bot (es como si se los presentase).
-      start: >
-        Menciona a los integrantes de este grupo a los que les abriré
-        una cuenta. No olvides incluirte a vos mismo. _Para mencionar a
-        alguien presiona @ y elígelo de la lista._
-    welcome: >
-      Yo te preguntaré por el concepto del mismo, entre quiénes se reparte
-      y cuánto aportó cada uno.
-    help: >
-      *Registrar un pago*:
-
-      /pago concepto: argumento1 argumento2 ...
-
-
-      donde _argumento_ es de la
-      forma _[factor]apodo[contribución]_. Tanto _factor_ como _contribución_
-      son opcionales y de estar ausentes toman los valores por defecto 1 y 0
-      respectivamente.
-
-
-      Notar que el _concepto_ va separado de los _argumentos_
-      por dos puntos (:) y que los argumentos se separan entre sí mediante
-      espacios. Dentro de un argumento no pueden haber espacios.
-
-
-      _factor_ significa la participación que un usuario tiene en una operación;
-      debe ser un número no negativo. Por lo general no hace falta usarlo.
-
-
-      _contribución_ es la cantidad de dinero que el usuario aporta a la
-      operación; esta cantidad puede ser negativa, en ese caso en vez de
-      significar dinero que se gasta o sale, es dinero que se gana o entra.
-
-
-      Hay /ejemplos de uso a disposición.
-
-
-      *Eliminar un pago*:
-
-      /borrar código_de_operación
-
-
-      *Ver estado de las cuentas*:
-
-      /balance
-
-
-      *Crear un usuario*:
-
-      /apodo apodo [nombre]
-
-
-      donde _nombre_ es opcional y
-      de estar presente indica la creación de un usuario _dummy_ (maniquí),
-      útil cuando se quiere representar a alguien que no forma parte de la
-      conversación. Un usuario maniquí puede ser reclamado más adelante por
-      un usuario real al utilizar su mismo apodo.
-
-
-      El _apodo_ puede tener una longitud máxima de 8 caracteres alfabéticos.
-      Lo recomendable es que conste de un único caracter para mayor comodidad.
-      Necesitarás un apodo por cada conversación en la que utilices a Dineros.
-
-
-      _Por el momento los apodos no se pueden modificar ni eliminar._
-    examples: >
-      *Gasto equitativo*:
-
-      /pago agüita: a200 b100 c
-
-
-      Gasto total de $300 donde *a* aporta $200,
-      *b* $100 y *c* $0 (implícito).
-
-
-      Este es el tipo de operación más común, en el que todos los usuarios que
-      figuran tienen una participación equitativa en el gasto. Todos tienen un
-      _factor_ implícito de 1. En el ejemplo de _gasto no equitativo_ se puede
-      observar mejor el efecto de los factores.
-
-
-      *Gasto no equitativo*:
-
-      /pago rolas: 3a600 2b c
-
-
-      Gasto total de $600 en el que *a* hace todo
-      el aporte.
-
-
-      En esta operación se compraron 6 rolas que no fueron consumidas en forma
-      equitativa: 3 se las quedó *a*, 2 *b* y 1 *c*, que es lo que se ve
-      reflejado en los factores. La suma de los factores es 6, lo cual
-      representa el 100% del gasto.
-
-
-      El factor de *a* es 3, la mitad de 6, por lo que *a* debe afrontar el
-      50% del gasto ($300).
-
-
-      El factor de *b* es 2, un tercio de 6, el 33,3% del
-      gasto ($200).
-
-
-      El factor de *c* es 1 (implícito), un sexto de 6, el 16,6%
-      del total ($100).
-
-
-      En resumen, *a* aportó $200 por *b* y $100 por *c*.
-
-
-      *Préstamo*:
-
-      /pago préstamo: 0a1000 b
-
-
-      *a* le entrega $1000 a *b*.
-
-
-      En este ejemplo el usuario *a* tiene un _factor_ 0, lo
-      cual significa que no participa del gasto, al mismo tiempo que realiza
-      una _contribución_ de $1000. A su vez el usuario *b* tiene una
-      participación implícita de 1 (que termina siendo del 100%) con un aporte
-      (también implícito) de $0.
-
-
-      *Eliminar un pago*:
-
-      /borrar 666
-
-
-      Elimina el pago registrado con el código de operación *666*.

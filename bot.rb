@@ -5,23 +5,20 @@ require 'telegram/bot/botan'
 require 'bigdecimal'
 require 'yaml'
 
-BOT_NAME    = 'dev_dineros_bot'
+BOT_NAME    = ENV['DINEROS_BOT_NAME']
 BOT_TOKEN   = ENV['DINEROS_BOT_TOKEN']
 BOTAN_TOKEN = ENV['DINEROS_BOTAN_TOKEN']
 
 DB = Sequel.connect('postgres://localhost/dineros')
 
-module Kernel
-  @@text ||= YAML.load_file('i18n.yml')
-
-  def t(locale = 'es')
-    @@text[locale]
-  end
-end
-
+# Aux
 require_relative 'helpers'
+
+# Models
 require_relative 'alias'
 require_relative 'payment'
+
+# States
 require_relative 'payment_states'
 require_relative 'loan_states'
 require_relative 'balance_states'
@@ -34,7 +31,8 @@ end
 class Machine
   @@machines = {}
 
-  DIALOG_BUTTONS = ['/cancelar', '/confirmar']
+  CREATE_DIALOG_BUTTONS = ['Cancelar', 'Guardar']
+  DELETE_DIALOG_BUTTONS = ['Cancelar', 'Eliminar']
 
   HIDE_KB = Telegram::Bot::Types::ReplyKeyboardHide
     .new(hide_keyboard: true)
@@ -60,12 +58,13 @@ class Machine
     @state == :final_state
   end
 
-  def render(text, keyboard: nil, reply_to: nil)
+  def render(text, keyboard: HIDE_KB)
+  #def render(text, keyboard: nil, reply_to: nil)
     puts 'SENT:', text, '----'
 
     @bot.api.send_message(
       chat_id: @chat_id,
-      reply_to_message_id: reply_to&.message_id,
+      #reply_to_message_id: reply_to&.message_id,
       text: text,
       parse_mode: 'Markdown',
       reply_markup: keyboard)
@@ -75,12 +74,14 @@ class Machine
     puts 'RECEIVED:', msg.text, '----'
 
     if msg.text
-      if msg.text.match /^\/cancelar/
+      if msg.text.match(/^\/?cancelar/i)
         render(t[:canceled], keyboard: HIDE_KB)
         @state = :final_state
-      elsif @state != :initial_state &&
-        msg.text.match(/^\/(p|balance|usuarios|eliminar)/)
-        render(t[:ongoing_command] % {command: Regexp.last_match[1]})
+
+      elsif @state != :initial_state && msg.text
+        .match(/^\/[[:alnum:]]+/)
+
+        render(t[:ongoing_command] % {command: Regexp.last_match[0]})
       else
         begin
           # State methods must return the next state.
@@ -97,37 +98,43 @@ class Machine
         render(t[:welcome])
       else
         # The chat has a new member.
-        Alias.create_real_user(@chat_id, msg.new_chat_member)
+        #Alias.create_real_user(@chat_id, msg.new_chat_member)
         render(t[:hello] % {name: msg.new_chat_member.first_name})
       end
     elsif msg.left_chat_member
       if msg.left_chat_member.username == BOT_NAME
         # Dineros was kicked from the chat.
         # x_x
+        Alias.obliterate(@chat_id)
       else
         # A member was kicked from the chat instead.
-        user = Alias[chat_id: chat_id, user_id: msg.left_chat_member.id]
-        user.to_virtual_user
-        render(t[:bye] % {name: msg.left_chat_member.first_name})
+        if user = Alias[chat_id: @chat_id, user_id: msg.left_chat_member.id]
+          user.to_virtual_user
+          render(t[:bye] %
+            {name: name_helper(user.first_name, user.last_name, true),
+             alias: user.alias})
+        end
       end
     else
-      #binding.pry
+      puts 'Weird event.', msg, '----'
     end
   end
 
   def initial_state(msg)
     case msg.text
-    when /^\/p(ago)?/  then payment_initial_state(msg)
-    when /^\/préstamo/ then loan_initial_state(msg)
+    when /^\/prestamo/ then loan_initial_state(msg)
+    when /^\/p/        then payment_initial_state(msg)
     when /^\/balance/  then balance_initial_state(msg)
     when /^\/usuarios/ then users_initial_state(msg)
     when /^\/eliminar/ then delete_initial_state(msg)
     else
-      render(t[:unknown_command])
-      :final_state
+      # If an instance of Machine do not reach a final state it will not
+      # be garbage collected. On the other hand in an active conversation
+      # frequent messages will instantiate often...
+      #:final_state
+      @state
     end
   end
-
 end
 
 Telegram::Bot::Client.run(BOT_TOKEN) do |bot|

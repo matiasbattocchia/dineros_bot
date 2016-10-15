@@ -1,64 +1,59 @@
 class Machine
   def delete_initial_state(msg)
-    msg.text.match /^\/eliminar(?:_|\s+)([[:digit:]]+)/
-
-    if Regexp.last_match
+    case msg.text
+    when /^\/eliminar(?:_|\s+)([[:digit:]]+)/
       code = Regexp.last_match[1]
-      @payment = Payment.find(@chat_id, code)
 
-      confirmation_kb = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
-        keyboard: [DIALOG_BUTTONS],
-        one_time_keyboard: true,
-        selective: true)
+      @payment = Payment.find(@chat_id, code)
 
       render(t[:payment][:amend?] %
              {concept: @payment.concept, code: @payment.payment_id},
-             keyboard: confirmation_kb,
-             reply_to: msg)
+             keyboard: one_time_keyboard([DELETE_DIALOG_BUTTONS]))
 
-      :delete_confirmation_status
-    else
-      render(t[:delete][:what?],
-             #keyboard: DELETEABLES,
-             reply_to: msg)
+      :delete_payment_confirmation_status
+    when /^\/eliminar(?:_|\s+)([[:alpha:]]+)/
+      _alias = Regexp.last_match[1]
 
-      :delete_option_state
-    end
-  end
+      @user = Alias.find_user(@chat_id, _alias)
 
-  def delete_confirmation_status(msg)
-    if msg.text.match /^\/confirmar/
-      amendment = @payment.amend(msg.message_id, date_helper(msg))
+      render(t[:user][:deactivate?] % {name: @user.full_name},
+             keyboard: one_time_keyboard([DELETE_DIALOG_BUTTONS]))
 
-      render(t[:payment][:amended] %
-             {concept: amendment.concept, code: amendment.payment_id})
-
-      :final_state
+      :delete_user_confirmation_status
     else
       raise BotError, t[:unknown_command]
     end
   end
 
-  def delete_option_state(msg)
-    case msg.text
-    when /usuario/i
+  def delete_payment_confirmation_status(msg)
+    raise BotError, t[:unknown_command] unless msg.text.match(/^eliminar/i)
 
-      :delete_user_state
-    when /todo/i
+    amendment = @payment.amend(msg.message_id, date_helper(msg))
 
-      :delete_everything_state
-    else
-      raise BotError, t[:delete][:option_error]
-    end
-  end
-
-  def delete_code_state(msg)
-    if msg.text !~ /^[[:digit:]]+$/
-      raise BotError, 'El código de la operación tiene que ser un número.'
-    end
-
-    payment_correction(msg.text)
+    render(t[:payment][:amended] %
+           {concept: amendment.concept, code: amendment.payment_id})
 
     :final_state
   end
+
+  def delete_user_confirmation_status(msg)
+    raise BotError, t[:unknown_command] unless msg.text.match(/^eliminar/i)
+
+    @user.deactivate
+
+    render(t[:user][:deactivated])
+
+    :final_state
+  end
+
+  #def delete_everything_confirmation_status(msg)
+    #raise BotError, t[:unknown_command] if msg.text.match(/^eliminar/i)
+
+    #Alias.obliterate(@chat_id)
+
+    #render(t[:payment][:amended] %
+           #{concept: amendment.concept, code: amendment.payment_id})
+
+    #:final_state
+  #end
 end

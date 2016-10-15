@@ -1,5 +1,12 @@
 class Transaction < Sequel::Model
   many_to_one :alias
+
+  def self.balance(chat_id)
+    right_join(Alias.active_users(chat_id), :id=>:alias_id)
+      .select_group(:user_id, :alias, :first_name, :last_name)
+      .select_append{sum(:amount).as(:balance)}.order(:first_name)
+      .map(&:values)
+  end
 end
 
 class Payment
@@ -66,6 +73,7 @@ class Payment
       factor = factor.empty? ? 1 : factor.sub(',','.')
     end
 
+    factor = BigDecimal(factor)
     t = @transactions[user]
 
     raise BotError, t[:payment][:negative_factor] if factor.negative?
@@ -88,6 +96,18 @@ class Payment
     if Transaction[chat_id: @chat_id, payment_id: @payment_id]
       raise BotError,
         t[:payment][:existent] % {concept: @concept, code: @payment_id}
+    end
+
+    if @transactions.size == 1
+      transaction_user = @transactions.values.first.alias
+
+      Alias.active_users(@chat_id)
+        .exclude(alias: transaction_user.alias)
+        .each{ |user| contribution(user) }
+    end
+
+    if @transactions.size == 1
+      raise BotError, t[:payment][:single_transaction]
     end
 
     average_contribution = total_contribution / total_factor
@@ -134,14 +154,12 @@ class Payment
 
   def to_s
     @transactions.map do |u, t|
-      ("%g" % ("%.2f" % t.factor))
-      .sub('.',',')
+      money_helper(t.factor)
       .sub(/^1*$/,'') +
 
       u.alias +
 
-      ("%g" % ("%.2f" % t.contribution))
-      .sub('.',',')
+      money_helper(t.contribution)
       .sub(/^0*$/,'')
     end.join(' ')
   end

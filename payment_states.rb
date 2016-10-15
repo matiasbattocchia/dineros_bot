@@ -43,7 +43,7 @@ class Machine
 
       render(t[:payment][:success] %
              {concept: payment.concept,
-              total:   payment.total,
+              total:   money_helper(payment.total),
               code:    payment.payment_id})
 
       :final_state
@@ -52,9 +52,7 @@ class Machine
         render(t[:payment][:unequal_payment])
       end
 
-      render(t[:payment][:concept?],
-             keyboard: FORCE_KB,
-             reply_to: msg)
+      render(t[:payment][:concept?])
 
       :payment_concept_state
     end
@@ -64,26 +62,25 @@ class Machine
     @payment = # chat_id, payment_id, date, concept
       Payment.build(@chat_id, msg.message_id, date_helper(msg), msg.text)
 
-    @users_kb = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
-      keyboard: user_buttons(@chat_id).unshift(DIALOG_BUTTONS),
-      one_time_keyboard: true, selective: true)
+    @users_kb = one_time_keyboard(
+      user_buttons(Alias.active_users(@chat_id))
+      .unshift(CREATE_DIALOG_BUTTONS)
+    )
 
     render(t[:payment][:participants?] % {concept: @payment.concept},
-           keyboard: @users_kb,
-           reply_to: msg)
+           keyboard: @users_kb)
 
     :payment_user_state
   end
 
   def payment_user_state(msg)
-    if msg.text.match /^\/confirmar/
+    if msg.text.match /^guardar/i
       @payment.save
 
       render(t[:payment][:success] %
              {concept: @payment.concept,
-              total:   @payment.total,
-              code:    @payment.payment_id},
-             keyboard: HIDE_KB)
+              total:   money_helper(@payment.total),
+              code:    @payment.payment_id})
 
       render(t[:payment][:expert_payment_advice] %
              {concept: @payment.concept, transactions: @payment})
@@ -93,29 +90,25 @@ class Machine
       @user = Alias.find_user(@chat_id, alias_helper(msg))
 
       render(t[:payment][:contribution?] % {name: @user.first_name},
-             keyboard: FORCE_KB,
-             reply_to: msg)
+             keyboard: one_time_keyboard(['Nada']))
 
       :payment_contribution_state
     end
   end
 
   def payment_contribution_state(msg)
-    c = @payment.contribution(@user, msg.text)
-    c = ("%g" % ("%.2f" % c)).sub('.',',')
+    c = money_helper(@payment.contribution(@user, msg.text))
 
     if @unequal_split
       render(t[:payment][:factor?] %
              {name: @user.first_name, contribution: c},
-             keyboard: FORCE_KB,
-             reply_to: msg)
+             keyboard: one_time_keyboard([['0', '1', '2', '3']]))
 
       :payment_factor_state
     else
       render(t[:payment][:next_participant_without_factor?] %
              {name: @user.first_name, contribution: c},
-             keyboard: @users_kb,
-             reply_to: msg)
+             keyboard: @users_kb)
 
       :payment_user_state
     end
@@ -123,13 +116,11 @@ class Machine
 
   def payment_factor_state(msg)
     f = @payment.factor(@user, msg.text)
-    f = ("%g" % f).sub('.',',')
 
     render(t[:payment][:next_participant?] %
-           {name: @user.first_name, factor: f},
-           keyboard: @users_kb,
-           reply_to: msg)
-
+           {name: @user.first_name, factor: money_helper(f)}, # It's not money
+           keyboard: @users_kb)                               # but works as
+                                                              # desired.
     :payment_user_state
   end
 end

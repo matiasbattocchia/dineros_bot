@@ -19,7 +19,17 @@ class Alias < Sequel::Model
   end
 
   def self.active_users(chat_id)
-    where(chat_id: chat_id).exclude(alias: nil)
+    where(chat_id: chat_id).exclude(alias: nil).order(:first_name, :last_name)
+  end
+
+  def self.real_users(chat_id)
+    where(chat_id: chat_id).exclude(user_id: nil, alias: nil)
+      .order(:first_name, :last_name)
+  end
+
+  def self.virtual_users(chat_id)
+    where(chat_id: chat_id, user_id: nil).exclude(alias: nil)
+      .order(:first_name, :last_name)
   end
 
   def self.create_virtual_user(chat_id, name)
@@ -34,11 +44,6 @@ class Alias < Sequel::Model
   end
 
   def self.create_real_user(chat_id, telegram_user)
-    if user = first(chat_id: chat_id, user_id: telegram_user.id)
-      raise BotError, t[:alias][:existent] %
-        {existent: user.first_name, to_be_created: telegram_user.first_name}
-    end
-
     _alias = choose_alias(
       chat_id,
       telegram_user.first_name,
@@ -54,7 +59,7 @@ class Alias < Sequel::Model
       username:   telegram_user.username)
   end
 
-  def self.delete_group(chat_id)
+  def self.obliterate(chat_id)
     DB.transaction do
       # Deletes transactions as well.
       where(chat_id: chat_id).delete
@@ -76,7 +81,7 @@ class Alias < Sequel::Model
 
   def to_virtual_user
     unless user_id
-      raise BotError, t[:alias][:already_virtual_user] % {name: first_name}
+      raise BotError, t[:alias][:already_virtual_user] % {name: full_name}
     end
 
     update(user_id: nil)
@@ -84,12 +89,12 @@ class Alias < Sequel::Model
 
   def deactivate
     unless user_id || self.alias
-      raise BotError, t[:alias][:already_inactive_user] % {name: first_name}
+      raise BotError, t[:alias][:already_inactive_user] % {name: full_name}
     end
 
-    if (balance = transactions.sum(:amount)).nonzero?
-      raise BotError,
-        t[:alias][:non_zero_balance] % {name: first_name, balance: balance}
+    if balance.nonzero?
+      raise BotError, t[:alias][:non_zero_balance] %
+        {name: first_name, balance: money_helper(balance)}
     end
 
     if transactions.empty?
@@ -99,14 +104,34 @@ class Alias < Sequel::Model
     end
   end
 
-  private
+  #def update
+    #result = u.update(
+      #alias: a,
+      #first_name: user.first_name,
+      #last_name: user.last_name,
+      #username: user.username)
+
+    ## result.nil? means that the record was not updated because
+    ## it has not changed, but everything is fine.
+    #if result || result.nil?
+      #render(t[:alias][:updated] % {name: full_name, alias: _alias})
+    #end
+  #end
+
+  def full_name
+    name_helper(first_name, last_name, user_id)
+  end
+
+  def balance
+    transactions_dataset.sum(:amount) || BigDecimal(0)
+  end
 
   def self.choose_alias(chat_id, *names)
     recommended = names.compact.map{ |name| name.slice(0).downcase }
     default     = ('a'..'z').to_a
     occupied    = active_users(chat_id).select_map(:alias)
 
-    _alias = (recommended | default - occupied).first
+    _alias = ((recommended | default) - occupied).first
 
     _alias ||
       raise(BotError, t[:alias][:no_aliases_left] % {name: names.first})

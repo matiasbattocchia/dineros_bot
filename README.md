@@ -6,6 +6,14 @@ Dineros accounts shared expenditures.
 Invite him to your Telegram groups!
 Even reckonings make long friends.
 
+### Commands
+* /cancelar - un comando interactivo
+* /pago - gasto compartido
+* /pago_desigual - gasto no tan compartido
+* /préstamo - transferencia entre dos
+* /balance - estado de las cuentas
+* /usuarios - gestión del grupo
+
 ### TODO
 Private chat:
 1. Quick calculator for one-time situations
@@ -14,12 +22,11 @@ Private chat:
 
 Group chat:
 1. Accounting for projects
-2. **Virtual user promotion to normal user**
 
 General:
 1. /explain
 2. Balance aggregation to reduce DB stress
-3. True i18n (commands, numbers)
+3. True i18n (commands, money, etc.)
 4. Periodic remainders (rent, bills, etc.)
 5. Payment follow-ups
 6. Payment templates (same participants)
@@ -82,4 +89,4 @@ Automatic actions:
   no       yes    virtual
   no       no     inactive
 
-- Delete everything (delayed) => remove Dineros
+- Delete everything => remove Dineros
