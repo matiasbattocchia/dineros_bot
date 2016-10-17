@@ -1,8 +1,16 @@
 es:
+  :cancel: Cancelar
+  :save: Guardar
+  :delete: Eliminar
+  :nothing: Nada
+  :calculate: Calcular
   :unknown_command: Lo siento, no entendí la solicitud.
   :ongoing_command: >
     No puedo ejecutar %{command} porque hay otro comando en progreso.
+    Podés presionar /cancelar para salir del mismo.
   :canceled: Operación cancelada.
+  :help: >
+    Si necesitás ayuda o tenés sugerencias, contactá a @matias\_battocchia.
 
   :welcome: >
     Hola, soy *Dineros*. Llevo el registro de los gastos grupales.
@@ -13,11 +21,25 @@ es:
     la contabilidad de la conversación diaria mediante un grupo paralelo.
 
 
-    Si el grupo está preparado para comenzar, procedé a inscribir a los
+    Si el grupo está preparado para comenzar, procedé a inscribir a sus
     miembros en Dineros. Para ello presioná el siguiente enlace: /usuarios.
+  :start: >
+    ¡Hola! Estoy hecho para desempeñarme más que nada en conversaciones
+    grupales. Creá un grupo con tus contactos y agregame. Hay dos formas:
+
+
+    *Desde el perfil del grupo*. Añadir miembro > Buscar @dineros\_bot.
+
+
+    *Desde mi perfil*. Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
+
+
+    En conversaciones uno-a-uno como esta tal vez el comando más útil sea
+    /calculo, que permite hacer una cuenta rápida de repartición de gastos
+    sin necesidad de crear un grupo.
   :hello: >
-    Bienvenido, %{name}. Recuerda crearte un usuario
-    usando el comando /usuarios.
+    Bienvenido, %{name}. Recordá crearte un usuario usando el comando
+    /usuarios.
   :bye: >
     El usuario (*%{alias}*) %{name} fue convertido en usuario virtual
     por haber dejado el grupo.
@@ -73,7 +95,7 @@ es:
       hacerlo partícipe del gasto.
 
     :concept?: ¿Cuál es el concepto del pago?
-    :participants?: >
+    :payment_advice: >
       Si todos los miembros del grupo participaron y hubo un único pagador,
       podés guardar el pago nombrando a esa sola persona; yo me encargaré de
       añadir al resto.
@@ -81,9 +103,7 @@ es:
 
       Podés volver a elegir a un participante para corregir su aporte, su
       última entrada es la que vale.
-
-
-      ¿Quiénes participaron en _%{concept}_?
+    :participants?: '¿Quiénes participaron en _%{concept}_?'
     :contribution?: '¿Cuánto aportó %{name}?'
     :factor?: >
       %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
@@ -94,7 +114,8 @@ es:
     :success: >
       Operación _%{concept}_ registrada por un total de *$%{total}*.
 
-      Podés anularla presionando /eliminar\_%{code}.
+
+      Presionar /eliminar\_%{code} para anularla.
     :expert_payment_advice: >
       *Consejo*: El pago guardado también pudo haberse expresado en
       un sólo paso usando la forma abreviada.
@@ -111,18 +132,40 @@ es:
     :borrower_lender_error: Quien recibe el préstamo no puede ser quien lo da.
     :contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
 
+  :calculation:
+    :party_size?: '¿Entre cuántas personas hay que repartir el gasto?'
+    :small_party: >
+      El cálculo rápido tiene sentido para grupos de 3 personas en adelante.
+    :payers?: >
+      Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
+      Nombra a uno.
+    :contribution?: '¿Cuánto aportó %{name}?'
+    :next_payer?: '%{name} aportó *$%{contribution}*. ¿Quién más gastó?'
+    :done: '%{name} aportó *$%{contribution}*.'
+    :report_header: >
+      Cálculo por un total de $%{total} para un grupo de %{party_size}
+      personas.
+    :report_creditors: 'A pagar'
+    :report_debtors: 'A cobrar'
+    :report_item: '*•* %{name}: %{amount}'
+    :report_evens: 'A mano'
+    :report_even_item: '*•* %{name}'
+    :report_footer: >
+      Se debe recaudar $%{total_amount} de las %{debtors} personas que no han
+      aportado, *$%{individual_amount}* por cada una.
+
   :balance:
     :item: '(*%{alias}*) %{name}: %{balance}'
     :no_users: >
-      No hay gastos registrados en Dineros para este grupo.
+      No hay gastos registrados.
     :legend: >
-      _Saldo positivo significa acreedor; saldo negativo, deudor._
+      _Saldo positivo, acreedor; saldo negativo, deudor._
 
   :alias:
     :no_alias: Necesito el apodo del usuario para poder encontrarlo.
     :not_found: 'No existe el usuario con el apodo _%{alias}_.'
     :long_name: >
-      El nombre es demasiado largo. Se aceptan hasta 16
+      El nombre es demasiado largo. Se aceptan hasta 32
       caracteres.
     :already_real_user: >
       _%{existent}_ ya es un usuario real, consecuentemente _%{to_be_created}_
@@ -140,6 +183,11 @@ es:
       eludir esta restricción.
 
   :user:
+    :menu:
+      - 1) Crear un usuario real
+      - 2) Crear un usuario virtual
+      - 3) Tomar control de un usuario virtual
+      - 4) Eliminar a un usuario
     :option?: >
       (*Opción 1*) Registra a un miembro de este grupo para que pueda usar
       Dineros.
@@ -209,12 +257,3 @@ es:
       escríbela y selecciona al usuario de la lista que se desplegará.
     :success: >
       El usuario (*%{alias}*) %{name} ahora pertenece a %{mention}.
-
-  :delete:
-    :what?: ¿Qué te gustaría eliminar?
-    :option_error: Opción no reconocida.
-    :nada: >
-      ¿Cuál es el código de la operación a anular? (Presioná
-      /cancelar para no anular.)
-
-

@@ -33,7 +33,7 @@ class Alias < Sequel::Model
   end
 
   def self.create_virtual_user(chat_id, name)
-    raise BotError, t[:alias][:long_name] % {name: name} if name.length > 16
+    raise BotError, t[:alias][:long_name] % {name: name} if name.length > 32
 
     _alias = choose_alias(chat_id, name)
 

@@ -90,6 +90,14 @@ class Payment
     @transactions.values.map(&:factor).reduce(:+)
   end
 
+  def calculate
+    average_contribution = total_contribution / total_factor
+
+    @transactions.each do |_, t|
+      t.amount = t.contribution - average_contribution * t.factor
+    end
+  end
+
   def save
     raise BotError, t[:payment][:no_transactions] if @transactions.empty?
 
@@ -110,13 +118,10 @@ class Payment
       raise BotError, t[:payment][:single_transaction]
     end
 
-    average_contribution = total_contribution / total_factor
+    calculate
 
     DB.transaction do
-      @transactions.each do |_, t|
-        t.amount = t.contribution - average_contribution * t.factor
-        t.save
-      end
+      @transactions.values.each(&:save)
     end
 
     self
@@ -162,5 +167,39 @@ class Payment
       money_helper(t.contribution)
       .sub(/^0*$/,'')
     end.join(' ')
+  end
+
+  def calculation_report
+    header = t[:calculation][:report_header] %
+      {total: total, party_size: total_factor}
+
+    groups = @transactions.group_by{ |_, t| t.amount.sign }
+
+    creditors = groups[BigDecimal::SIGN_POSITIVE_FINITE].map do |pair|
+      t[:calculation][:creditor] % ...
+    end
+
+    evens = groups[BigDecimal::SIGN_POSITIVE_ZERO]
+
+    debtors = groups[BigDecimal::SIGN_NEGATIVE_FINITE]
+
+      c
+      t.contribution.nonzero? }
+      .map do |u, tr|
+
+        t[:calculation][:item] %
+          {name: u.first_name, amount: money_helper(tr.amount)}
+      end
+
+    debtors = @transactions.values.find{ |t| t.contribution.zero? }
+
+    footer = t[:calculation][:report_footer] %
+      {
+    output << t[:calculation][:rest] %
+      {total_amount: money_helper(-debtors.amount),
+       debtors: money_helper(debtors.factor),
+       individual_amount: money_helper(-debtors.amount / debtors.factor)}
+
+    output.join("\n\n")
   end
 end

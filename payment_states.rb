@@ -1,10 +1,10 @@
 class Machine
   def payment_initial_state(msg)
-    msg.text =~ /^\/p(?:ago)?\s+(.+)\s*:\s*(.+)\s*/
+    msg.text =~ /^\/(p|pago)\s+(.+)\s*:\s*(.+)\s*/
 
     if Regexp.last_match # Command with parameters.
-      concept = Regexp.last_match[1]
-      contributions = Regexp.last_match[2]
+      concept = Regexp.last_match[2]
+      contributions = Regexp.last_match[3]
 
       payment = # chat_id, payment_id, date, concept
         Payment.build(@chat_id, msg.message_id, date_helper(msg), concept)
@@ -48,6 +48,12 @@ class Machine
 
       :final_state
     else # Step-by-step process.
+      # TODO: "No active users" warning.
+      @users_kb = keyboard(
+        user_buttons(Alias.active_users(@chat_id))
+        .unshift(create_buttons)
+      )
+
       if @unequal_split = msg.text.match(/^\/pago_desigual/)
         render(t[:payment][:unequal_payment])
       end
@@ -62,11 +68,6 @@ class Machine
     @payment = # chat_id, payment_id, date, concept
       Payment.build(@chat_id, msg.message_id, date_helper(msg), msg.text)
 
-    @users_kb = one_time_keyboard(
-      user_buttons(Alias.active_users(@chat_id))
-      .unshift(CREATE_DIALOG_BUTTONS)
-    )
-
     render(t[:payment][:participants?] % {concept: @payment.concept},
            keyboard: @users_kb)
 
@@ -74,7 +75,7 @@ class Machine
   end
 
   def payment_user_state(msg)
-    if msg.text.match /^guardar/i
+    if msg.text.match /^#{t[:save]}/i
       @payment.save
 
       render(t[:payment][:success] %
@@ -90,7 +91,7 @@ class Machine
       @user = Alias.find_user(@chat_id, alias_helper(msg))
 
       render(t[:payment][:contribution?] % {name: @user.first_name},
-             keyboard: one_time_keyboard(['Nada']))
+             keyboard: keyboard([t[:nothing]]))
 
       :payment_contribution_state
     end
@@ -102,7 +103,7 @@ class Machine
     if @unequal_split
       render(t[:payment][:factor?] %
              {name: @user.first_name, contribution: c},
-             keyboard: one_time_keyboard([['0', '1', '2', '3']]))
+             keyboard: keyboard([['0', '1', '2', '3']]))
 
       :payment_factor_state
     else

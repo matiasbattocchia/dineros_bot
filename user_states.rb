@@ -1,14 +1,8 @@
 class Machine
   def users_initial_state(msg)
-    options_kb = one_time_keyboard(
-      ['1) Crear un usuario real',
-       '2) Crear un usuario virtual',
-       '3) Tomar control de un usuario virtual',
-       '4) Eliminar a un usuario']
-    )
+    options_kb = keyboard(t[:user][:menu])
 
-    render(t[:user][:option?],
-           keyboard: options_kb)
+    render(t[:user][:option?], keyboard: options_kb)
 
     :users_options_state
   end
@@ -88,7 +82,7 @@ class Machine
   end
 
   def virtual_to_real_user_initial_state(msg)
-    virtual_users_kb = one_time_keyboard(
+    virtual_users_kb = keyboard(
       user_buttons(Alias.virtual_users(@chat_id))
     )
 

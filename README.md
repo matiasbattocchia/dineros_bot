@@ -8,17 +8,18 @@ Even reckonings make long friends.
 
 ### Commands
 * /cancelar - un comando interactivo
-* /pago - gasto compartido
+* /pago - registrar gasto compartido
 * /pago_desigual - gasto no tan compartido
-* /préstamo - transferencia entre dos
+* /prestamo - transferencia entre dos
 * /balance - estado de las cuentas
+* /calculo - cuenta rápida de un gasto
 * /usuarios - gestión del grupo
+* /ayuda - consultas y sugerencias
 
 ### TODO
 Private chat:
-1. Quick calculator for one-time situations
-2. Categories for complex quick calculations
-3. General balance (individuals and groups)
+1. Categories for complex quick calculations
+2. General balance (individuals and groups)
 
 Group chat:
 1. Accounting for projects
@@ -33,7 +34,12 @@ General:
 7. Monthly balance auto-calculation
 8. 'Next payer' recommendation
 9. Basic math operands
-10. Numeral separators regexp.
+10. Numeral separator regexp
+
+### Bugs
+* Markdown escaping at mentions.
+* Write a "no active users" warning at payment and other places.
+* Machine instances timeout.
 
 ## Users
 

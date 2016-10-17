@@ -1,5 +1,10 @@
 class Machine
   def loan_initial_state(msg)
+    # TODO: "No active users" warning.
+    @users_kb = keyboard(
+      user_buttons(Alias.active_users(@chat_id))
+    )
+
     render(t[:loan][:concept?])
 
     :loan_concept_state
@@ -8,10 +13,6 @@ class Machine
   def loan_concept_state(msg)
     @loan = # chat_id, payment_id, date, concept
       Payment.build(@chat_id, msg.message_id, date_helper(msg), msg.text)
-
-    @users_kb = one_time_keyboard(
-      user_buttons(Alias.active_users(@chat_id))
-    )
 
     render(t[:loan][:lender?] % {concept: @loan.concept}, keyboard: @users_kb)
 

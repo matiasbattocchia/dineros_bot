@@ -7,11 +7,11 @@ DB.create_table? :aliases do
 
   Bignum :chat_id, null: false
   Fixnum :user_id
-  String :alias
+  String :alias, size: 1, fixed: true
 
-  String :first_name, null: false
-  String :last_name
-  String :username
+  String :first_name, size: 32, null: false
+  String :last_name,  size: 32
+  String :username,   size: 32
 
   unique [:chat_id, :user_id]
   unique [:chat_id, :alias]
@@ -24,10 +24,12 @@ DB.create_table? :transactions do
   Fixnum :payment_id, null: false
   Fixnum :amended_payment_id
   Date   :date,       null: false
-  String :concept,    null: false
+  String :concept,    size: 32, null: false
   BigDecimal :contribution, size: [19, 4], null: false
   BigDecimal :factor, size: [19, 4], null: false
   BigDecimal :amount, size: [19, 4], null: false
+
+  constraint(:factor_min_value){ factor >= 0 }
 
   index  [:chat_id,  :payment_id]
   #index  [:chat_id,  :amended_payment_id]

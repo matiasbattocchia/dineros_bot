@@ -19,6 +19,7 @@ require_relative 'alias'
 require_relative 'payment'
 
 # States
+require_relative 'calculation_states'
 require_relative 'payment_states'
 require_relative 'loan_states'
 require_relative 'balance_states'
@@ -31,14 +32,8 @@ end
 class Machine
   @@machines = {}
 
-  CREATE_DIALOG_BUTTONS = ['Cancelar', 'Guardar']
-  DELETE_DIALOG_BUTTONS = ['Cancelar', 'Eliminar']
-
   HIDE_KB = Telegram::Bot::Types::ReplyKeyboardHide
     .new(hide_keyboard: true)
-
-  FORCE_KB = Telegram::Bot::Types::ForceReply
-    .new(force_reply: true, selective: true)
 
   def self.dispatch(bot, msg)
     m = @@machines[msg.chat.id] ||= Machine.new(bot, msg.chat.id)
@@ -58,8 +53,7 @@ class Machine
     @state == :final_state
   end
 
-  def render(text, keyboard: HIDE_KB)
-  #def render(text, keyboard: nil, reply_to: nil)
+  def render(text, keyboard: HIDE_KB, reply_to: nil)
     puts 'SENT:', text, '----'
 
     @bot.api.send_message(
@@ -122,11 +116,14 @@ class Machine
 
   def initial_state(msg)
     case msg.text
-    when /^\/prestamo/ then loan_initial_state(msg)
-    when /^\/p/        then payment_initial_state(msg)
-    when /^\/balance/  then balance_initial_state(msg)
-    when /^\/usuarios/ then users_initial_state(msg)
-    when /^\/eliminar/ then delete_initial_state(msg)
+    when /^\/(p\s|pago)/  then payment_initial_state(msg)
+    when /^\/pr[eé]stamo/ then loan_initial_state(msg)
+    when /^\/balance/     then balance_initial_state(msg)
+    when /^\/c[aá]lculo/  then calculation_initial_state(msg)
+    when /^\/usuarios/    then users_initial_state(msg)
+    when /^\/eliminar/    then delete_initial_state(msg)
+    when /^\/start/       then one_on_one_initial_state(msg)
+    when /^\/ayuda/       then help_initial_state(msg)
     else
       # If an instance of Machine do not reach a final state it will not
       # be garbage collected. On the other hand in an active conversation
@@ -137,12 +134,28 @@ class Machine
   end
 end
 
-Telegram::Bot::Client.run(BOT_TOKEN) do |bot|
-  bot.enable_botan!(BOTAN_TOKEN)
-  puts 'Dineros is running.'
+def one_on_one_initial_state(msg)
+  render(t[:start])
+  :final_state
+end
 
-  bot.listen do |message|
-    #bot.track(message.text, message.from.id)
-    Machine.dispatch(bot, message)
+def help_initial_state(msg)
+  render(t[:help])
+  :final_state
+end
+
+begin
+  Telegram::Bot::Client.run(BOT_TOKEN) do |bot|
+    bot.enable_botan!(BOTAN_TOKEN)
+    puts 'Dineros is running.', '----'
+
+    bot.listen do |message|
+      #bot.track(message.text, message.from.id)
+      Machine.dispatch(bot, message)
+    end
   end
+rescue Faraday::ConnectionFailed => e
+  puts e.message, '----'
+  sleep 10
+  retry
 end

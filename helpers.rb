@@ -34,19 +34,22 @@ module Kernel
     name
   end
 
+  def message_helper(text)
+    Telegram::Bot::Types::Message.new(text: text)
+  end
+
   def self_mention_helper(msg)
     return unless offset = msg.text =~ /@/
 
-    self_mention = Telegram::Bot::Types::MessageEntity.new
-    self_mention.length = 1
-    self_mention.offset = offset
-    self_mention.user   = msg.from
-
-    self_mention
+    Telegram::Bot::Types::MessageEntity.new(
+      length: 1, offset: offset, user: msg.from)
   end
 
-  # TODO: Rename one_time_keyboard to keyboard.
-  def one_time_keyboard(buttons)
+  def pseudouser_helper(name)
+    Alias.new(alias: name.sub(' ','_'), first_name: name.sub('_',' '))
+  end
+
+  def keyboard(buttons)
     Telegram::Bot::Types::ReplyKeyboardMarkup.new(
       keyboard: buttons, resize_keyboard: true)
   end
@@ -55,5 +58,17 @@ module Kernel
     users.map do |a|
       a.alias + ') ' + a.full_name
     end
+  end
+
+  def create_buttons
+    [t[:cancel], t[:save]]
+  end
+
+  def delete_buttons
+    [t[:cancel], t[:delete]]
+  end
+
+  def calculate_buttons
+    [t[:cancel], t[:calculate]]
   end
 end
