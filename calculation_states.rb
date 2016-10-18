@@ -20,7 +20,7 @@ class Machine
 
   def calculation_payer_state(msg)
     if msg.text.match /^#{t[:calculate]}/i
-      @payment.factor(Alias.new(user_id: :others), @others)
+      @payment.factor(Alias.new(user_id: :others), @others) if @others > 0
 
       @payment.calculate
 

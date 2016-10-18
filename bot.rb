@@ -116,14 +116,14 @@ class Machine
 
   def initial_state(msg)
     case msg.text
-    when /^\/(p\s|pago)/  then payment_initial_state(msg)
-    when /^\/pr[eé]stamo/ then loan_initial_state(msg)
-    when /^\/balance/     then balance_initial_state(msg)
-    when /^\/c[aá]lculo/  then calculation_initial_state(msg)
-    when /^\/usuarios/    then users_initial_state(msg)
-    when /^\/eliminar/    then delete_initial_state(msg)
-    when /^\/start/       then one_on_one_initial_state(msg)
-    when /^\/ayuda/       then help_initial_state(msg)
+    when /^\/(p\s|pago)/i  then payment_initial_state(msg)
+    when /^\/pr[eé]stamo/i then loan_initial_state(msg)
+    when /^\/balance/i     then balance_initial_state(msg)
+    when /^\/c[aá]lculo/i  then calculation_initial_state(msg)
+    when /^\/usuarios/i    then users_initial_state(msg)
+    when /^\/eliminar/i    then delete_initial_state(msg)
+    when /^\/start/i       then one_on_one_initial_state(msg)
+    when /^\/ayuda/i       then help_initial_state(msg)
     else
       # If an instance of Machine do not reach a final state it will not
       # be garbage collected. On the other hand in an active conversation

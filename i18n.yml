@@ -24,19 +24,20 @@ es:
     Si el grupo está preparado para comenzar, procedé a inscribir a sus
     miembros en Dineros. Para ello presioná el siguiente enlace: /usuarios.
   :start: >
-    ¡Hola! Estoy hecho para desempeñarme más que nada en conversaciones
-    grupales. Creá un grupo con tus contactos y agregame. Hay dos formas:
+    ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
+    /calculo, que permite hacer una cuenta rápida de repartición de gastos.
+    ¡Probalo!
 
 
-    *Desde el perfil del grupo*. Añadir miembro > Buscar @dineros\_bot.
+    Me vas a sacar el máximo provecho en conversaciones grupales.
+    Creá un grupo con tus contactos y agregame. Hay dos formas:
 
 
-    *Desde mi perfil*. Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
+    *Desde el perfil del grupo* > Añadir miembro > Buscar @dineros\_bot.
 
 
-    En conversaciones uno-a-uno como esta tal vez el comando más útil sea
-    /calculo, que permite hacer una cuenta rápida de repartición de gastos
-    sin necesidad de crear un grupo.
+    *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
+
   :hello: >
     Bienvenido, %{name}. Recordá crearte un usuario usando el comando
     /usuarios.
@@ -109,7 +110,8 @@ es:
     :factor?: >
       %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
     :next_participant_without_factor?: >
-      %{name} aportó *$%{contribution}*. ¿Alguien más?
+      %{name} aportó *$%{contribution}*. ¿Alguien más? o enviá _guardar_ para
+      registrar el pago.
     :next_participant?: >
       %{name} participó con un factor de *%{factor}*. ¿Alguien más?
     :success: >
@@ -118,8 +120,7 @@ es:
 
       Presionar /eliminar\_%{code} para anularla.
     :expert_payment_advice: >
-      *Consejo*: El pago guardado también pudo haberse expresado en
-      un sólo paso usando la forma abreviada.
+      La próxima vez podés usar la forma abreviada.
 
 
       /pago %{concept}: %{transactions}
@@ -141,16 +142,18 @@ es:
       Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
       Nombrá a uno.
     :contribution?: '¿Cuánto aportó %{name}?'
-    :next_payer?: '%{name} aportó *$%{contribution}*. ¿Quién más gastó?'
+    :next_payer?: >
+      %{name} aportó *$%{contribution}*. ¿Quién más gastó? o enviá _calcular_
+      si nadie más aportó.
     :done: '%{name} aportó *$%{contribution}*.'
 
     :report_header: >
       Cálculo por un total de $%{total} para un grupo de %{party_size}
       personas.
     :report_creditors: >
-      *A pagar*
+      *Pagar a*
     :report_debtors: >
-      *A cobrar*
+      *Cobrar a*
     :report_item: >
       *•* %{name}: %{amount}
     :report_evens: >
@@ -161,12 +164,14 @@ es:
       Se le debe cobrar a las %{others_size} personas que no han aportado
       *$%{amount}* a cada una.
     :report_footer: >
-      En total se debe recaudar $%{to_collect}.
+      En total se debe recaudar $%{to_collect} para devolverles a los que
+      aportaron por otros.
 
   :balance:
     :item: '(*%{alias}*) %{name}: %{balance}'
     :no_users: >
-      No hay gastos registrados.
+      No hay gastos registrados todavía. Usá el comando /pago para registar
+      uno.
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
 

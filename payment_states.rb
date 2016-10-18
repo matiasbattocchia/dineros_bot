@@ -1,6 +1,6 @@
 class Machine
   def payment_initial_state(msg)
-    msg.text =~ /^\/(p|pago)\s+(.+)\s*:\s*(.+)\s*/
+    msg.text =~ /^\/(p|pago)\s+(.+)\s*:\s*(.+)\s*/i
 
     if Regexp.last_match # Command with parameters.
       concept = Regexp.last_match[2]
@@ -67,6 +67,8 @@ class Machine
   def payment_concept_state(msg)
     @payment = # chat_id, payment_id, date, concept
       Payment.build(@chat_id, msg.message_id, date_helper(msg), msg.text)
+
+    render(t[:payment][:payment_advice])
 
     render(t[:payment][:participants?] % {concept: @payment.concept},
            keyboard: @users_kb)
