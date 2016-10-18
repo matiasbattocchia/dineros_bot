@@ -7,13 +7,13 @@ es:
   :unknown_command: Lo siento, no entendí la solicitud.
   :ongoing_command: >
     No puedo ejecutar %{command} porque hay otro comando en progreso.
-    Podés presionar /cancelar para salir del mismo.
+    Puedes presionar /cancelar para salir del mismo.
   :canceled: Operación cancelada.
   :help: >
-    Si necesitás ayuda o tenés sugerencias, contactá a @matias\_battocchia.
+    Si necesitas ayuda o tienes sugerencias, contacta a @matias\_battocchia.
 
   :welcome: >
-    Hola, soy *Dineros*. Llevo el registro de los gastos grupales.
+    ¡Hola!, soy *Dineros*. Llevo el registro de los gastos grupales.
 
 
     _Para llevar un historial de gastos prolijo recomiendo usarme en
@@ -21,16 +21,16 @@ es:
     la contabilidad de la conversación diaria mediante un grupo paralelo.
 
 
-    Si el grupo está preparado para comenzar, procedé a inscribir a sus
-    miembros en Dineros. Para ello presioná el siguiente enlace: /usuarios.
+    Si el grupo está preparado para comenzar, procede a inscribir a sus
+    miembros en Dineros. Para ello presiona el siguiente enlace: /usuarios.
   :start: >
     ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
     /calculo, que permite hacer una cuenta rápida de repartición de gastos.
-    ¡Probalo!
+    ¡Pruébalo!
 
 
-    Me vas a sacar el máximo provecho en conversaciones grupales.
-    Creá un grupo con tus contactos y agregame. Hay dos formas:
+    Me sacarás el máximo provecho en conversaciones grupales.
+    Crea un grupo con tus contactos y agregame. Hay dos formas:
 
 
     *Desde el perfil del grupo* > Añadir miembro > Buscar @dineros\_bot.
@@ -39,14 +39,14 @@ es:
     *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
 
   :hello: >
-    Bienvenido, %{name}. Recordá crearte un usuario usando el comando
+    Bienvenido, %{name}. Recuerda crearte un usuario usando el comando
     /usuarios.
   :bye: >
     El usuario (*%{alias}*) %{name} fue convertido en usuario virtual
     por haber dejado el grupo.
 
   :helper:
-    :alias_error: >
+    :alias_error: > #
       No pude reconocer al usuario. Esperaba algo así:
 
 
@@ -54,26 +54,27 @@ es:
     :virtual: virtual
 
   :payment:
-    :not_found: 'No existe la operación con código %{code}.'
+    :not_found: 'No existe la operación con código *%{code}*.'
     :empty_concept: El concepto no puede quedar en blanco.
     :long_concept: El concepto puede tener hasta 32 caracteres de extensión.
     :negative_factor: El factor no puede ser negativo.
     :no_transactions: No hay transacciones para guardar.
-    :existent: >
-      La operación _%{concept}_ no se pudo guardar porque ya existe una
-      con el mismo código (%{code}).
     :single_transaction: >
       No tiene sentido guardar un pago en el que participó una sola persona.
+    :existent: >
+      La operación _%{concept}_ no fue guardada porque ya existe una
+      con el mismo código (%{code}).
     :already_amended: >
       La operación _%{concept}_ (%{code}) ya estaba anulada.
-    :null_total_factor: 'La suma de factores da cero. Eso no es bueno.'
+    :null_total_factor: >
+      La suma de factores de participación da cero. Eso no es bueno.
 
   #### Payment states ####
     :argument_error: >
       No pude entender el argumento *%{chunk}*.
 
 
-      Recordá que un argumento se conforma como `[factor]apodo[cantidad]`.
+      Recuerda que un argumento se conforma como `[factor]apodo[cantidad]`.
 
 
       Tanto _factor_ como _cantidad_ son números y son opcionales.
@@ -99,39 +100,42 @@ es:
     :concept?: ¿Cuál es el concepto del pago?
     :payment_advice: >
       Si todos los miembros del grupo participaron y hubo un único pagador,
-      podés guardar el pago nombrando a esa sola persona; yo me encargaré de
+      puedes guardar el pago nombrando a esa sola persona; yo me encargaré de
       añadir al resto.
 
 
-      Podés volver a elegir a un participante para corregir su aporte, su
+      Puedes volver a elegir a un participante para corregir su aporte, su
       última entrada es la que vale.
     :participants?: '¿Quiénes participaron en _%{concept}_?'
     :contribution?: '¿Cuánto aportó %{name}?'
     :factor?: >
       %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
     :next_participant_without_factor?: >
-      %{name} aportó *$%{contribution}*. ¿Alguien más? o enviá _guardar_ para
+      %{name} aportó *$%{contribution}*. ¿Alguien más? o envía _guardar_ para
       registrar el pago.
     :next_participant?: >
-      %{name} participó con un factor de *%{factor}*. ¿Alguien más?
+      %{name} participó con un factor de *%{factor}*. ¿Alguien más? o envía
+      _guardar_ para registrar el pago.
     :success: >
       Operación _%{concept}_ registrada por un total de *$%{total}*.
 
 
       Presionar /eliminar\_%{code} para anularla.
     :expert_payment_advice: >
-      La próxima vez podés usar la forma abreviada.
+      La próxima vez puedes usar la forma abreviada.
 
 
       /pago %{concept}: %{transactions}
     :amend?: '¿Anular la operación _%{concept}_ (%{code})?'
+    # TODO: El código de amended es confuso.
     :amended: 'La operación _%{concept}_ fue anulada (%{code}).'
 
   :loan:
     :concept?: ¿Cuál es el concepto del préstamo?
     :lender?: '¿Quién prestó para _%{concept}_?'
     :borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
-    :borrower_lender_error: Quien recibe el préstamo no puede ser quien lo da.
+    :borrower_lender_error: >
+      El prestador y el prestatario no pueden ser la misma persona.
     :contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
 
   :calculation:
@@ -140,10 +144,10 @@ es:
       El cálculo rápido tiene sentido para grupos de 3 personas en adelante.
     :payers?: >
       Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
-      Nombrá a uno.
+      Nombra a uno.
     :contribution?: '¿Cuánto aportó %{name}?'
     :next_payer?: >
-      %{name} aportó *$%{contribution}*. ¿Quién más gastó? o enviá _calcular_
+      %{name} aportó *$%{contribution}*. ¿Quién más gastó? o envía _calcular_
       si nadie más aportó.
     :done: '%{name} aportó *$%{contribution}*.'
 
@@ -170,7 +174,7 @@ es:
   :balance:
     :item: '(*%{alias}*) %{name}: %{balance}'
     :no_users: >
-      No hay gastos registrados todavía. Usá el comando /pago para registar
+      No hay gastos registrados todavía. Usa el comando /pago para registar
       uno.
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
@@ -179,8 +183,7 @@ es:
     :no_alias: Necesito el apodo del usuario para poder encontrarlo.
     :not_found: 'No existe el usuario con el apodo _%{alias}_.'
     :long_name: >
-      El nombre es demasiado largo. Se aceptan hasta 32
-      caracteres.
+      El nombre es demasiado largo. Se aceptan hasta 32 caracteres.
     :already_real_user: >
       _%{existent}_ ya es un usuario real, consecuentemente _%{to_be_created}_
       no puede tomar el control de este usuario.
@@ -193,8 +196,10 @@ es:
     :no_aliases_left: >
       No puedo crear un usuario para _%{name}_ porque la cantidad máxima
       de usuarios activos para este grupo ha sido alcanzada (26 usuarios).
-      Por favor contacta a los desarrolladores de Dineros si es necesario
-      eludir esta restricción.
+
+
+      Por favor contacta a los desarrolladores de Dineros usando el comando
+      /ayuda si es necesario eludir esta restricción.
 
   :user:
     :menu:
@@ -216,33 +221,34 @@ es:
 
 
       (*Opción 4*) Eliminar a un usuario. Como condición debe tener
-      *balance en cero* (no debe ser deudor ni acreedor). Esta acción no
-      se puede deshacer.
+      *balance en cero* (no debe ser deudor ni acreedor).
     :no_users: >
-      No hay usuarios registrados en Dineros para este grupo.
+      No hay usuarios registrados todavía. Usa el comando /usuarios para
+      registar uno.
     :deletable_item: >
       (*%{alias}*) %{name} /eliminar\_%{alias}
     :undeletable_item: >
       (*%{alias}*) %{name}: %{balance}
     :delete_legend: >
-      _Presioná el enlace correspondiente para eliminar al usuario_.
+      _Presiona el enlace correspondiente para eliminar al usuario_.
 
 
-      Los usuarios sin enlace no tienen su balance en cero; arreglá
+      Los usuarios sin enlace no tienen su balance en cero; arregla
       sus cuentas para poder eliminarlos.
     :deactivate?: '¿Eliminar al usuario %{name}?'
     :deactivated: El usuario fue eliminado.
 
   :real_user:
     :mentions?: >
-      Mencioná a los miembros del grupo. Las menciones comienzan el caracter
-      @, por ejemplo @dineros\_bot; escríbela y selecciona al usuario de la
-      lista que se desplegará. Podés mencionarlos a todos en el mismo mensaje.
+      Menciona a los miembros del grupo. Las menciones comienzan con el
+      caracter @, por ejemplo @dineros\_bot; escríbela y selecciona al usuario
+      de la lista que se desplegará. Puedes mencionarlos a todos en el mismo
+      mensaje.
 
 
-      _Verás que no te podés mencionar a vos mismo. No importa, escribí
-      simplemente una @ sin ninguna añadidura y sabré que se trata de vos._
-    :no_mentions: No has mencionado a nadie. Usá el poder de la arroba.
+      _Verás que no te puedes mencionar a ti mismo. No importa, escribe
+      simplemente una @ sin ninguna añadidura y sabré que eres tú._
+    :no_mentions: No has mencionado a nadie. Recurre al poder de la arroba.
     :existent: >
       No creé un usuario para %{mention} porque ya existe en este grupo
       con el nombre de _%{existent}_.
@@ -263,11 +269,11 @@ es:
 
   :virtual_to_real_user:
     :virtual_user?: >
-      Elegí al usuario virtual que pasará a ser controlado por un
+      Elige al usuario virtual que pasará a ser controlado por un
       usuario real.
     :mention?: >
-      Mencioná al miembro del grupo que pasará a tener control de %{name}.
-      Las menciones comienzan el caracter @, por ejemplo @dineros\_bot;
+      Menciona al miembro del grupo que pasará a tener control de %{name}.
+      Las menciones comienzan con el caracter @, por ejemplo @dineros\_bot;
       escríbela y selecciona al usuario de la lista que se desplegará.
     :success: >
       El usuario (*%{alias}*) %{name} ahora pertenece a %{mention}.
