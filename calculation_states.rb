@@ -11,7 +11,7 @@ class Machine
     raise BotError, t[:calculation][:small_party] unless @party_size > 2
 
     @payment = # chat_id, payment_id, date, concept
-      Payment.build(@chat_id, msg.message_id, date_helper(msg), :calculation)
+      Payment.build(@chat_id, msg.message_id, date_helper(msg), 'calculation')
 
     render(t[:calculation][:payers?] % {size: @party_size})
 

@@ -65,6 +65,7 @@ es:
       No tiene sentido guardar un pago en el que participó una sola persona.
     :already_amended: >
       La operación _%{concept}_ (%{code}) ya estaba anulada.
+    :null_total_factor: 'La suma de factores da cero. Eso no es bueno.'
 
   #### Payment states ####
     :argument_error: >
@@ -138,21 +139,29 @@ es:
       El cálculo rápido tiene sentido para grupos de 3 personas en adelante.
     :payers?: >
       Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
-      Nombra a uno.
+      Nombrá a uno.
     :contribution?: '¿Cuánto aportó %{name}?'
     :next_payer?: '%{name} aportó *$%{contribution}*. ¿Quién más gastó?'
     :done: '%{name} aportó *$%{contribution}*.'
+
     :report_header: >
       Cálculo por un total de $%{total} para un grupo de %{party_size}
       personas.
-    :report_creditors: 'A pagar'
-    :report_debtors: 'A cobrar'
-    :report_item: '*•* %{name}: %{amount}'
-    :report_evens: 'A mano'
-    :report_even_item: '*•* %{name}'
+    :report_creditors: >
+      *A pagar*
+    :report_debtors: >
+      *A cobrar*
+    :report_item: >
+      *•* %{name}: %{amount}
+    :report_evens: >
+      *A mano*
+    :report_even_item: >
+      *•* %{name}
+    :report_others: >
+      Se le debe cobrar a las %{others_size} personas que no han aportado
+      *$%{amount}* a cada una.
     :report_footer: >
-      Se debe recaudar $%{total_amount} de las %{debtors} personas que no han
-      aportado, *$%{individual_amount}* por cada una.
+      En total se debe recaudar $%{to_collect}.
 
   :balance:
     :item: '(*%{alias}*) %{name}: %{balance}'

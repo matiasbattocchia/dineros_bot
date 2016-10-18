@@ -93,6 +93,10 @@ class Payment
   def calculate
     average_contribution = total_contribution / total_factor
 
+    if average_contribution.nan?
+      raise BotError, t[:payment][:null_total_factor]
+    end
+
     @transactions.each do |_, t|
       t.amount = t.contribution - average_contribution * t.factor
     end
@@ -170,36 +174,56 @@ class Payment
   end
 
   def calculation_report
+    report = []
+
     header = t[:calculation][:report_header] %
-      {total: total, party_size: total_factor}
+      {total: money_helper(total), party_size: total_factor.to_i}
 
-    groups = @transactions.group_by{ |_, t| t.amount.sign }
+    report << header
 
-    creditors = groups[BigDecimal::SIGN_POSITIVE_FINITE].map do |pair|
-      t[:calculation][:creditor] % ...
+    groups = @transactions.group_by{ |u, t| u.user_id || t.amount.sign }
+
+    creditors = groups[BigDecimal::SIGN_POSITIVE_FINITE]&.map do |pair|
+      t[:calculation][:report_item] %
+        {name: pair.first.first_name, amount: money_helper(pair.last.amount)}
     end
 
-    evens = groups[BigDecimal::SIGN_POSITIVE_ZERO]
+    debt = groups[BigDecimal::SIGN_POSITIVE_FINITE]&.reduce(0) do |sum, pair|
+      sum + pair.last.amount
+    end || 0
 
-    debtors = groups[BigDecimal::SIGN_NEGATIVE_FINITE]
+    if creditors
+      report << creditors.unshift(t[:calculation][:report_creditors]).join
+    end
 
-      c
-      t.contribution.nonzero? }
-      .map do |u, tr|
+    evens = groups[BigDecimal::SIGN_POSITIVE_ZERO]&.map do |pair|
+      t[:calculation][:report_even_item] % {name: pair.first.first_name}
+    end
 
-        t[:calculation][:item] %
-          {name: u.first_name, amount: money_helper(tr.amount)}
-      end
+    if evens
+      report << evens.unshift(t[:calculation][:report_evens]).join
+    end
 
-    debtors = @transactions.values.find{ |t| t.contribution.zero? }
+    debtors = groups[BigDecimal::SIGN_NEGATIVE_FINITE]&.map do |pair|
+      t[:calculation][:report_item] %
+        {name: pair.first.first_name, amount: money_helper(-pair.last.amount)}
+    end
+
+    if debtors
+      report << debtors.unshift(t[:calculation][:report_debtors]).join
+    end
+
+    if others = groups[:others]&.first&.last
+      report << t[:calculation][:report_others] %
+        {others_size: others.factor.to_i,
+         amount: money_helper(-others.amount / others.factor)}
+    end
 
     footer = t[:calculation][:report_footer] %
-      {
-    output << t[:calculation][:rest] %
-      {total_amount: money_helper(-debtors.amount),
-       debtors: money_helper(debtors.factor),
-       individual_amount: money_helper(-debtors.amount / debtors.factor)}
+      {to_collect: money_helper(debt)}
 
-    output.join("\n\n")
+    report << footer
+
+    report.join("\n")
   end
 end
