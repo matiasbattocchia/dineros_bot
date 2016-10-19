@@ -25,7 +25,7 @@ Group chat:
 1. Accounting for projects
 
 General:
-1. /explain
+1. /explain command
 2. Balance aggregation to reduce DB stress
 3. True i18n (commands, money, etc.)
 4. Periodic remainders (rent, bills, etc.)
@@ -34,11 +34,13 @@ General:
 7. Monthly balance auto-calculation
 8. 'Next payer' recommendation
 9. Basic math operands
-10. Numeral separator regexp
+10. Contribution amount as list (eggs 10, milk 20, bread 30)
+11. User and contribution in the same message (Juan 10)
+12. Corrections during payment
+13. Numeral separator regexp
 
 ### Bugs
 * Markdown escaping at mentions.
-* Write a "no active users" warning at payment and other places.
 * Machine instances timeout.
 
 ## Users

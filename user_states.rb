@@ -14,7 +14,7 @@ class Machine
     when 3 then virtual_to_real_user_initial_state(msg)
     when 4 then delete_user_initial_state(msg)
     else
-      raise BotError, t[:unknown_option]
+      raise BotError, t[:unknown_command]
     end
   end
 

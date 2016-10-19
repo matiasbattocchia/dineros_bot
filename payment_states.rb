@@ -1,13 +1,13 @@
 class Machine
   def payment_initial_state(msg)
-    msg.text =~ /^\/(p|pago)\s+(.+)\s*:\s*(.+)\s*/i
+    msg.text =~ /^\/(?:p|pago)\s+(.+)\s*:\s*(.+)\s*/i
 
     if Regexp.last_match # Command with parameters.
-      concept = Regexp.last_match[2]
-      contributions = Regexp.last_match[3]
+      concept = Regexp.last_match[1]
+      contributions = Regexp.last_match[2]
 
       payment = # chat_id, payment_id, date, concept
-        Payment.build(@chat_id, msg.message_id, date_helper(msg), concept)
+        Payment.build(@chat.id, msg.message_id, date_helper(msg), concept)
 
       loop do
         # This separates the first single contribution from the rest.
@@ -24,7 +24,7 @@ class Machine
         single_contribution.match(r)
 
         if Regexp.last_match.nil?
-          raise BotError,
+          raise BotCancelError,
             t[:payment][:argument_error] % {chunk: single_contribution}
         end
 
@@ -32,7 +32,7 @@ class Machine
         _alias  = Regexp.last_match[2]
         contrib = Regexp.last_match[3]
 
-        user = Alias.find_user(@chat_id, _alias)
+        user = Alias.find_user(@chat.id, _alias)
         payment.contribution(user, contrib)
         payment.factor(user, factor)
 
@@ -42,17 +42,13 @@ class Machine
       payment.save
 
       render(t[:payment][:success] %
-             {concept: payment.concept,
-              total:   money_helper(payment.total),
-              code:    payment.payment_id})
+        {concept: payment.concept,
+         total:   currency(payment.total),
+         code:    payment.payment_id})
 
       :final_state
     else # Step-by-step process.
-      # TODO: "No active users" warning.
-      @users_kb = keyboard(
-        user_buttons(Alias.active_users(@chat_id))
-        .unshift(create_buttons)
-      )
+      @active_users = active_users(@chat.id)
 
       if @unequal_split = msg.text.match(/^\/pago_desigual/)
         render(t[:payment][:unequal_payment])
@@ -66,12 +62,12 @@ class Machine
 
   def payment_concept_state(msg)
     @payment = # chat_id, payment_id, date, concept
-      Payment.build(@chat_id, msg.message_id, date_helper(msg), msg.text)
+      Payment.build(@chat.id, msg.message_id, date_helper(msg), msg.text)
 
     render(t[:payment][:payment_advice])
 
     render(t[:payment][:participants?] % {concept: @payment.concept},
-           keyboard: @users_kb)
+      keyboard: keyboard(user_buttons(@active_users)))
 
     :payment_user_state
   end
@@ -81,49 +77,73 @@ class Machine
       @payment.save
 
       render(t[:payment][:success] %
-             {concept: @payment.concept,
-              total:   money_helper(@payment.total),
-              code:    @payment.payment_id})
+        {concept: @payment.concept,
+         total:   currency(@payment.total),
+         code:    @payment.payment_id})
 
       render(t[:payment][:expert_payment_advice] %
-             {concept: @payment.concept, transactions: @payment})
+        {concept: @payment.concept, transactions: @payment})
 
       :final_state
     else
-      @user = Alias.find_user(@chat_id, alias_helper(msg))
+      @user = Alias.find_user(@chat.id, alias_helper(msg))
 
       render(t[:payment][:contribution?] % {name: @user.first_name},
-             keyboard: keyboard([t[:nothing]]))
+        keyboard: keyboard([t[:nothing]]))
 
       :payment_contribution_state
     end
   end
 
   def payment_contribution_state(msg)
-    c = money_helper(@payment.contribution(@user, msg.text))
+    c = @payment.contribution(@user, msg.text)
+
+    render(t[:payment][:negative_contribution]) if c.negative?
+
+    c = currency(c)
 
     if @unequal_split
       render(t[:payment][:factor?] %
-             {name: @user.first_name, contribution: c},
-             keyboard: keyboard([['0', '1', '2', '3']]))
+        {name: @user.first_name, contribution: c},
+        keyboard: keyboard([['0', '1', '2', '3']]))
 
       :payment_factor_state
     else
-      render(t[:payment][:next_participant_without_factor?] %
-             {name: @user.first_name, contribution: c},
-             keyboard: @users_kb)
+      @active_users.delete(@user)
 
-      :payment_user_state
+      if @active_users.empty?
+        render(t[:payment][:done_without_factor] %
+          {name: @user.first_name, contribution: c})
+
+        payment_user_state(message_helper(t[:save]))
+      else
+        render(t[:payment][:next_participant_without_factor?] %
+          {name: @user.first_name, contribution: c},
+          keyboard: keyboard(
+            user_buttons(@active_users).unshift(create_buttons)))
+
+        :payment_user_state
+      end
     end
   end
 
   def payment_factor_state(msg)
-    f = @payment.factor(@user, msg.text)
+    f = number(@payment.factor(@user, msg.text))
 
-    render(t[:payment][:next_participant?] %
-           {name: @user.first_name, factor: money_helper(f)}, # It's not money
-           keyboard: @users_kb)                               # but works as
-                                                              # desired.
-    :payment_user_state
+    @active_users.delete(@user)
+
+    if @active_users.empty?
+      render(t[:payment][:done] %
+        {name: @user.first_name, factor: f})
+
+      payment_user_state(message_helper(t[:save]))
+    else
+      render(t[:payment][:next_participant?] %
+        {name: @user.first_name, factor: f},
+        keyboard: keyboard(
+          user_buttons(@active_users).unshift(create_buttons)))
+
+      :payment_user_state
+    end
   end
 end

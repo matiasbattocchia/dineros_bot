@@ -4,6 +4,7 @@ require 'telegram/bot'
 require 'telegram/bot/botan'
 require 'bigdecimal'
 require 'yaml'
+require 'action_view'
 
 BOT_NAME    = ENV['DINEROS_BOT_NAME']
 BOT_TOKEN   = ENV['DINEROS_BOT_TOKEN']
@@ -29,6 +30,9 @@ require_relative 'delete_states'
 class BotError < StandardError
 end
 
+class BotCancelError < StandardError
+end
+
 class Machine
   @@machines = {}
 
@@ -36,16 +40,17 @@ class Machine
     .new(hide_keyboard: true)
 
   def self.dispatch(bot, msg)
-    m = @@machines[msg.chat.id] ||= Machine.new(bot, msg.chat.id)
+    m = @@machines[msg.chat.id] ||= Machine.new(bot, msg.chat)
     m.dispatch(msg)
 
     @@machines.delete(msg.chat.id) if m.closed?
     return m
   end
 
-  def initialize(bot, chat_id)
+  def initialize(bot, chat)
     @bot     = bot
-    @chat_id = chat_id
+    @chat_id = chat.id
+    @chat    = chat
     @state   = :initial_state
   end
 
@@ -54,10 +59,10 @@ class Machine
   end
 
   def render(text, keyboard: HIDE_KB, reply_to: nil)
-    puts 'SENT:', text, '----'
+    puts "SENT to #{@chat.title || @chat.id}", text, '----'
 
     @bot.api.send_message(
-      chat_id: @chat_id,
+      chat_id: @chat.id,
       #reply_to_message_id: reply_to&.message_id,
       text: text,
       parse_mode: 'Markdown',
@@ -65,25 +70,31 @@ class Machine
   end
 
   def dispatch(msg)
-    puts 'RECEIVED:', msg.text, '----'
+    puts "RECEIVED from #{msg.from.first_name} @ #{@chat.title || @chat.id}",
+      msg.text, '----'
 
     if msg.text
       if msg.text.match(/^\/?cancelar/i)
-        render(t[:canceled], keyboard: HIDE_KB)
+        render(t[:canceled])
         @state = :final_state
 
-      elsif @state != :initial_state && msg.text
-        .match(/^\/[[:alnum:]]+/)
+      elsif @state != :initial_state && command_helper(msg)
+        render(t[:ongoing_command] % {command: command_helper(msg)})
 
-        render(t[:ongoing_command] % {command: Regexp.last_match[0]})
       else
-        begin
-          # State methods must return the next state.
-          @state = send(@state, msg)
-        rescue BotError => e
-          render(e.message)
-          @state = :final_state if @state == :initial_state
-        end
+        @state =
+          begin
+            # State methods must return the next state.
+            send(@state, msg)
+          rescue BotError => e
+            # keyboard: nil should maintain the keyboard present before
+            # the exception.
+            render(e.message, keyboard: nil)
+            @state == :initial_state ? :final_state : @state
+          rescue BotCancelError => e
+            render(e.message)
+            :final_state
+          end
       end
     elsif msg.new_chat_member
       if msg.new_chat_member.username == BOT_NAME
@@ -92,17 +103,16 @@ class Machine
         render(t[:welcome])
       else
         # The chat has a new member.
-        #Alias.create_real_user(@chat_id, msg.new_chat_member)
         render(t[:hello] % {name: msg.new_chat_member.first_name})
       end
     elsif msg.left_chat_member
       if msg.left_chat_member.username == BOT_NAME
         # Dineros was kicked from the chat.
         # x_x
-        Alias.obliterate(@chat_id)
+        Alias.obliterate(@chat.id)
       else
         # A member was kicked from the chat instead.
-        if user = Alias[chat_id: @chat_id, user_id: msg.left_chat_member.id]
+        if user = Alias[chat_id: @chat.id, user_id: msg.left_chat_member.id]
           user.to_virtual_user
           render(t[:bye] %
             {name: name_helper(user.first_name, user.last_name, true),
@@ -116,12 +126,12 @@ class Machine
 
   def initial_state(msg)
     case msg.text
-    when /^\/(p\s|pago)/i  then payment_initial_state(msg)
-    when /^\/pr[eé]stamo/i then loan_initial_state(msg)
-    when /^\/balance/i     then balance_initial_state(msg)
+    when /^\/(p\s|pago)/i  then payment_initial_state( group_chat_only(msg) )
+    when /^\/pr[eé]stamo/i then loan_initial_state( group_chat_only(msg) )
+    when /^\/balance/i     then balance_initial_state( group_chat_only(msg) )
     when /^\/c[aá]lculo/i  then calculation_initial_state(msg)
-    when /^\/usuarios/i    then users_initial_state(msg)
-    when /^\/eliminar/i    then delete_initial_state(msg)
+    when /^\/usuarios/i    then users_initial_state( group_chat_only(msg) )
+    when /^\/eliminar/i    then delete_initial_state( group_chat_only(msg) )
     when /^\/start/i       then one_on_one_initial_state(msg)
     when /^\/ayuda/i       then help_initial_state(msg)
     else

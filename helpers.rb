@@ -5,12 +5,13 @@ module Kernel
     @@text[locale]
   end
 
-  def money_helper(amount)
-    ("%g" % ("%.2f" % amount)).sub('.',',')
+  def currency(amount)
+    #ActionView::Helpers::NumberHelper
+    ("%.2f" % amount).sub('.',',').sub(',00','')
   end
 
-  def money_with_cents_helper(amount)
-    ("%.2f" % amount).sub('.',',')
+  def number(amount)
+    ("%g" % amount).sub('.',',')
   end
 
   def date_helper(msg)
@@ -18,19 +19,23 @@ module Kernel
   end
 
   def alias_helper(msg)
-    msg.text.match(/^[[:alpha:]]/)
+    msg.text.match(/[[:alpha:]]/)
 
     if Regexp.last_match.nil?
-      raise BotError, t[:helper][:alias_error]
+      raise BotError, t[:alias_error]
     end
 
     Regexp.last_match[0].downcase
   end
 
+  def command_helper(msg)
+    msg.text.match(/^\/[[[:alnum:]]_]*/)
+  end
+
   def name_helper(first_name, last_name, user_id)
     name = first_name
     name += ' ' + last_name if last_name
-    name += ' (' + t[:helper][:virtual] + ')' unless user_id
+    name += ' (' + t[:virtual] + ')' unless user_id
     name
   end
 
@@ -46,7 +51,7 @@ module Kernel
   end
 
   def pseudouser_helper(name)
-    Alias.new(alias: name.sub(' ','_'), first_name: name.sub('_',' '))
+    Alias.new(first_name: name.sub('_',' '))
   end
 
   def keyboard(buttons)
@@ -56,7 +61,7 @@ module Kernel
 
   def user_buttons(users)
     users.map do |a|
-      a.alias + ') ' + a.full_name
+      '(' + a.alias + ') ' + a.full_name
     end
   end
 
@@ -70,5 +75,27 @@ module Kernel
 
   def calculate_buttons
     [t[:cancel], t[:calculate]]
+  end
+
+  def group_chat_only(msg)
+    if msg.chat.type != 'group'
+      raise BotCancelError,
+        t[:group_chat_only] % {command: command_helper(msg)}
+    end
+
+    msg
+  end
+
+  def active_users(chat_id)
+    active_users = Alias.active_users(chat_id).all
+
+    case active_users.size
+    when 0
+      raise BotCancelError, t[:users][:no_active_users]
+    when 1
+      raise BotCancelError, t[:users][:single_active_user]
+    end
+
+    active_users
   end
 end

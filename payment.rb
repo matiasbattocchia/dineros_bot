@@ -21,7 +21,7 @@ class Payment
     end
 
     if transactions.empty?
-      raise BotError, t[:payment][:not_found] % {code: payment_id}
+      raise BotCancelError, t[:payment][:not_found] % {code: payment_id}
     end
 
     new(transactions, chat_id, payment_id,
@@ -62,22 +62,34 @@ class Payment
     @concept      = concept
   end
 
+  def [](user)
+    @transactions.fetch(user, nil)
+  end
+
+  def size
+    @transactions.size
+  end
+
   def contribution(user, contribution = 0)
     contribution.sub!(',','.') if contribution.is_a?(String)
+
+    contribution = BigDecimal(contribution)
+
+    raise BotError, t[:payment][:nan_contribution] unless contribution.finite?
+
     t = @transactions[user]
-    t.contribution = BigDecimal(contribution)
+    t.contribution = contribution
   end
 
   def factor(user, factor = 1)
-    if factor.is_a?(String)
-      factor = factor.empty? ? 1 : factor.sub(',','.')
-    end
+    factor.sub!(',','.') if factor.is_a?(String)
 
     factor = BigDecimal(factor)
-    t = @transactions[user]
 
+    raise BotError, t[:payment][:nan_factor] unless factor.finite?
     raise BotError, t[:payment][:negative_factor] if factor.negative?
 
+    t = @transactions[user]
     t.factor = factor
   end
 
@@ -93,8 +105,8 @@ class Payment
   def calculate
     average_contribution = total_contribution / total_factor
 
-    if average_contribution.nan?
-      raise BotError, t[:payment][:null_total_factor]
+    unless average_contribution.finite?
+      raise BotCancelError, t[:payment][:null_total_factor]
     end
 
     @transactions.each do |_, t|
@@ -103,11 +115,13 @@ class Payment
   end
 
   def save
-    raise BotError, t[:payment][:no_transactions] if @transactions.empty?
-
     if Transaction[chat_id: @chat_id, payment_id: @payment_id]
-      raise BotError,
+      raise BotCancelError,
         t[:payment][:existent] % {concept: @concept, code: @payment_id}
+    end
+
+    if @transactions.empty?
+      raise BotCancelError, t[:payment][:no_transactions]
     end
 
     if @transactions.size == 1
@@ -119,7 +133,7 @@ class Payment
     end
 
     if @transactions.size == 1
-      raise BotError, t[:payment][:single_transaction]
+      raise BotCancelError, t[:payment][:single_transaction]
     end
 
     calculate
@@ -133,7 +147,7 @@ class Payment
 
   def amend(amendment_id, date)
     if Transaction[chat_id: @chat_id, amended_payment_id: @payment_id]
-      raise BotError, t[:payment][:already_amended] %
+      raise BotCancelError, t[:payment][:already_amended] %
         {concept: @concept, code: @payment_id}
     end
 
@@ -163,12 +177,12 @@ class Payment
 
   def to_s
     @transactions.map do |u, t|
-      money_helper(t.factor)
-      .sub(/^1*$/,'') +
+      currency(t.factor)
+      .sub(/^1$/,'') +
 
       u.alias +
 
-      money_helper(t.contribution)
+      currency(t.contribution)
       .sub(/^0*$/,'')
     end.join(' ')
   end
@@ -177,7 +191,7 @@ class Payment
     report = []
 
     header = t[:calculation][:report_header] %
-      {total: money_helper(total), party_size: total_factor.to_i}
+      {total: currency(total), party_size: total_factor.to_i}
 
     report << header
 
@@ -185,7 +199,7 @@ class Payment
 
     creditors = groups[BigDecimal::SIGN_POSITIVE_FINITE]&.map do |pair|
       t[:calculation][:report_item] %
-        {name: pair.first.first_name, amount: money_helper(pair.last.amount)}
+        {name: pair.first.first_name, amount: currency(pair.last.amount)}
     end
 
     debt = groups[BigDecimal::SIGN_POSITIVE_FINITE]&.reduce(0) do |sum, pair|
@@ -206,7 +220,7 @@ class Payment
 
     debtors = groups[BigDecimal::SIGN_NEGATIVE_FINITE]&.map do |pair|
       t[:calculation][:report_item] %
-        {name: pair.first.first_name, amount: money_helper(-pair.last.amount)}
+        {name: pair.first.first_name, amount: currency(-pair.last.amount)}
     end
 
     if debtors
@@ -214,13 +228,18 @@ class Payment
     end
 
     if others = groups[:others]&.first&.last
-      report << t[:calculation][:report_others] %
-        {others_size: others.factor.to_i,
-         amount: money_helper(-others.amount / others.factor)}
+      if others.factor == 1
+        report << t[:calculation][:report_others_singular] %
+          {amount: currency(-others.amount)}
+      else
+        report << t[:calculation][:report_others_plural] %
+          {others_size: others.factor.to_i,
+           amount: currency(-others.amount / others.factor)}
+      end
     end
 
     footer = t[:calculation][:report_footer] %
-      {to_collect: money_helper(debt)}
+      {to_collect: currency(debt)}
 
     report << footer
 

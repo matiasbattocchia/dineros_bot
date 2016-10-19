@@ -89,12 +89,13 @@ class Alias < Sequel::Model
 
   def deactivate
     unless user_id || self.alias
-      raise BotError, t[:alias][:already_inactive_user] % {name: full_name}
+      raise BotCancelError,
+        t[:alias][:already_inactive_user] % {name: full_name}
     end
 
     if balance.nonzero?
       raise BotError, t[:alias][:non_zero_balance] %
-        {name: first_name, balance: money_helper(balance)}
+        {name: first_name, balance: currency(balance)}
     end
 
     if transactions.empty?
@@ -134,6 +135,6 @@ class Alias < Sequel::Model
     _alias = ((recommended | default) - occupied).first
 
     _alias ||
-      raise(BotError, t[:alias][:no_aliases_left] % {name: names.first})
+      raise(BotCancelError, t[:alias][:no_aliases_left] % {name: names.first})
   end
 end

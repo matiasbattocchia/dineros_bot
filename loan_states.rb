@@ -1,9 +1,6 @@
 class Machine
   def loan_initial_state(msg)
-    # TODO: "No active users" warning.
-    @users_kb = keyboard(
-      user_buttons(Alias.active_users(@chat_id))
-    )
+    @active_users = active_users(@chat.id)
 
     render(t[:loan][:concept?])
 
@@ -12,24 +9,27 @@ class Machine
 
   def loan_concept_state(msg)
     @loan = # chat_id, payment_id, date, concept
-      Payment.build(@chat_id, msg.message_id, date_helper(msg), msg.text)
+      Payment.build(@chat.id, msg.message_id, date_helper(msg), msg.text)
 
-    render(t[:loan][:lender?] % {concept: @loan.concept}, keyboard: @users_kb)
+    render(t[:loan][:lender?] % {concept: @loan.concept},
+      keyboard: keyboard(user_buttons(@active_users)))
 
     :loan_lender_state
   end
 
   def loan_lender_state(msg)
-    @lender = Alias.find_user(@chat_id, alias_helper(msg))
+    @lender = Alias.find_user(@chat.id, alias_helper(msg))
+
+    @active_users.delete(@lender)
 
     render(t[:loan][:borrower?] % {lender_name: @lender.first_name},
-           keyboard: @users_kb)
+      keyboard: keyboard(user_buttons(@active_users)))
 
     :loan_borrower_state
   end
 
   def loan_borrower_state(msg)
-    @borrower = Alias.find_user(@chat_id, alias_helper(msg))
+    @borrower = Alias.find_user(@chat.id, alias_helper(msg))
 
     raise BotError, t[:loan][:borrower_lender] if @borrower == @lender
 
@@ -39,7 +39,13 @@ class Machine
   end
 
   def loan_contribution_state(msg)
-    @loan.contribution(@lender, msg.text)
+    c = @loan.contribution(@lender, msg.text)
+
+    unless c > 0
+      raise BotError,
+        t[:loan][:non_positive_contribution] % {contribution: currency(c)}
+    end
+
     @loan.factor(@lender, 0)
 
     @loan.contribution(@borrower)
@@ -48,7 +54,7 @@ class Machine
 
     render(t[:payment][:success] %
            {concept: @loan.concept,
-            total:   money_helper(@loan.total),
+            total:   currency(@loan.total),
             code:    @loan.payment_id})
 
     render(t[:payment][:expert_payment_advice] %

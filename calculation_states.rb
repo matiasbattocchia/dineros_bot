@@ -11,7 +11,7 @@ class Machine
     raise BotError, t[:calculation][:small_party] unless @party_size > 2
 
     @payment = # chat_id, payment_id, date, concept
-      Payment.build(@chat_id, msg.message_id, date_helper(msg), 'calculation')
+      Payment.build(@chat.id, msg.message_id, date_helper(msg), 'calculation')
 
     render(t[:calculation][:payers?] % {size: @party_size})
 
@@ -30,6 +30,13 @@ class Machine
     else
       @user = pseudouser_helper(msg.text)
 
+      if @payment[@user]
+        raise BotError,
+          t[:calculation][:repeated_user] % {name: @user.first_name}
+      end
+
+      raise BotCancelError, t[:calculation][:user_limit] if @payment.size > 26
+
       render(t[:calculation][:contribution?] % {name: @user.first_name})
 
       :calculation_contribution_state
@@ -37,7 +44,7 @@ class Machine
   end
 
   def calculation_contribution_state(msg)
-    c = money_helper(@payment.contribution(@user, msg.text))
+    c = currency(@payment.contribution(@user, msg.text))
 
     if (@others = @party_size - @payment.total_factor).zero?
       render(t[:calculation][:done] %

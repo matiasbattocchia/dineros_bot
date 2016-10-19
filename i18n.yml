@@ -11,7 +11,9 @@ es:
   :canceled: Operación cancelada.
   :help: >
     Si necesitas ayuda o tienes sugerencias, contacta a @matias\_battocchia.
-
+  :group_chat_only: >
+    El comando %{command} está pensado para conversaciones grupales.
+    Méteme en un grupo y pruébalo, ¡será divertido!
   :welcome: >
     ¡Hola!, soy *Dineros*. Llevo el registro de los gastos grupales.
 
@@ -30,7 +32,7 @@ es:
 
 
     Me sacarás el máximo provecho en conversaciones grupales.
-    Crea un grupo con tus contactos y agregame. Hay dos formas:
+    Crea un grupo con tus contactos y agrégame. Hay dos formas:
 
 
     *Desde el perfil del grupo* > Añadir miembro > Buscar @dineros\_bot.
@@ -45,29 +47,41 @@ es:
     El usuario (*%{alias}*) %{name} fue convertido en usuario virtual
     por haber dejado el grupo.
 
-  :helper:
-    :alias_error: > #
-      No pude reconocer al usuario. Esperaba algo así:
+  :alias_error: > #
+    No pude reconocer al usuario. Esperaba algo así:
 
 
-      `apodo) nombre del usuario`
-    :virtual: virtual
+    `(apodo) nombre del usuario`
+  :virtual: virtual
 
   :payment:
     :not_found: 'No existe la operación con código *%{code}*.'
     :empty_concept: El concepto no puede quedar en blanco.
     :long_concept: El concepto puede tener hasta 32 caracteres de extensión.
-    :negative_factor: El factor no puede ser negativo.
-    :no_transactions: No hay transacciones para guardar.
+
+    :negative_contribution: >
+      *Atención*: El aporte ingresado es negativo. Si bien puedes hacer
+      cosas interesantes con aportes negativos, espero que sepas lo que
+      estás haciendo.
+    :nan_contribution: El aporte ingresado no es un número.
+    :negative_factor: El factor de participación no puede ser negativo.
+    :nan_factor: El factor de participación ingresado no es un número.
+
+    :no_transactions: >
+      No tiene sentido guardar un pago en el que nadie participó.
     :single_transaction: >
       No tiene sentido guardar un pago en el que participó una sola persona.
+
     :existent: >
       La operación _%{concept}_ no fue guardada porque ya existe una
       con el mismo código (%{code}).
+
     :already_amended: >
-      La operación _%{concept}_ (%{code}) ya estaba anulada.
+      La operación _%{concept}_ (%{code}) fue anulada con anterioridad.
+
     :null_total_factor: >
-      La suma de factores de participación da cero. Eso no es bueno.
+      _La suma de factores de participación da cero_; la necesito para hacer
+      una división... Mi tío intentó dividir por cero y voló en pedazos.
 
   #### Payment states ####
     :argument_error: >
@@ -102,10 +116,6 @@ es:
       Si todos los miembros del grupo participaron y hubo un único pagador,
       puedes guardar el pago nombrando a esa sola persona; yo me encargaré de
       añadir al resto.
-
-
-      Puedes volver a elegir a un participante para corregir su aporte, su
-      última entrada es la que vale.
     :participants?: '¿Quiénes participaron en _%{concept}_?'
     :contribution?: '¿Cuánto aportó %{name}?'
     :factor?: >
@@ -113,9 +123,13 @@ es:
     :next_participant_without_factor?: >
       %{name} aportó *$%{contribution}*. ¿Alguien más? o envía _guardar_ para
       registrar el pago.
+    :done_without_factor: >
+      %{name} aportó *$%{contribution}*.
     :next_participant?: >
       %{name} participó con un factor de *%{factor}*. ¿Alguien más? o envía
       _guardar_ para registrar el pago.
+    :done: >
+      %{name} participó con un factor de *%{factor}*.
     :success: >
       Operación _%{concept}_ registrada por un total de *$%{total}*.
 
@@ -126,9 +140,11 @@ es:
 
 
       /pago %{concept}: %{transactions}
-    :amend?: '¿Anular la operación _%{concept}_ (%{code})?'
-    # TODO: El código de amended es confuso.
-    :amended: 'La operación _%{concept}_ fue anulada (%{code}).'
+    :amend?: >
+      ¿Anular la operación _%{concept}_ (%{code})?
+    :amended: >
+      La operación _%{concept}_ (%{payment_code}) fue anulada.
+      El código de la anulación es *%{amendment_code}*.
 
   :loan:
     :concept?: ¿Cuál es el concepto del préstamo?
@@ -137,6 +153,9 @@ es:
     :borrower_lender_error: >
       El prestador y el prestatario no pueden ser la misma persona.
     :contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
+    :non_positive_contribution: >
+      El monto prestado tiene que ser mayor a cero; el ingresado fue
+      *$%{contribution}*.
 
   :calculation:
     :party_size?: '¿Entre cuántas personas hay que repartir el gasto?'
@@ -145,6 +164,12 @@ es:
     :payers?: >
       Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
       Nombra a uno.
+    :repeated_user: >
+      Ya ingresaste a una persona llamada _%{name}_, ponle un nombre
+      distinto así no te las confundes.
+    :user_limit: >
+      Has superado el límite de 26 contribuyentes. Prueba con menos.
+      ¿Acaso no sabías que los bots tenemos memoria limitada?
     :contribution?: '¿Cuánto aportó %{name}?'
     :next_payer?: >
       %{name} aportó *$%{contribution}*. ¿Quién más gastó? o envía _calcular_
@@ -164,24 +189,30 @@ es:
       *A mano*
     :report_even_item: >
       *•* %{name}
-    :report_others: >
-      Se le debe cobrar a las %{others_size} personas que no han aportado
+    :report_others_singular: >
+      Se le debe cobrar a la persona que no ha aportado *$%{amount}*.
+    :report_others_plural: >
+      Se les debe cobrar a las %{others_size} personas que no han aportado
       *$%{amount}* a cada una.
     :report_footer: >
       En total se debe recaudar $%{to_collect} para devolverles a los que
       aportaron por otros.
 
   :balance:
-    :item: '(*%{alias}*) %{name}: %{balance}'
+    :item: >
+      (*%{alias}*) %{name}: %{balance}
     :no_users: >
-      No hay gastos registrados todavía. Usa el comando /pago para registar
-      uno.
+      Me es imposible mostrar el estado de las cuentas porque no hay
+      usuarios registrados.
+
+
+      Usa el comando /usuarios para registar algunos usuarios.
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
 
   :alias:
     :no_alias: Necesito el apodo del usuario para poder encontrarlo.
-    :not_found: 'No existe el usuario con el apodo _%{alias}_.'
+    :not_found: 'No existe el usuario con el apodo *%{alias}*.'
     :long_name: >
       El nombre es demasiado largo. Se aceptan hasta 32 caracteres.
     :already_real_user: >
@@ -225,6 +256,18 @@ es:
     :no_users: >
       No hay usuarios registrados todavía. Usa el comando /usuarios para
       registar uno.
+    :no_active_users: >
+      No hay usuarios registrados. Se necesitan _al menos dos_
+      usuarios para compartir un gasto.
+
+
+      Usa el comando /usuarios para registar algunos usuarios.
+    :single_active_user: >
+      Hay un único usuario registrado. Se necesitan _al menos dos_
+      usuarios para compartir un gasto.
+
+
+      Usa el comando /usuarios para registar otro usuario.
     :deletable_item: >
       (*%{alias}*) %{name} /eliminar\_%{alias}
     :undeletable_item: >
@@ -235,8 +278,10 @@ es:
 
       Los usuarios sin enlace no tienen su balance en cero; arregla
       sus cuentas para poder eliminarlos.
-    :deactivate?: '¿Eliminar al usuario %{name}?'
-    :deactivated: El usuario fue eliminado.
+    :deactivate?: >
+      ¿Eliminar al usuario (*%{alias}*) %{name}?
+    :deactivated: >
+      El usuario (*%{alias}*) %{name} fue eliminado.
 
   :real_user:
     :mentions?: >
