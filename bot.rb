@@ -49,7 +49,6 @@ class Machine
 
   def initialize(bot, chat)
     @bot     = bot
-    @chat_id = chat.id
     @chat    = chat
     @state   = :initial_state
   end
@@ -114,10 +113,12 @@ class Machine
         # A member was kicked from the chat instead.
         if user = Alias[chat_id: @chat.id, user_id: msg.left_chat_member.id]
           user.to_virtual_user
-          render(t[:bye] %
-            {name: name_helper(user.first_name, user.last_name, true),
-             alias: user.alias})
+
+          render(t[:bye] % {alias: user.alias,
+            name: name_helper(user.first_name, user.last_name, true)})
         end
+
+        render(t[:bye_bye] % {name: msg.left_chat_member.first_name})
       end
     else
       puts 'Weird event.', msg, '----'

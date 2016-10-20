@@ -138,6 +138,10 @@ class Payment
 
     calculate
 
+    unless @transactions.find{ |_, t| t.contribution.nonzero? }
+      raise BotCancelError, t[:payment][:no_contributions]
+    end
+
     DB.transaction do
       @transactions.values.each(&:save)
     end

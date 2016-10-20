@@ -1,10 +1,13 @@
 class Machine
   def users_initial_state(msg)
-    options_kb = keyboard(t[:user][:menu])
+    if @first_time = msg.text.match(/^\/usuarios_inicial/)
+      real_user_initial_state(msg)
+    else
+      render(t[:user][:option?],
+        keyboard: keyboard([t[:cancel]] + t[:user][:menu]))
 
-    render(t[:user][:option?], keyboard: options_kb)
-
-    :users_options_state
+      :users_options_state
+    end
   end
 
   def users_options_state(msg)
@@ -39,21 +42,21 @@ class Machine
       mention_text = msg.text.slice(mention.offset, mention.length)
 
       if telegram_user = mention.user
-        if user = Alias[chat_id: @chat_id, user_id: telegram_user.id]
+        if user = Alias[chat_id: @chat.id, user_id: telegram_user.id]
           render(t[:real_user][:existent] %
-                 {existent: user.first_name, mention: mention_text})
+            {name: user.full_name, alias: user.alias, mention: mention_text})
         else
-          user = Alias.create_real_user(@chat_id, telegram_user)
+          user = Alias.create_real_user(@chat.id, telegram_user)
 
           render(t[:real_user][:created] %
-                 {name: user.full_name,
-                  alias: user.alias,
-                  mention: mention_text})
+            {name: user.full_name, alias: user.alias, mention: mention_text})
         end
       else
         render(t[:real_user][:no_telegram_user] % {mention: mention_text})
       end
     end
+
+    render(t[:first_time]) if @first_time
 
     :final_state
   end
@@ -65,37 +68,37 @@ class Machine
   end
 
   def virtual_user_name_state(msg)
-    msg.text.match /^([[:alpha:]][[:print:]]*)/
+    name = msg.text.match(/^[[:alpha:]][[:print:]]*/)
 
-    if Regexp.last_match.nil?
+    if name.nil?
       raise BotError, t[:virtual_user][:no_name]
     end
 
-    name = Regexp.last_match[1]
-
-    user = Alias.create_virtual_user(@chat_id, name)
+    user = Alias.create_virtual_user(@chat.id, name.to_s)
 
     render(t[:virtual_user][:created] %
-           {name: user.full_name, alias: user.alias})
+      {name: user.full_name, alias: user.alias})
 
     :final_state
   end
 
   def virtual_to_real_user_initial_state(msg)
-    virtual_users_kb = keyboard(
-      user_buttons(Alias.virtual_users(@chat_id))
-    )
+    virtual_users = Alias.virtual_users(@chat.id).all
+
+    if virtual_users.empty?
+      raise BotCancelError, t[:virtual_to_real_user][:no_virtual_users]
+    end
 
     render(t[:virtual_to_real_user][:virtual_user?],
-           keyboard: virtual_users_kb)
+      keyboard: keyboard(user_buttons(virtual_users).unshift(t[:cancel])))
 
     :virtual_to_real_user_virtual_user_state
   end
 
   def virtual_to_real_user_virtual_user_state(msg)
-    @user = Alias.find_user(@chat_id, alias_helper(msg))
+    @user = Alias.find_user(@chat.id, alias_helper(msg))
 
-    render(t[:virtual_to_real_user][:mention?] % {name: @user.full_name})
+    render(t[:virtual_to_real_user][:mention?] % {name: @user.first_name})
 
     :virtual_to_real_user_mention_state
   end
@@ -112,19 +115,23 @@ class Machine
     mention_text = msg.text.slice(mention.offset, mention.length)
 
     if telegram_user = mention.user
-      if user = Alias[chat_id: @chat_id, user_id: telegram_user.id]
-        raise BotError, t[:real_user][:existent] %
-          {existent: user.first_name, mention: mention_text}
+      if user = Alias[chat_id: @chat.id, user_id: telegram_user.id]
+        raise BotCancelError, t[:virtual_to_real_user][:existent] %
+          {name_real:     user.full_name,
+           alias_real:    user.alias,
+           name_virtual:  @user.full_name,
+           alias_virtual: @user.alias,
+           mention:       mention_text}
       else
         @user.to_real_user(telegram_user)
 
         render(t[:virtual_to_real_user][:success] %
-               {name: @user.full_name,
-                alias: @user.alias,
-                mention: mention_text})
+          {name: @user.full_name,
+           alias: @user.alias,
+           mention: mention_text})
       end
     else
-      raise BotError,
+      raise BotCancelError,
         t[:real_user][:no_telegram_user] % {mention: mention_text}
     end
 
@@ -132,18 +139,18 @@ class Machine
   end
 
   def delete_user_initial_state(msg)
-    user_list = Transaction.balance(@chat_id).map do |user|
+    user_list = Transaction.balance(@chat.id).map do |user|
       name = name_helper(user[:first_name], user[:last_name], user[:user_id])
 
       if (user[:balance] || 0).zero?
         t[:user][:deletable_item] % {name: name, alias: user[:alias]}
       else
         t[:user][:undeletable_item] %
-          {name: name, alias: user[:alias], balance: user[:balance]}
+          {name: name, alias: user[:alias], balance: currency(user[:balance])}
       end
     end
 
-    raise BotError, t[:user][:no_users] if user_list.empty?
+    raise BotCancelError, t[:user][:no_users] if user_list.empty?
 
     render(user_list.join("\n") + "\n" + t[:user][:delete_legend])
 

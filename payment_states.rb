@@ -32,6 +32,9 @@ class Machine
         _alias  = Regexp.last_match[2]
         contrib = Regexp.last_match[3]
 
+        factor  = 1 if factor.empty?
+        contrib = 0 if contrib.empty?
+
         user = Alias.find_user(@chat.id, _alias)
         payment.contribution(user, contrib)
         payment.factor(user, factor)

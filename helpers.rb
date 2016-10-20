@@ -44,7 +44,8 @@ module Kernel
   end
 
   def self_mention_helper(msg)
-    return unless offset = msg.text =~ /@/
+    # TODO: Not entirely convinced with the next regular expression.
+    return unless offset = msg.text =~ /@$|@\s/
 
     Telegram::Bot::Types::MessageEntity.new(
       length: 1, offset: offset, user: msg.from)

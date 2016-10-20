@@ -24,7 +24,12 @@ es:
 
 
     Si el grupo está preparado para comenzar, procede a inscribir a sus
-    miembros en Dineros. Para ello presiona el siguiente enlace: /usuarios.
+    miembros en Dineros. Para ello presiona el siguiente enlace:
+
+    /usuarios\_inicial.
+  :first_time: >
+    *Grandioso*. Ahora puedes usar comandos como /pago y /prestamo.
+    También puedes explorar otras posibilidades del comando /usuarios.
   :start: >
     ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
     /calculo, que permite hacer una cuenta rápida de repartición de gastos.
@@ -39,23 +44,22 @@ es:
 
 
     *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
-
   :hello: >
     Bienvenido, %{name}. Recuerda crearte un usuario usando el comando
     /usuarios.
   :bye: >
-    El usuario (*%{alias}*) %{name} fue convertido en usuario virtual
-    por haber dejado el grupo.
-
+    El usuario (*%{alias}*) %{name} fue convertido en _usuario virtual_
+    por haber dejado el grupo el miembro que lo controlaba.
+    (Dejó de estar asociado a la ID de Telegram de %{name}.)
+  :bye_bye: Te echaré de menos, %{name}.
   :alias_error: > #
     No pude reconocer al usuario. Esperaba algo así:
-
-
-    `(apodo) nombre del usuario`
+    `(apodo) nombre del usuario`.
   :virtual: virtual
 
   :payment:
     :not_found: 'No existe la operación con código *%{code}*.'
+
     :empty_concept: El concepto no puede quedar en blanco.
     :long_concept: El concepto puede tener hasta 32 caracteres de extensión.
 
@@ -71,6 +75,9 @@ es:
       No tiene sentido guardar un pago en el que nadie participó.
     :single_transaction: >
       No tiene sentido guardar un pago en el que participó una sola persona.
+    :no_contributions: >
+      No tiene sentido guardar un pago en el que ningún participante
+      contribuyó.
 
     :existent: >
       La operación _%{concept}_ no fue guardada porque ya existe una
@@ -83,17 +90,15 @@ es:
       _La suma de factores de participación da cero_; la necesito para hacer
       una división... Mi tío intentó dividir por cero y voló en pedazos.
 
-  #### Payment states ####
+    #### Payment states ####
+
     :argument_error: >
       No pude entender el argumento *%{chunk}*.
 
-
       Recuerda que un argumento se conforma como `[factor]apodo[cantidad]`.
-
 
       Tanto _factor_ como _cantidad_ son números y son opcionales.
       _factor_ no puede ser negativo.
-
 
       Los argumentos se separan entre sí con espacios pero no puede
       haberlos dentro de un mismo argumento.
@@ -121,12 +126,12 @@ es:
     :factor?: >
       %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
     :next_participant_without_factor?: >
-      %{name} aportó *$%{contribution}*. ¿Alguien más? o envía _guardar_ para
+      %{name} aportó *$%{contribution}*. ¿Quién más? o envía _guardar_ para
       registrar el pago.
     :done_without_factor: >
       %{name} aportó *$%{contribution}*.
     :next_participant?: >
-      %{name} participó con un factor de *%{factor}*. ¿Alguien más? o envía
+      %{name} participó con un factor de *%{factor}*. ¿Quién más? o envía
       _guardar_ para registrar el pago.
     :done: >
       %{name} participó con un factor de *%{factor}*.
@@ -200,13 +205,11 @@ es:
 
   :balance:
     :item: >
-      (*%{alias}*) %{name}: %{balance}
+      `(%{alias})` %{name}: %{balance}
     :no_users: >
       Me es imposible mostrar el estado de las cuentas porque no hay
-      usuarios registrados.
-
-
-      Usa el comando /usuarios para registar algunos usuarios.
+      usuarios registrados. Utiliza el comando /usuarios\_inicial para
+      registar algunos usuarios.
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
 
@@ -227,55 +230,51 @@ es:
     :no_aliases_left: >
       No puedo crear un usuario para _%{name}_ porque la cantidad máxima
       de usuarios activos para este grupo ha sido alcanzada (26 usuarios).
-
-
       Por favor contacta a los desarrolladores de Dineros usando el comando
       /ayuda si es necesario eludir esta restricción.
 
   :user:
     :menu:
-      - 1) Crear un usuario real
-      - 2) Crear un usuario virtual
-      - 3) Tomar control de un usuario virtual
-      - 4) Eliminar a un usuario
+      - 1. Crear un usuario real
+      - 2. Crear un usuario virtual
+      - 3. Asignar usuario virtual
+      - 4. Eliminar un usuario
     :option?: >
-      (*Opción 1*) Registra a un miembro de este grupo para que pueda usar
-      Dineros.
+      *Crea un usuario real* a partir de un miembro de este grupo para que
+      pueda usar Dineros.
 
 
-      (*Opción 2*) Un *usuario virtual* sirve para representar a una persona
-      que todavía no usa Telegram.
+      *Crea un usuario virtual* para representar a una persona que todavía
+      no usa Telegram.
 
 
-      (*Opción 3*) Un usuario virtual puede convertirse en usuario real
-      manteniendo los pagos registrados a su nombre.
+      *Asigna usuario virtual* a un miembro de este grupo manteniendo los
+      pagos registrados a su nombre.
 
 
-      (*Opción 4*) Eliminar a un usuario. Como condición debe tener
-      *balance en cero* (no debe ser deudor ni acreedor).
-    :no_users: >
-      No hay usuarios registrados todavía. Usa el comando /usuarios para
-      registar uno.
+      *Elimina a un usuario*. Como condición debe tener _balance en cero_
+      (no debe ser deudor ni acreedor).
+
     :no_active_users: >
       No hay usuarios registrados. Se necesitan _al menos dos_
-      usuarios para compartir un gasto.
-
-
-      Usa el comando /usuarios para registar algunos usuarios.
+      usuarios para compartir un gasto. Utiliza el comando /usuarios\_inicial
+      para registar algunos usuarios.
     :single_active_user: >
       Hay un único usuario registrado. Se necesitan _al menos dos_
-      usuarios para compartir un gasto.
+      usuarios para compartir un gasto. Utiliza el comando /usuarios
+      para registar a un usuario más.
 
-
-      Usa el comando /usuarios para registar otro usuario.
+    :no_users: >
+      No hay usuarios para eliminar. Si alguna vez los hubo, han acabado
+      con todos.
     :deletable_item: >
-      (*%{alias}*) %{name} /eliminar\_%{alias}
+      `(%{alias})` %{name}
+
+      /eliminar\_%{alias}
     :undeletable_item: >
-      (*%{alias}*) %{name}: %{balance}
+      `(%{alias})` %{name}: %{balance}
     :delete_legend: >
       _Presiona el enlace correspondiente para eliminar al usuario_.
-
-
       Los usuarios sin enlace no tienen su balance en cero; arregla
       sus cuentas para poder eliminarlos.
     :deactivate?: >
@@ -285,40 +284,50 @@ es:
 
   :real_user:
     :mentions?: >
-      Menciona a los miembros del grupo. Las menciones comienzan con el
-      caracter @, por ejemplo @dineros\_bot; escríbela y selecciona al usuario
-      de la lista que se desplegará. Puedes mencionarlos a todos en el mismo
-      mensaje.
-
-
-      _Verás que no te puedes mencionar a ti mismo. No importa, escribe
-      simplemente una @ sin ninguna añadidura y sabré que eres tú._
-    :no_mentions: No has mencionado a nadie. Recurre al poder de la arroba.
+      Menciona a los miembros del grupo. _Las menciones comienzan con el
+      caracter @_, por ejemplo @dineros\_bot; escríbela y selecciona al
+      miembro de la lista que se desplegará. Puedes mencionarlos a todos
+      en el mismo mensaje. _Escribe una @ sin ninguna añadidura para
+      mencionarte a ti mismo._
+    :no_mentions: >
+      No has mencionado a nadie. Recurre al poder de la arroba.
     :existent: >
-      No creé un usuario para %{mention} porque ya existe en este grupo
-      con el nombre de _%{existent}_.
+      No creé un usuario para %{mention} porque ya posee uno en este grupo
+      con el nombre de (*%{alias}*) %{name}.
+      %{mention} puede salir del grupo y volver a entrar, de esta manerá
+      liberará al usuario que controla y podrá crear otro.
     :created: >
       El usuario (*%{alias}*) %{name} ha sido creado para %{mention}.
     :no_telegram_user: >
-      La mención %{mention} no corresponde a ninguno de los usuarios
-      de este grupo. Agrega al usuario al grupo previo a registrarlo
-      en Dineros.
+      La mención %{mention} no corresponde a ninguno de los miembros
+      de este grupo. _Agrega a la persona al grupo_ previo a registrarla.
 
   :virtual_user:
     :name?: ¿Cuál será el nombre del usuario virtual?
     :no_name: >
-      Todo usuario necesita un nombre. Los nombres pueden
-      contener números y espacios pero deben empezar con una letra.
+      Los nombres pueden contener números y espacios pero deben empezar
+      con una letra. Inténtalo nuevamente.
     :created: >
       El usuario (*%{alias}*) %{name} ha sido creado.
 
   :virtual_to_real_user:
+    :no_virtual_users: >
+      Nada que hacer, no hay usuarios virtuales por el momento.
     :virtual_user?: >
-      Elige al usuario virtual que pasará a ser controlado por un
-      usuario real.
+      Elige al usuario virtual que pasará a ser controlado por un miembro
+      del grupo.
     :mention?: >
       Menciona al miembro del grupo que pasará a tener control de %{name}.
-      Las menciones comienzan con el caracter @, por ejemplo @dineros\_bot;
-      escríbela y selecciona al usuario de la lista que se desplegará.
+      _Las menciones comienzan con el caracter @_, por ejemplo @dineros\_bot;
+      escríbela y selecciona al miembro de la lista que se desplegará. El
+      miembro mencionado no debe poseer un usuario. _Escribe una @ sin
+      ninguna añadidura para mencionarte a ti mismo._
+    :existent: >
+      %{mention} ya posee un usuario en este grupo con el nombre de
+      (*%{alias_real}*) %{name_real}. Consecuentemente no puede tomar el
+      control de (*%{alias_virtual}*) %{name_virtual}.
+      %{mention} puede salir del grupo y volver a entrar, de esta manerá
+      liberará al usuario que controla y podrá elegir otro.
     :success: >
-      El usuario (*%{alias}*) %{name} ahora pertenece a %{mention}.
+      El usuario (*%{alias}*) %{name} ahora pertenece a %{mention}. El
+      usuario quedará liberado si %{mention} abandona el grupo.
