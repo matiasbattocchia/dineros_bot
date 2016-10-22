@@ -44,3 +44,17 @@ DB.create_table? :accounts do
 
   index :alias_id
 end
+
+DB.create_table? :rrpps do
+  Fixnum :user_id, primary_key: true
+  String :first_name, size: 32, null: false
+  String :last_name,  size: 32
+end
+
+DB.create_table? :recommendations do
+  foreign_key :rrpp_id
+
+  Fixnum :user_id, primary_key: true
+  String :first_name, size: 32, null: false
+  String :last_name,  size: 32
+end

@@ -8,14 +8,24 @@ class Alias < Sequel::Model
   # no       yes    virtual
   # no       no     inactive
 
+  def real_user?
+    user_id && self.alias
+  end
+
+  def virtual_user?
+    !user_id && self.alias
+  end
+
+  def active_user?
+    self.alias
+  end
+
   def self.find_user(chat_id, _alias)
-    raise BotError, t[:alias][:no_alias] if _alias.empty?
+    raise BotError, t[:alias][:no_alias] if _alias.nil?
 
     user = Alias[chat_id: chat_id, alias: _alias]
 
-    raise BotError, t[:alias][:not_found] % {alias: _alias} unless user
-
-    user
+    user || raise(BotError, t[:alias][:not_found] % {alias: _alias})
   end
 
   def self.active_users(chat_id)
@@ -67,8 +77,8 @@ class Alias < Sequel::Model
   end
 
   def to_real_user(telegram_user)
-    if user_id
-      raise BotError, t[:alias][:already_real_user] %
+    if real_user?
+      raise BotCancelError, t[:alias][:already_real_user] %
         {existent: first_name, to_be_created: telegram_user.first_name}
     end
 
@@ -80,47 +90,37 @@ class Alias < Sequel::Model
   end
 
   def to_virtual_user
-    unless user_id
-      raise BotError, t[:alias][:already_virtual_user] % {name: full_name}
+    if virtual_user?
+      raise BotCancelError,
+        t[:alias][:already_virtual_user] % {name: full_name}
     end
 
     update(user_id: nil)
   end
 
   def deactivate
-    unless user_id || self.alias
+    unless active_user?
       raise BotCancelError,
         t[:alias][:already_inactive_user] % {name: full_name}
     end
 
     if balance.nonzero?
-      raise BotError, t[:alias][:non_zero_balance] %
+      raise BotCancelError, t[:alias][:non_zero_balance] %
         {name: first_name, balance: currency(balance)}
     end
 
     if transactions.empty?
       delete
     else
-      update(user_id: nil, alias: nil)
+      update(alias: nil)
     end
   end
 
-  #def update
-    #result = u.update(
-      #alias: a,
-      #first_name: user.first_name,
-      #last_name: user.last_name,
-      #username: user.username)
-
-    ## result.nil? means that the record was not updated because
-    ## it has not changed, but everything is fine.
-    #if result || result.nil?
-      #render(t[:alias][:updated] % {name: full_name, alias: _alias})
-    #end
-  #end
-
   def full_name
-    name_helper(first_name, last_name, user_id)
+    name =  first_name
+    name += ' ' + last_name   if last_name
+    name += ' ' + t[:virtual] if virtual_user?
+    name
   end
 
   def balance

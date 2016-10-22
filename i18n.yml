@@ -7,10 +7,22 @@ es:
   :unknown_command: Lo siento, no entendí la solicitud.
   :ongoing_command: >
     No puedo ejecutar %{command} porque hay otro comando en progreso.
-    Puedes presionar /cancelar para salir del mismo.
+    Puedes presionar
+
+    /cancelar para salir del mismo.
   :canceled: Operación cancelada.
   :help: >
     Si necesitas ayuda o tienes sugerencias, contacta a @matias\_battocchia.
+
+
+    Me sacarás el máximo provecho en conversaciones grupales.
+    Crea un grupo con tus contactos y agrégame. Hay dos formas:
+
+
+    *Desde el perfil del grupo* > Añadir miembro > Buscar @dineros\_bot.
+
+
+    *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
   :group_chat_only: >
     El comando %{command} está pensado para conversaciones grupales.
     Méteme en un grupo y pruébalo, ¡será divertido!
@@ -28,37 +40,45 @@ es:
 
     /usuarios\_inicial.
   :first_time: >
-    *Grandioso*. Ahora puedes usar comandos como /pago y /prestamo.
-    También puedes explorar otras posibilidades del comando /usuarios.
+    *Grandioso*. Ahora puedes usar comandos como
+
+    /pago y /prestamo.
+    También puedes explorar otras posibilidades del comando
+
+    /usuarios.
   :start: >
     ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
+
     /calculo, que permite hacer una cuenta rápida de repartición de gastos.
     ¡Pruébalo!
 
 
-    Me sacarás el máximo provecho en conversaciones grupales.
-    Crea un grupo con tus contactos y agrégame. Hay dos formas:
+    Me sacarás el máximo provecho en conversaciones grupales. Agrégame
+    a un grupo como lo harías normalmente con un contacto (mi nombre es
+    @dineros\_bot) o usa el siguiente enlace.
 
 
-    *Desde el perfil del grupo* > Añadir miembro > Buscar @dineros\_bot.
-
-
-    *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
+    https://telegram.me/dineros\_bot?startgroup=true
   :hello: >
     Bienvenido, %{name}. Recuerda crearte un usuario usando el comando
     /usuarios.
   :bye: >
     El usuario (*%{alias}*) %{name} fue convertido en _usuario virtual_
     por haber dejado el grupo el miembro que lo controlaba.
-    (Dejó de estar asociado a la ID de Telegram de %{name}.)
   :bye_bye: Te echaré de menos, %{name}.
   :alias_error: > #
     No pude reconocer al usuario. Esperaba algo así:
     `(apodo) nombre del usuario`.
-  :virtual: virtual
+  :to_share: >
+    El enlace a difundir es:
+  :recommendation: >
+    %{converted_name} ha comenzado a usarme.
+    Es el usuario número *%{conversions}* gracias a ti.
+    ¡Bien hecho, %{rrpp_name}!
 
   :payment:
-    :not_found: 'No existe la operación con código *%{code}*.'
+    :not_found: >
+      No existe la operación con código *%{code}*.
 
     :empty_concept: El concepto no puede quedar en blanco.
     :long_concept: El concepto puede tener hasta 32 caracteres de extensión.
@@ -155,7 +175,7 @@ es:
     :concept?: ¿Cuál es el concepto del préstamo?
     :lender?: '¿Quién prestó para _%{concept}_?'
     :borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
-    :borrower_lender_error: >
+    :borrower_lender: >
       El prestador y el prestatario no pueden ser la misma persona.
     :contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
     :non_positive_contribution: >
@@ -208,14 +228,16 @@ es:
       `(%{alias})` %{name}: %{balance}
     :no_users: >
       Me es imposible mostrar el estado de las cuentas porque no hay
-      usuarios registrados. Utiliza el comando /usuarios\_inicial para
-      registar algunos usuarios.
+      usuarios registrados. Utiliza el comando
+
+      /usuarios\_inicial para registar algunos usuarios.
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
 
   :alias:
-    :no_alias: Necesito el apodo del usuario para poder encontrarlo.
-    :not_found: 'No existe el usuario con el apodo *%{alias}*.'
+    :no_alias: No se proporcionó el apodo del usuario.
+    :not_found: >
+      No existe el usuario con el apodo *%{alias}*.
     :long_name: >
       El nombre es demasiado largo. Se aceptan hasta 32 caracteres.
     :already_real_user: >
@@ -224,14 +246,16 @@ es:
     :already_virtual_user: _%{name}_ ya es un usuario virtual.
     :already_inactive_user: _%{name}_ ya es un usuario inactivo.
     :non_zero_balance: >
-      _%{name}_ no puede ser eliminado ya que su balance
+      (*%{alias}*) _%{name}_ no puede ser eliminado ya que su balance
       es de *$%{balance}*. Sólo los usuarios con balance nulo pueden
       ser desactivados (no se les debe dinero ni lo deben).
     :no_aliases_left: >
       No puedo crear un usuario para _%{name}_ porque la cantidad máxima
       de usuarios activos para este grupo ha sido alcanzada (26 usuarios).
       Por favor contacta a los desarrolladores de Dineros usando el comando
+
       /ayuda si es necesario eludir esta restricción.
+    :virtual: (virtual)
 
   :user:
     :menu:
@@ -257,12 +281,14 @@ es:
 
     :no_active_users: >
       No hay usuarios registrados. Se necesitan _al menos dos_
-      usuarios para compartir un gasto. Utiliza el comando /usuarios\_inicial
-      para registar algunos usuarios.
+      usuarios para compartir un gasto. Utiliza el comando
+
+      /usuarios\_inicial para registar algunos usuarios.
     :single_active_user: >
       Hay un único usuario registrado. Se necesitan _al menos dos_
-      usuarios para compartir un gasto. Utiliza el comando /usuarios
-      para registar a un usuario más.
+      usuarios para compartir un gasto. Utiliza el comando
+
+      /usuarios para registar a un usuario más.
 
     :no_users: >
       No hay usuarios para eliminar. Si alguna vez los hubo, han acabado
@@ -316,6 +342,8 @@ es:
     :virtual_user?: >
       Elige al usuario virtual que pasará a ser controlado por un miembro
       del grupo.
+    :not_a_virtual_user: >
+      (*%{alias}*) %{name} no es un usuario virtual.
     :mention?: >
       Menciona al miembro del grupo que pasará a tener control de %{name}.
       _Las menciones comienzan con el caracter @_, por ejemplo @dineros\_bot;

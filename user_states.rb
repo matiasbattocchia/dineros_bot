@@ -98,6 +98,11 @@ class Machine
   def virtual_to_real_user_virtual_user_state(msg)
     @user = Alias.find_user(@chat.id, alias_helper(msg))
 
+    unless @user.virtual_user?
+      raise BotError, t[:virtual_to_real_user][:not_a_virtual_user] %
+        {name: @user.full_name, alias: @user.alias}
+    end
+
     render(t[:virtual_to_real_user][:mention?] % {name: @user.first_name})
 
     :virtual_to_real_user_mention_state
@@ -126,8 +131,8 @@ class Machine
         @user.to_real_user(telegram_user)
 
         render(t[:virtual_to_real_user][:success] %
-          {name: @user.full_name,
-           alias: @user.alias,
+          {name:    @user.full_name,
+           alias:   @user.alias,
            mention: mention_text})
       end
     else

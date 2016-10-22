@@ -16,6 +16,11 @@ Even reckonings make long friends.
 * usuarios - gestión del grupo
 * ayuda - consultas y sugerencias
 
+### About
+
+
+### Description
+
 
 ### TODO
 Private chat:
@@ -43,11 +48,12 @@ General:
 12. Corrections during payment
 13. Numeral separator regular expression
 14. Always-present cancel button during interactive commands
-15. Expert payment advice does not reflect the one-payer-all-participants
-    feature, and the expert payment does not inform about the participants
 
 ### Bugs
 
 * Markdown escaping at mentions.
 * Machine instances timeout.
-
+* Expert payment advice does not reflect the one-payer-all-participants
+  feature, and the expert payment does not inform about the participants
+* Name helper at balance and user deletion.
+* No payment deletion if inactive users.

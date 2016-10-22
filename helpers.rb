@@ -32,10 +32,10 @@ module Kernel
     msg.text.match(/^\/[[[:alnum:]]_]*/)
   end
 
-  def name_helper(first_name, last_name, user_id)
+  def name_helper(first_name, last_name, virtual_user)
     name = first_name
     name += ' ' + last_name if last_name
-    name += ' (' + t[:virtual] + ')' unless user_id
+    name += ' (' + t[:virtual] + ')' if virtual_user
     name
   end
 
@@ -52,7 +52,7 @@ module Kernel
   end
 
   def pseudouser_helper(name)
-    Alias.new(first_name: name.sub('_',' '))
+    Alias.new(first_name: name)
   end
 
   def keyboard(buttons)
@@ -92,9 +92,9 @@ module Kernel
 
     case active_users.size
     when 0
-      raise BotCancelError, t[:users][:no_active_users]
+      raise BotCancelError, t[:user][:no_active_users]
     when 1
-      raise BotCancelError, t[:users][:single_active_user]
+      raise BotCancelError, t[:user][:single_active_user]
     end
 
     active_users

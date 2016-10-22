@@ -33,6 +33,16 @@ end
 class BotCancelError < StandardError
 end
 
+class RRPP < Sequel::Model
+  unrestrict_primary_key
+  one_to_many :recommendations
+end
+
+class Recommendation < Sequel::Model
+  unrestrict_primary_key
+  many_to_one :rrpp
+end
+
 class Machine
   @@machines = {}
 
@@ -57,12 +67,11 @@ class Machine
     @state == :final_state
   end
 
-  def render(text, keyboard: HIDE_KB, reply_to: nil)
+  def render(text, keyboard: HIDE_KB, chat_id: nil)
     puts "SENT to #{@chat.title || @chat.id}", text, '----'
 
     @bot.api.send_message(
-      chat_id: @chat.id,
-      #reply_to_message_id: reply_to&.message_id,
+      chat_id: chat_id || @chat.id,
       text: text,
       parse_mode: 'Markdown',
       reply_markup: keyboard)
@@ -86,7 +95,7 @@ class Machine
             # State methods must return the next state.
             send(@state, msg)
           rescue BotError => e
-            # keyboard: nil should maintain the keyboard present before
+            # keyboard: nil should maintain the present keyboard before
             # the exception.
             render(e.message, keyboard: nil)
             @state == :initial_state ? :final_state : @state
@@ -135,6 +144,7 @@ class Machine
     when /^\/eliminar/i    then delete_initial_state( group_chat_only(msg) )
     when /^\/start/i       then one_on_one_initial_state(msg)
     when /^\/ayuda/i       then help_initial_state(msg)
+    when /^\/rrpp/i        then rrpp_initial_state(msg)
     else
       # If an instance of Machine do not reach a final state it will not
       # be garbage collected. On the other hand in an active conversation
@@ -147,11 +157,53 @@ end
 
 def one_on_one_initial_state(msg)
   render(t[:start])
+
+  if msg.text.match(/^\/start (?<rrpp_code>[A-Za-z0-9_\-]+)/i)
+    if rrpp = RRPP[ Regexp.last_match[:rrpp_code] ]
+
+      unless rrpp.user_id == msg.from.id ||
+          rrpp.recommendations_dataset[msg.from.id]
+
+        rrpp.add_recommendation(
+          user_id:    msg.from.id,
+          first_name: msg.from.first_name,
+          last_name:  msg.from.last_name
+        )
+
+        full_name  = msg.from.first_name
+        full_name += ' ' + msg.from.last_name if msg.from.last_name
+
+        render(t[:recommendation] %
+          {rrpp_name:      rrpp.first_name,
+           converted_name: full_name,
+           conversions:    rrpp.recommendations_dataset.count},
+          chat_id: rrpp.user_id)
+
+      end
+    end
+  end
+
   :final_state
 end
 
 def help_initial_state(msg)
   render(t[:help])
+  :final_state
+end
+
+def rrpp_initial_state(msg)
+  RRPP.find_or_create(
+    user_id:    msg.from.id,
+    first_name: msg.from.first_name,
+    last_name:  msg.from.last_name
+  )
+
+  render(t[:to_share])
+
+  render(
+    "https://telegram.me/#{BOT_NAME}?start=#{msg.from.id}".gsub('_','\_')
+  )
+
   :final_state
 end
 

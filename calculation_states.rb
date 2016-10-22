@@ -13,7 +13,7 @@ class Machine
     @payment = # chat_id, payment_id, date, concept
       Payment.build(@chat.id, msg.message_id, date_helper(msg), 'calculation')
 
-    render(t[:calculation][:payers?] % {size: @party_size})
+    render(t[:calculation][:payers?].s(size: @party_size))
 
     :calculation_payer_state
   end
@@ -28,18 +28,24 @@ class Machine
 
       :final_state
     else
-      @user = pseudouser_helper(msg.text)
+      msg.text.match /^(?<name>[[:print:]]+)(?<amount>[[[:digit:]],\.]+)?$/
+
+      @user = pseudouser_helper(Regexp.last_match(:name))
 
       if @payment[@user]
         raise BotError,
-          t[:calculation][:repeated_user] % {name: @user.first_name}
+          t[:calculation][:repeated_user].s(name: @user.first_name)
       end
 
       raise BotCancelError, t[:calculation][:user_limit] if @payment.size > 26
 
-      render(t[:calculation][:contribution?] % {name: @user.first_name})
+      if Regexp.last_match(:amount)
+        calculation_contribution_state(Regexp.last_match(:amount))
+      else
+        render(t[:calculation][:contribution?].s(name: @user.first_name))
 
-      :calculation_contribution_state
+        :calculation_contribution_state
+      end
     end
   end
 
@@ -47,14 +53,16 @@ class Machine
     c = currency(@payment.contribution(@user, msg.text))
 
     if (@others = @party_size - @payment.total_factor).zero?
-      render(t[:calculation][:done] %
-             {name: @user.first_name, contribution: c})
+      render(t[:calculation][:done].s(
+        name: @user.first_name, contribution: c)
+      )
 
       calculation_payer_state(message_helper(t[:calculate]))
     else
-      render(t[:calculation][:next_payer?] %
-             {name: @user.first_name, contribution: c},
-             keyboard: keyboard([calculate_buttons]))
+      render(t[:calculation][:next_payer?].s(
+        name: @user.first_name, contribution: c),
+        keyboard: keyboard([calculate_buttons])
+      )
 
       :calculation_payer_state
     end
