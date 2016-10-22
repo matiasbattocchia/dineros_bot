@@ -64,7 +64,7 @@ es:
     /usuarios.
   :bye: >
     El usuario %{full_name} fue convertido en _usuario virtual_
-    por haber dejado el grupo el miembro que lo controlaba.
+    por haber dejado el grupo quien lo controlaba.
   :bye_bye: Te echaré de menos, %{name}.
   :alias_error: > #
     No pude reconocer al usuario. Esperaba algo así:
@@ -107,7 +107,10 @@ es:
       con el mismo código (%{code}).
 
     :already_amended: >
-      La operación _%{concept}_ (%{code}) fue anulada con anterioridad.
+      La operación _%{concept}_ (%{code}) ya se encontraba anulada.
+    :inactive_user: >
+      La operación _%{concept}_ (%{code}) no puede ser anulada porque tiene
+      como participante a %{full_name}, un usuario eliminado.
 
     :null_total_factor: >
       _La suma de factores de participación da cero_; la necesito para hacer

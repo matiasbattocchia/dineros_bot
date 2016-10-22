@@ -158,6 +158,13 @@ class Payment
     amendments = {}
 
     @transactions.each do |u, t|
+      unless u.active_user?
+        raise BotCancelError, t[:payment][:inactive_user] %
+          {concept:   escape(@concept),
+           code:      @payment_id,
+           full_name: u.full_name}
+      end
+
       # We copy each transaction...
       a = Transaction.new
       a.alias_id = t.alias_id

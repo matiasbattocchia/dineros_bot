@@ -87,7 +87,7 @@ class Machine
         @state = :final_state
 
       elsif @state != :initial_state && command_helper(msg)
-        render(t[:ongoing_command] % {command: command_helper(msg)})
+        render(t[:ongoing_command] % {command: escape(command_helper(msg))})
 
       else
         @state =
@@ -111,7 +111,7 @@ class Machine
         render(t[:welcome])
       else
         # The chat has a new member.
-        render(t[:hello] % {name: msg.new_chat_member.first_name})
+        render(t[:hello] % {name: escape(msg.new_chat_member.first_name)})
       end
     elsif msg.left_chat_member
       if msg.left_chat_member.username == BOT_NAME
@@ -123,11 +123,10 @@ class Machine
         if user = Alias[chat_id: @chat.id, user_id: msg.left_chat_member.id]
           user.to_virtual_user
 
-          render(t[:bye] % {alias: user.alias,
-            name: name_helper(user.first_name, user.last_name, true)})
+          render(t[:bye] % {full_name: user.full_name})
         end
 
-        render(t[:bye_bye] % {name: msg.left_chat_member.first_name})
+        render(t[:bye_bye] % {name: escape(msg.left_chat_member.first_name)})
       end
     else
       puts 'Weird event.', msg, '----'
@@ -162,7 +161,7 @@ def one_on_one_initial_state(msg)
     if rrpp = RRPP[ Regexp.last_match[:rrpp_code] ]
 
       unless rrpp.user_id == msg.from.id ||
-          rrpp.recommendations_dataset[msg.from.id]
+        rrpp.recommendations_dataset[msg.from.id]
 
         rrpp.add_recommendation(
           user_id:    msg.from.id,
@@ -170,15 +169,14 @@ def one_on_one_initial_state(msg)
           last_name:  msg.from.last_name
         )
 
-        full_name  = msg.from.first_name
-        full_name += ' ' + msg.from.last_name if msg.from.last_name
+        converted_name = name(msg.from.first_name, msg.from.last_name)
 
         render(t[:recommendation] %
-          {rrpp_name:      rrpp.first_name,
-           converted_name: full_name,
+          {rrpp_name:      escape(rrpp.first_name),
+           converted_name: converted_name,
            conversions:    rrpp.recommendations_dataset.count},
-          chat_id: rrpp.user_id)
-
+          chat_id: rrpp.user_id
+        )
       end
     end
   end
@@ -201,7 +199,7 @@ def rrpp_initial_state(msg)
   render(t[:to_share])
 
   render(
-    "https://telegram.me/#{BOT_NAME}?start=#{msg.from.id}".gsub('_','\_')
+    escape("https://telegram.me/#{BOT_NAME}?start=#{msg.from.id}")
   )
 
   :final_state

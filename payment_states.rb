@@ -45,9 +45,10 @@ class Machine
       payment.save
 
       render(t[:payment][:success] %
-        {concept: payment.concept,
+        {concept: escape(payment.concept),
          total:   currency(payment.total),
-         code:    payment.payment_id})
+         code:    payment.payment_id}
+      )
 
       :final_state
     else # Step-by-step process.
@@ -69,8 +70,9 @@ class Machine
 
     render(t[:payment][:payment_advice])
 
-    render(t[:payment][:participants?] % {concept: @payment.concept},
-      keyboard: keyboard(user_buttons(@active_users)))
+    render(t[:payment][:participants?] % {concept: escape(@payment.concept)},
+      keyboard: keyboard( user_buttons(@active_users) )
+    )
 
     :payment_user_state
   end
@@ -80,19 +82,22 @@ class Machine
       @payment.save
 
       render(t[:payment][:success] %
-        {concept: @payment.concept,
+        {concept: escape(@payment.concept),
          total:   currency(@payment.total),
-         code:    @payment.payment_id})
+         code:    @payment.payment_id}
+      )
 
       render(t[:payment][:expert_payment_advice] %
-        {concept: @payment.concept, transactions: @payment})
+        {concept: escape(@payment.concept), transactions: @payment}
+      )
 
       :final_state
     else
       @user = Alias.find_user(@chat.id, alias_helper(msg))
 
-      render(t[:payment][:contribution?] % {name: @user.first_name},
-        keyboard: keyboard([t[:nothing]]))
+      render(t[:payment][:contribution?] % {name: escape(@user.first_name)},
+        keyboard: keyboard( [t[:nothing]] )
+      )
 
       :payment_contribution_state
     end
@@ -107,8 +112,9 @@ class Machine
 
     if @unequal_split
       render(t[:payment][:factor?] %
-        {name: @user.first_name, contribution: c},
-        keyboard: keyboard([['0', '1', '2', '3']]))
+        {name: escape(@user.first_name), contribution: c},
+        keyboard: keyboard( [['0', '1', '2', '3']] )
+      )
 
       :payment_factor_state
     else
@@ -116,14 +122,17 @@ class Machine
 
       if @active_users.empty?
         render(t[:payment][:done_without_factor] %
-          {name: @user.first_name, contribution: c})
+          {name: escape(@user.first_name), contribution: c}
+        )
 
         payment_user_state(message_helper(t[:save]))
       else
         render(t[:payment][:next_participant_without_factor?] %
-          {name: @user.first_name, contribution: c},
+          {name: escape(@user.first_name), contribution: c},
           keyboard: keyboard(
-            user_buttons(@active_users).unshift(create_buttons)))
+            user_buttons(@active_users).unshift(create_buttons)
+          )
+        )
 
         :payment_user_state
       end
@@ -137,14 +146,17 @@ class Machine
 
     if @active_users.empty?
       render(t[:payment][:done] %
-        {name: @user.first_name, factor: f})
+        {name: escape(@user.first_name), factor: f}
+      )
 
       payment_user_state(message_helper(t[:save]))
     else
       render(t[:payment][:next_participant?] %
-        {name: @user.first_name, factor: f},
+        {name: escape(@user.first_name), factor: f},
         keyboard: keyboard(
-          user_buttons(@active_users).unshift(create_buttons)))
+          user_buttons(@active_users).unshift(create_buttons)
+        )
+      )
 
       :payment_user_state
     end
