@@ -25,40 +25,51 @@ class Alias < Sequel::Model
 
     user = Alias[chat_id: chat_id, alias: _alias]
 
-    user || raise(BotError, t[:alias][:not_found] % {alias: _alias})
+    user || raise(BotError, t[:alias][:not_found] % {alias: escape(_alias)})
   end
 
   def self.active_users(chat_id)
-    where(chat_id: chat_id).exclude(alias: nil).order(:first_name, :last_name)
+    where(chat_id: chat_id)
+      .exclude(alias: nil)
+      .order(:first_name, :last_name)
   end
 
   def self.real_users(chat_id)
-    where(chat_id: chat_id).exclude(user_id: nil, alias: nil)
+    where(chat_id: chat_id)
+      .exclude(user_id: nil, alias: nil)
       .order(:first_name, :last_name)
   end
 
   def self.virtual_users(chat_id)
-    where(chat_id: chat_id, user_id: nil).exclude(alias: nil)
+    where(chat_id: chat_id, user_id: nil)
+      .exclude(alias: nil)
       .order(:first_name, :last_name)
   end
 
   def self.create_virtual_user(chat_id, name)
-    raise BotError, t[:alias][:long_name] % {name: name} if name.length > 32
+    raise BotError, t[:alias][:long_name] if name.length > 32
 
     _alias = choose_alias(chat_id, name)
 
     create(
       chat_id:    chat_id,
       alias:      _alias,
-      first_name: name)
+      first_name: name
+    )
   end
 
   def self.create_real_user(chat_id, telegram_user)
+    if user = Alias[chat_id: chat_id, user_id: telegram_user.id]
+      raise BotCancelError,
+        t[:alias][:existent] % {full_name: user.full_name}
+    end
+
     _alias = choose_alias(
       chat_id,
       telegram_user.first_name,
       telegram_user.last_name,
-      telegram_user.username)
+      telegram_user.username
+    )
 
     create(
       chat_id:    chat_id,
@@ -66,7 +77,8 @@ class Alias < Sequel::Model
       alias:      _alias,
       first_name: telegram_user.first_name,
       last_name:  telegram_user.last_name,
-      username:   telegram_user.username)
+      username:   telegram_user.username
+    )
   end
 
   def self.obliterate(chat_id)
@@ -78,21 +90,32 @@ class Alias < Sequel::Model
 
   def to_real_user(telegram_user)
     if real_user?
+      telegram_user_full_name =
+        name(telegram_user.first_name, telegram_user.last_name)
+
       raise BotCancelError, t[:alias][:already_real_user] %
-        {existent: first_name, to_be_created: telegram_user.first_name}
+        {real_user_full_name:     full_name,
+         telegram_user_full_name: telegram_user_full_name}
+    end
+
+    if user = Alias[chat_id: chat_id, user_id: telegram_user.id]
+      raise BotCancelError, t[:alias][:already_existent_user] %
+        {telegram_user_full_name: user.full_name,
+         virtual_user_full_name:  full_name}
     end
 
     update(
       user_id:    telegram_user.id,
       first_name: telegram_user.first_name,
       last_name:  telegram_user.last_name,
-      username:   telegram_user.username)
+      username:   telegram_user.username
+    )
   end
 
   def to_virtual_user
     if virtual_user?
       raise BotCancelError,
-        t[:alias][:already_virtual_user] % {name: full_name}
+        t[:alias][:already_virtual_user] % {full_name: full_name}
     end
 
     update(user_id: nil)
@@ -101,12 +124,12 @@ class Alias < Sequel::Model
   def deactivate
     unless active_user?
       raise BotCancelError,
-        t[:alias][:already_inactive_user] % {name: full_name}
+        t[:alias][:already_inactive_user] % {full_name: full_name}
     end
 
     if balance.nonzero?
       raise BotCancelError, t[:alias][:non_zero_balance] %
-        {name: first_name, balance: currency(balance)}
+        {full_name: full_name, balance: currency(balance)}
     end
 
     if transactions.empty?
@@ -116,25 +139,23 @@ class Alias < Sequel::Model
     end
   end
 
-  def full_name
-    name =  first_name
-    name += ' ' + last_name   if last_name
-    name += ' ' + t[:virtual] if virtual_user?
-    name
+  def full_name(style = BOLD)
+    name(first_name, last_name, virtual_user?, self.alias, style)
   end
 
   def balance
     transactions_dataset.sum(:amount) || BigDecimal(0)
   end
 
-  def self.choose_alias(chat_id, *names)
-    recommended = names.compact.map{ |name| name.slice(0).downcase }
+  def self.choose_alias(chat_id, *suggestions)
+    recommended = suggestions.compact.map{ |name| name.slice(0).downcase }
     default     = ('a'..'z').to_a
     occupied    = active_users(chat_id).select_map(:alias)
 
     _alias = ((recommended | default) - occupied).first
 
-    _alias ||
-      raise(BotCancelError, t[:alias][:no_aliases_left] % {name: names.first})
+    _alias || raise(BotCancelError, t[:alias][:no_aliases_left] %
+      {full_name: name(suggestions[0], suggestions[1])}
+    )
   end
 end

@@ -116,8 +116,8 @@ class Payment
 
   def save
     if Transaction[chat_id: @chat_id, payment_id: @payment_id]
-      raise BotCancelError,
-        t[:payment][:existent] % {concept: @concept, code: @payment_id}
+      raise BotCancelError, t[:payment][:existent] %
+        {concept: escape(@concept), code: @payment_id}
     end
 
     if @transactions.empty?
@@ -152,7 +152,7 @@ class Payment
   def amend(amendment_id, date)
     if Transaction[chat_id: @chat_id, amended_payment_id: @payment_id]
       raise BotCancelError, t[:payment][:already_amended] %
-        {concept: @concept, code: @payment_id}
+        {concept: escape(@concept), code: @payment_id}
     end
 
     amendments = {}
@@ -187,7 +187,7 @@ class Payment
       u.alias +
 
       currency(t.contribution)
-      .sub(/^0*$/,'')
+      .sub(/^0+$/,'')
     end.join(' ')
   end
 
@@ -203,7 +203,8 @@ class Payment
 
     creditors = groups[BigDecimal::SIGN_POSITIVE_FINITE]&.map do |pair|
       t[:calculation][:report_item] %
-        {name: pair.first.first_name, amount: currency(pair.last.amount)}
+        {name:   escape(pair.first.first_name),
+         amount: currency(pair.last.amount)}
     end
 
     debt = groups[BigDecimal::SIGN_POSITIVE_FINITE]&.reduce(0) do |sum, pair|
@@ -215,7 +216,8 @@ class Payment
     end
 
     evens = groups[BigDecimal::SIGN_POSITIVE_ZERO]&.map do |pair|
-      t[:calculation][:report_even_item] % {name: pair.first.first_name}
+      t[:calculation][:report_even_item] %
+        {name: escape(pair.first.first_name)}
     end
 
     if evens
@@ -224,7 +226,8 @@ class Payment
 
     debtors = groups[BigDecimal::SIGN_NEGATIVE_FINITE]&.map do |pair|
       t[:calculation][:report_item] %
-        {name: pair.first.first_name, amount: currency(-pair.last.amount)}
+        {name:   escape(pair.first.first_name),
+         amount: currency(-pair.last.amount)}
     end
 
     if debtors

@@ -44,16 +44,13 @@ General:
 8. 'Next payer' recommendation
 9. Basic math operands
 10. Contribution amount list in the same message (eggs 10, milk 20, bread 30)
-11. User and contribution in the same message (Juan 10)
 12. Corrections during payment
 13. Numeral separator regular expression
 14. Always-present cancel button during interactive commands
 
 ### Bugs
 
-* Markdown escaping at mentions.
 * Machine instances timeout.
 * Expert payment advice does not reflect the one-payer-all-participants
   feature, and the expert payment does not inform about the participants
-* Name helper at balance and user deletion.
 * No payment deletion if inactive users.

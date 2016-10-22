@@ -63,12 +63,15 @@ es:
     Bienvenido, %{name}. Recuerda crearte un usuario usando el comando
     /usuarios.
   :bye: >
-    El usuario (*%{alias}*) %{name} fue convertido en _usuario virtual_
+    El usuario %{full_name} fue convertido en _usuario virtual_
     por haber dejado el grupo el miembro que lo controlaba.
   :bye_bye: Te echaré de menos, %{name}.
   :alias_error: > #
     No pude reconocer al usuario. Esperaba algo así:
     `(apodo) nombre del usuario`.
+
+  :virtual: virtual
+
   :to_share: >
     El enlace a difundir es:
   :recommendation: >
@@ -171,6 +174,7 @@ es:
       La operación _%{concept}_ (%{payment_code}) fue anulada.
       El código de la anulación es *%{amendment_code}*.
 
+  # OK
   :loan:
     :concept?: ¿Cuál es el concepto del préstamo?
     :lender?: '¿Quién prestó para _%{concept}_?'
@@ -182,6 +186,7 @@ es:
       El monto prestado tiene que ser mayor a cero; el ingresado fue
       *$%{contribution}*.
 
+  # OK
   :calculation:
     :party_size?: '¿Entre cuántas personas hay que repartir el gasto?'
     :small_party: >
@@ -190,7 +195,7 @@ es:
       Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
       Nombra a uno.
     :repeated_user: >
-      Ya ingresaste a una persona llamada _%{name}_, ponle un nombre
+      Ya ingresaste a una persona llamada %{name}, ponle un nombre
       distinto así no te las confundes.
     :user_limit: >
       Has superado el límite de 26 contribuyentes. Prueba con menos.
@@ -223,9 +228,10 @@ es:
       En total se debe recaudar $%{to_collect} para devolverles a los que
       aportaron por otros.
 
+  # OK
   :balance:
     :item: >
-      `(%{alias})` %{name}: %{balance}
+      %{name}: %{balance}
     :no_users: >
       Me es imposible mostrar el estado de las cuentas porque no hay
       usuarios registrados. Utiliza el comando
@@ -234,29 +240,43 @@ es:
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
 
+  # ALIAS OK
   :alias:
     :no_alias: No se proporcionó el apodo del usuario.
     :not_found: >
       No existe el usuario con el apodo *%{alias}*.
     :long_name: >
       El nombre es demasiado largo. Se aceptan hasta 32 caracteres.
+    :existent: >
+      %{full_name} ya es un usuario real.
+
+      %{full_name} puede salir del grupo y volver a entrar, de esta manerá
+      liberará al usuario que controla y podrá crear otro.
     :already_real_user: >
-      _%{existent}_ ya es un usuario real, consecuentemente _%{to_be_created}_
-      no puede tomar el control de este usuario.
-    :already_virtual_user: _%{name}_ ya es un usuario virtual.
-    :already_inactive_user: _%{name}_ ya es un usuario inactivo.
+      %{real_user_full_name} ya es un usuario real, por lo tanto
+      no puede ser controlado por %{telegram_user_full_name}.
+    :already_existent_user: >
+      %{telegram_user_full_name} ya es un usuario real, por lo tanto
+      no puede controlar a %{virtual_user_full_name}.
+
+
+      %{telegram_user_full_name} puede salir del grupo y volver a entrar,
+      de esta manerá liberará al usuario que controla y podrá elegir a
+      %{virtual_user_full_name}.
+    :already_virtual_user: %{full_name} ya es un usuario virtual.
+    :already_inactive_user: %{full_name} ya es un usuario inactivo.
     :non_zero_balance: >
-      (*%{alias}*) _%{name}_ no puede ser eliminado ya que su balance
+      %{full_name} no puede ser eliminado ya que su balance
       es de *$%{balance}*. Sólo los usuarios con balance nulo pueden
       ser desactivados (no se les debe dinero ni lo deben).
     :no_aliases_left: >
-      No puedo crear un usuario para _%{name}_ porque la cantidad máxima
+      No puedo crear un usuario para %{full_name} porque la cantidad máxima
       de usuarios activos para este grupo ha sido alcanzada (26 usuarios).
       Por favor contacta a los desarrolladores de Dineros usando el comando
 
       /ayuda si es necesario eludir esta restricción.
-    :virtual: (virtual)
 
+  # OK
   :user:
     :menu:
       - 1. Crear un usuario real
@@ -294,20 +314,21 @@ es:
       No hay usuarios para eliminar. Si alguna vez los hubo, han acabado
       con todos.
     :deletable_item: >
-      `(%{alias})` %{name}
+      %{full_name}
 
       /eliminar\_%{alias}
     :undeletable_item: >
-      `(%{alias})` %{name}: %{balance}
+      %{full_name}: %{balance}
     :delete_legend: >
       _Presiona el enlace correspondiente para eliminar al usuario_.
       Los usuarios sin enlace no tienen su balance en cero; arregla
       sus cuentas para poder eliminarlos.
     :deactivate?: >
-      ¿Eliminar al usuario (*%{alias}*) %{name}?
+      ¿Eliminar al usuario %{full_name}?
     :deactivated: >
-      El usuario (*%{alias}*) %{name} fue eliminado.
+      El usuario %{full_name} fue eliminado.
 
+  # OK
   :real_user:
     :mentions?: >
       Menciona a los miembros del grupo. _Las menciones comienzan con el
@@ -317,25 +338,22 @@ es:
       mencionarte a ti mismo._
     :no_mentions: >
       No has mencionado a nadie. Recurre al poder de la arroba.
-    :existent: >
-      No creé un usuario para %{mention} porque ya posee uno en este grupo
-      con el nombre de (*%{alias}*) %{name}.
-      %{mention} puede salir del grupo y volver a entrar, de esta manerá
-      liberará al usuario que controla y podrá crear otro.
     :created: >
-      El usuario (*%{alias}*) %{name} ha sido creado para %{mention}.
+      El usuario %{full_name} ha sido creado para %{mention}.
     :no_telegram_user: >
       La mención %{mention} no corresponde a ninguno de los miembros
       de este grupo. _Agrega a la persona al grupo_ previo a registrarla.
 
+  # OK
   :virtual_user:
     :name?: ¿Cuál será el nombre del usuario virtual?
     :no_name: >
       Los nombres pueden contener números y espacios pero deben empezar
       con una letra. Inténtalo nuevamente.
     :created: >
-      El usuario (*%{alias}*) %{name} ha sido creado.
+      El usuario %{full_name} ha sido creado.
 
+  # OK
   :virtual_to_real_user:
     :no_virtual_users: >
       Nada que hacer, no hay usuarios virtuales por el momento.
@@ -343,19 +361,13 @@ es:
       Elige al usuario virtual que pasará a ser controlado por un miembro
       del grupo.
     :not_a_virtual_user: >
-      (*%{alias}*) %{name} no es un usuario virtual.
+      %{full_name} no es un usuario virtual.
     :mention?: >
       Menciona al miembro del grupo que pasará a tener control de %{name}.
       _Las menciones comienzan con el caracter @_, por ejemplo @dineros\_bot;
       escríbela y selecciona al miembro de la lista que se desplegará. El
       miembro mencionado no debe poseer un usuario. _Escribe una @ sin
       ninguna añadidura para mencionarte a ti mismo._
-    :existent: >
-      %{mention} ya posee un usuario en este grupo con el nombre de
-      (*%{alias_real}*) %{name_real}. Consecuentemente no puede tomar el
-      control de (*%{alias_virtual}*) %{name_virtual}.
-      %{mention} puede salir del grupo y volver a entrar, de esta manerá
-      liberará al usuario que controla y podrá elegir otro.
     :success: >
-      El usuario (*%{alias}*) %{name} ahora pertenece a %{mention}. El
+      El usuario %{full_name} ahora pertenece a %{mention}. El
       usuario quedará liberado si %{mention} abandona el grupo.

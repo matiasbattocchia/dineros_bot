@@ -7,18 +7,20 @@ class Machine
       @payment = Payment.find(@chat.id, code)
 
       render(t[:payment][:amend?] %
-             {concept: @payment.concept, code: @payment.payment_id},
-             keyboard: keyboard([delete_buttons]))
+        {concept: escape(@payment.concept), code: @payment.payment_id},
+        keyboard: keyboard( [delete_buttons] )
+      )
 
       :delete_payment_confirmation_status
+
     when /^\/eliminar(?:_|\s+)([[:alpha:]]+)/
       _alias = Regexp.last_match[1]
 
       @user = Alias.find_user(@chat.id, _alias)
 
-      render(t[:user][:deactivate?] %
-        {alias: @user.alias, name: @user.full_name},
-        keyboard: keyboard([delete_buttons]))
+      render(t[:user][:deactivate?] % {full_name: @user.full_name},
+        keyboard: keyboard( [delete_buttons] )
+      )
 
       :delete_user_confirmation_status
     else
@@ -34,9 +36,10 @@ class Machine
     amendment = @payment.amend(msg.message_id, date_helper(msg))
 
     render(t[:payment][:amended] %
-           {concept:        @payment.concept,
-            payment_code:   @payment.payment_id,
-            amendment_code: amendment.payment_id})
+      {concept:        escape(@payment.concept),
+       payment_code:   @payment.payment_id,
+       amendment_code: amendment.payment_id}
+    )
 
     :final_state
   end
@@ -46,12 +49,11 @@ class Machine
       raise BotError, t[:unknown_command]
     end
 
-    _alias    = @user.alias
     full_name = @user.full_name
 
     @user.deactivate
 
-    render(t[:user][:deactivated] % {alias: _alias, name: full_name})
+    render(t[:user][:deactivated] % {full_name: full_name})
 
     :final_state
   end

@@ -32,11 +32,21 @@ module Kernel
     msg.text.match(/^\/[[[:alnum:]]_]*/)
   end
 
-  def name_helper(first_name, last_name, virtual_user)
-    name = first_name
-    name += ' ' + last_name if last_name
-    name += ' (' + t[:virtual] + ')' if virtual_user
-    name
+  MONO = '`'
+  BOLD = '*'
+  ITAL = '_'
+  NONE = ''
+
+  def name(first_name, last_name, virtual_user = nil, _alias = nil,
+           style = BOLD)
+
+    name = []
+    name << "#{style}(" + _alias + ")#{style}" if _alias
+    name << escape(first_name)
+    name << escape(last_name) if last_name
+    name << '(' + t[:virtual] + ')' if virtual_user
+
+    name.join(' ')
   end
 
   def message_helper(text)
@@ -61,9 +71,7 @@ module Kernel
   end
 
   def user_buttons(users)
-    users.map do |a|
-      '(' + a.alias + ') ' + a.full_name
-    end
+    users.map { |user| user.full_name(NONE) }
   end
 
   def create_buttons
@@ -81,7 +89,7 @@ module Kernel
   def group_chat_only(msg)
     if msg.chat.type != 'group'
       raise BotCancelError,
-        t[:group_chat_only] % {command: command_helper(msg)}
+        t[:group_chat_only] % {command: escape( command_helper(msg) )}
     end
 
     msg

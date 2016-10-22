@@ -4,7 +4,8 @@ class Machine
       real_user_initial_state(msg)
     else
       render(t[:user][:option?],
-        keyboard: keyboard([t[:cancel]] + t[:user][:menu]))
+        keyboard: keyboard( [t[:cancel]] + t[:user][:menu] )
+      )
 
       :users_options_state
     end
@@ -39,17 +40,17 @@ class Machine
     raise BotError, t[:real_user][:no_mentions] if mentions.empty?
 
     mentions.each do |mention|
-      mention_text = msg.text.slice(mention.offset, mention.length)
+      mention_text = escape(msg.text.slice(mention.offset, mention.length))
 
       if telegram_user = mention.user
-        if user = Alias[chat_id: @chat.id, user_id: telegram_user.id]
-          render(t[:real_user][:existent] %
-            {name: user.full_name, alias: user.alias, mention: mention_text})
-        else
+        begin
           user = Alias.create_real_user(@chat.id, telegram_user)
 
           render(t[:real_user][:created] %
-            {name: user.full_name, alias: user.alias, mention: mention_text})
+            {full_name: user.full_name, mention: mention_text}
+          )
+        rescue BotCancelError => e
+          render(e.message)
         end
       else
         render(t[:real_user][:no_telegram_user] % {mention: mention_text})
@@ -70,14 +71,11 @@ class Machine
   def virtual_user_name_state(msg)
     name = msg.text.match(/^[[:alpha:]][[:print:]]*/)
 
-    if name.nil?
-      raise BotError, t[:virtual_user][:no_name]
-    end
+    raise BotError, t[:virtual_user][:no_name] if name.nil?
 
     user = Alias.create_virtual_user(@chat.id, name.to_s)
 
-    render(t[:virtual_user][:created] %
-      {name: user.full_name, alias: user.alias})
+    render(t[:virtual_user][:created] % {full_name: user.full_name})
 
     :final_state
   end
@@ -90,7 +88,8 @@ class Machine
     end
 
     render(t[:virtual_to_real_user][:virtual_user?],
-      keyboard: keyboard(user_buttons(virtual_users).unshift(t[:cancel])))
+      keyboard: keyboard( user_buttons(virtual_users).unshift(t[:cancel]) )
+    )
 
     :virtual_to_real_user_virtual_user_state
   end
@@ -100,10 +99,12 @@ class Machine
 
     unless @user.virtual_user?
       raise BotError, t[:virtual_to_real_user][:not_a_virtual_user] %
-        {name: @user.full_name, alias: @user.alias}
+        {full_name: @user.full_name}
     end
 
-    render(t[:virtual_to_real_user][:mention?] % {name: @user.first_name})
+    render(
+      t[:virtual_to_real_user][:mention?] % {name: escape(@user.first_name)}
+    )
 
     :virtual_to_real_user_mention_state
   end
@@ -117,24 +118,14 @@ class Machine
 
     raise BotError, t[:real_user][:no_mentions] unless mention
 
-    mention_text = msg.text.slice(mention.offset, mention.length)
+    mention_text = escape(msg.text.slice(mention.offset, mention.length))
 
     if telegram_user = mention.user
-      if user = Alias[chat_id: @chat.id, user_id: telegram_user.id]
-        raise BotCancelError, t[:virtual_to_real_user][:existent] %
-          {name_real:     user.full_name,
-           alias_real:    user.alias,
-           name_virtual:  @user.full_name,
-           alias_virtual: @user.alias,
-           mention:       mention_text}
-      else
-        @user.to_real_user(telegram_user)
+      @user.to_real_user(telegram_user)
 
-        render(t[:virtual_to_real_user][:success] %
-          {name:    @user.full_name,
-           alias:   @user.alias,
-           mention: mention_text})
-      end
+      render(t[:virtual_to_real_user][:success] %
+        {full_name: @user.full_name, mention: mention_text}
+      )
     else
       raise BotCancelError,
         t[:real_user][:no_telegram_user] % {mention: mention_text}
@@ -145,13 +136,20 @@ class Machine
 
   def delete_user_initial_state(msg)
     user_list = Transaction.balance(@chat.id).map do |user|
-      name = name_helper(user[:first_name], user[:last_name], user[:user_id])
+      full_name = name(
+        user[:first_name],
+        user[:last_name],
+        !user[:user_id], # Not user_id means virtual user.
+        user[:alias],
+        MONO
+      )
 
       if (user[:balance] || 0).zero?
-        t[:user][:deletable_item] % {name: name, alias: user[:alias]}
+        t[:user][:deletable_item] %
+          {full_name: full_name, alias: user[:alias]}
       else
         t[:user][:undeletable_item] %
-          {name: name, alias: user[:alias], balance: currency(user[:balance])}
+          {full_name: full_name, balance: currency(user[:balance])}
       end
     end
 
