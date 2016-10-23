@@ -103,13 +103,13 @@ es:
       contribuyó.
 
     :existent: >
-      La operación _%{concept}_ no fue guardada porque ya existe una
+      La operación %{concept} no fue guardada porque ya existe una
       con el mismo código (%{code}).
 
     :already_amended: >
-      La operación _%{concept}_ (%{code}) ya se encontraba anulada.
+      La operación %{concept} (%{code}) ya se encontraba anulada.
     :inactive_user: >
-      La operación _%{concept}_ (%{code}) no puede ser anulada porque tiene
+      La operación %{concept} (%{code}) no puede ser anulada porque tiene
       como participante a %{full_name}, un usuario eliminado.
 
     :null_total_factor: >
@@ -121,10 +121,13 @@ es:
     :argument_error: >
       No pude entender el argumento *%{chunk}*.
 
+
       Recuerda que un argumento se conforma como `[factor]apodo[cantidad]`.
+
 
       Tanto _factor_ como _cantidad_ son números y son opcionales.
       _factor_ no puede ser negativo.
+
 
       Los argumentos se separan entre sí con espacios pero no puede
       haberlos dentro de un mismo argumento.
@@ -133,11 +136,14 @@ es:
       En un _pago desigual_ además se pregunta por el *factor de
       participación* de cada participante.
 
+
       Por ejemplo se puede asignar un factor de 2 a alguien
       que le corresponda pagar el doble que los a los demás.
 
+
       En un _pago igual_ todos los participantes implícitamente
       tienen factor 1.
+
 
       Alguien con factor 0 significa que aportó pero que no corresponde
       hacerlo partícipe del gasto.
@@ -147,7 +153,7 @@ es:
       Si todos los miembros del grupo participaron y hubo un único pagador,
       puedes guardar el pago nombrando a esa sola persona; yo me encargaré de
       añadir al resto.
-    :participants?: '¿Quiénes participaron en _%{concept}_?'
+    :participants?: '¿Quiénes participaron en %{concept}?'
     :contribution?: '¿Cuánto aportó %{name}?'
     :factor?: >
       %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
@@ -162,7 +168,7 @@ es:
     :done: >
       %{name} participó con un factor de *%{factor}*.
     :success: >
-      Operación _%{concept}_ registrada por un total de *$%{total}*.
+      Operación %{concept} registrada por un total de *$%{total}*.
 
 
       Presionar /eliminar\_%{code} para anularla.
@@ -172,15 +178,14 @@ es:
 
       /pago %{concept}: %{transactions}
     :amend?: >
-      ¿Anular la operación _%{concept}_ (%{code})?
+      ¿Anular la operación %{concept} (%{code})?
     :amended: >
-      La operación _%{concept}_ (%{payment_code}) fue anulada.
+      La operación %{concept} (%{payment_code}) fue anulada.
       El código de la anulación es *%{amendment_code}*.
 
-  # OK
   :loan:
     :concept?: ¿Cuál es el concepto del préstamo?
-    :lender?: '¿Quién prestó para _%{concept}_?'
+    :lender?: '¿Quién prestó para %{concept}?'
     :borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
     :borrower_lender: >
       El prestador y el prestatario no pueden ser la misma persona.
@@ -189,7 +194,6 @@ es:
       El monto prestado tiene que ser mayor a cero; el ingresado fue
       *$%{contribution}*.
 
-  # OK
   :calculation:
     :party_size?: '¿Entre cuántas personas hay que repartir el gasto?'
     :small_party: >
@@ -197,6 +201,8 @@ es:
     :payers?: >
       Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
       Nombra a uno.
+    :no_name: >
+      No entiendo el nombre. Usa letras en lo posible.
     :repeated_user: >
       Ya ingresaste a una persona llamada %{name}, ponle un nombre
       distinto así no te las confundes.
@@ -231,7 +237,6 @@ es:
       En total se debe recaudar $%{to_collect} para devolverles a los que
       aportaron por otros.
 
-  # OK
   :balance:
     :item: >
       %{name}: %{balance}
@@ -243,7 +248,6 @@ es:
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
 
-  # ALIAS OK
   :alias:
     :no_alias: No se proporcionó el apodo del usuario.
     :not_found: >
@@ -266,8 +270,10 @@ es:
       %{telegram_user_full_name} puede salir del grupo y volver a entrar,
       de esta manerá liberará al usuario que controla y podrá elegir a
       %{virtual_user_full_name}.
-    :already_virtual_user: %{full_name} ya es un usuario virtual.
-    :already_inactive_user: %{full_name} ya es un usuario inactivo.
+    :already_virtual_user: >
+      %{full_name} ya es un usuario virtual.
+    :already_inactive_user: >
+      %{full_name} ya es un usuario inactivo.
     :non_zero_balance: >
       %{full_name} no puede ser eliminado ya que su balance
       es de *$%{balance}*. Sólo los usuarios con balance nulo pueden
@@ -279,7 +285,6 @@ es:
 
       /ayuda si es necesario eludir esta restricción.
 
-  # OK
   :user:
     :menu:
       - 1. Crear un usuario real
@@ -331,7 +336,6 @@ es:
     :deactivated: >
       El usuario %{full_name} fue eliminado.
 
-  # OK
   :real_user:
     :mentions?: >
       Menciona a los miembros del grupo. _Las menciones comienzan con el
@@ -347,7 +351,6 @@ es:
       La mención %{mention} no corresponde a ninguno de los miembros
       de este grupo. _Agrega a la persona al grupo_ previo a registrarla.
 
-  # OK
   :virtual_user:
     :name?: ¿Cuál será el nombre del usuario virtual?
     :no_name: >
@@ -356,7 +359,6 @@ es:
     :created: >
       El usuario %{full_name} ha sido creado.
 
-  # OK
   :virtual_to_real_user:
     :no_virtual_users: >
       Nada que hacer, no hay usuarios virtuales por el momento.
@@ -374,3 +376,5 @@ es:
     :success: >
       El usuario %{full_name} ahora pertenece a %{mention}. El
       usuario quedará liberado si %{mention} abandona el grupo.
+    :same_user: >
+      %{full_name} es quien solía ser.

@@ -57,6 +57,7 @@ class Machine
       end
     end
 
+    # TODO: If first time && users created
     render(t[:first_time]) if @first_time
 
     :final_state
@@ -121,11 +122,19 @@ class Machine
     mention_text = escape(msg.text.slice(mention.offset, mention.length))
 
     if telegram_user = mention.user
+      same_user = @user.user_id == telegram_user.id
+
       @user.to_real_user(telegram_user)
 
-      render(t[:virtual_to_real_user][:success] %
-        {full_name: @user.full_name, mention: mention_text}
-      )
+      if same_user
+        render(t[:virtual_to_real_user][:same_user] %
+          {full_name: @user.full_name, mention: mention_text}
+        )
+      else
+        render(t[:virtual_to_real_user][:success] %
+          {full_name: @user.full_name, mention: mention_text}
+        )
+      end
     else
       raise BotCancelError,
         t[:real_user][:no_telegram_user] % {mention: mention_text}

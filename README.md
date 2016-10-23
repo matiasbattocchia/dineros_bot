@@ -17,7 +17,8 @@ Even reckonings make long friends.
 * ayuda - consultas y sugerencias
 
 ### About
-
+Dineros lleva el registro de gastos comunes. Invítalo a tu grupo de amigos.
+Las cuentas claras conservan la amistad.
 
 ### Description
 
@@ -47,10 +48,10 @@ General:
 12. Corrections during payment
 13. Numeral separator regular expression
 14. Always-present cancel button during interactive commands
+15. Use HTML instead of Markdown as it is more robust
 
 ### Bugs
 
-* Machine instances timeout.
+* Machine instances timeout
 * Expert payment advice does not reflect the one-payer-all-participants
   feature, and the expert payment does not inform about the participants
-* No payment deletion if inactive users.

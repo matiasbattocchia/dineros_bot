@@ -29,7 +29,7 @@ module Kernel
   end
 
   def command_helper(msg)
-    msg.text.match(/^\/[[[:alnum:]]_]*/)
+    msg.text.match(/^\/[[[:alnum:]]_]*/)&.to_s
   end
 
   MONO = '`'
@@ -110,7 +110,7 @@ module Kernel
 
   # Escapes markdown-related characters for Telegram Bot API
   def escape(text)
-    # If we see a backtick, underscore, or asterisk escape it with backlash 
-    text.gsub(/`|_|\*/) { |char| "\\#{char}" }
+    # If we see a backtick, underscore, or asterisk escape it with backlash
+    text.gsub(/`|_|\*/) { |char| "\\" + char }
   end
 end

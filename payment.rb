@@ -109,6 +109,10 @@ class Payment
       raise BotCancelError, t[:payment][:null_total_factor]
     end
 
+    @transactions.delete_if do |_, t|
+      t.contribution.zero? && t.factor.zero?
+    end
+
     @transactions.each do |_, t|
       t.amount = t.contribution - average_contribution * t.factor
     end
@@ -120,10 +124,6 @@ class Payment
         {concept: escape(@concept), code: @payment_id}
     end
 
-    if @transactions.empty?
-      raise BotCancelError, t[:payment][:no_transactions]
-    end
-
     if @transactions.size == 1
       transaction_user = @transactions.values.first.alias
 
@@ -132,11 +132,15 @@ class Payment
         .each{ |user| contribution(user) }
     end
 
+    calculate
+
+    if @transactions.empty?
+      raise BotCancelError, t[:payment][:no_transactions]
+    end
+
     if @transactions.size == 1
       raise BotCancelError, t[:payment][:single_transaction]
     end
-
-    calculate
 
     unless @transactions.find{ |_, t| t.contribution.nonzero? }
       raise BotCancelError, t[:payment][:no_contributions]

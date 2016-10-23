@@ -29,8 +29,12 @@ class Machine
       :final_state
     else
       msg.text.match(
-        /^(?<name>[[[:alpha:]][[:space:]]]+)(?<amount>[[[:digit:]],.]+)?/
+        /(?<name>[[[:alpha:]][[:space:]]_]+)(?<amount>[[[:digit:]],.]+)?/
       )
+
+      unless Regexp.last_match
+        raise BotError, t[:calculation][:no_name]
+      end
 
       @user = pseudouser_helper(Regexp.last_match[:name].strip)
 
@@ -42,7 +46,9 @@ class Machine
       raise BotCancelError, t[:calculation][:user_limit] if @payment.size > 26
 
       if Regexp.last_match(:amount)
-        calculation_contribution_state(Regexp.last_match[:amount])
+        calculation_contribution_state(
+          message_helper(Regexp.last_match[:amount])
+        )
       else
         render(t[:calculation][:contribution?] %
           {name: escape(@user.first_name)}
