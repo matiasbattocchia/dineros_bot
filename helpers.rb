@@ -107,4 +107,10 @@ module Kernel
 
     active_users
   end
+
+  # Escapes markdown-related characters for Telegram Bot API
+  def escape(text)
+    # If we see a backtick, underscore, or asterisk escape it with backlash 
+    text.gsub(/`|_|\*/) { |char| "\\#{char}" }
+  end
 end
