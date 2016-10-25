@@ -155,29 +155,29 @@ class Machine
 end
 
 def one_on_one_initial_state(msg)
+  return :final_state unless msg.chat.type == 'private'
+
   render(t[:start])
 
-  if msg.text.match(/^\/start (?<rrpp_code>[A-Za-z0-9_\-]+)/i)
-    if rrpp = RRPP[ Regexp.last_match[:rrpp_code] ]
+  if msg.text.match(/^\/start (?<rrpp_code>[A-Za-z0-9_\-]+)/i) &&
+      rrpp = RRPP[ Regexp.last_match[:rrpp_code] ]
 
-      unless rrpp.user_id == msg.from.id ||
-        rrpp.recommendations_dataset[msg.from.id]
+    if rrpp.user_id != msg.from.id && !Recommendation[msg.from.id]
 
-        rrpp.add_recommendation(
-          user_id:    msg.from.id,
-          first_name: msg.from.first_name,
-          last_name:  msg.from.last_name
-        )
+      rrpp.add_recommendation(
+        user_id:    msg.from.id,
+        first_name: msg.from.first_name,
+        last_name:  msg.from.last_name
+      )
 
-        converted_name = name(msg.from.first_name, msg.from.last_name)
+      converted_name = name(msg.from.first_name, msg.from.last_name)
 
-        render(t[:recommendation] %
-          {rrpp_name:      escape(rrpp.first_name),
-           converted_name: converted_name,
-           conversions:    rrpp.recommendations_dataset.count},
-          chat_id: rrpp.user_id
-        )
-      end
+      render(t[:recommendation] %
+        {rrpp_name:      escape(rrpp.first_name),
+         converted_name: converted_name,
+         conversions:    rrpp.recommendations_dataset.count},
+        chat_id: rrpp.user_id
+      )
     end
   end
 

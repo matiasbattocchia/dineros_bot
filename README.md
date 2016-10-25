@@ -3,7 +3,7 @@
 https://web.telegram.org/#/im?p=@dineros_bot
 
 Dineros accounts shared expenditures.
-Invite him to your Telegram groups!
+Invite it to your Telegram groups!
 Even reckonings make long friends.
 
 ### Commands
@@ -17,10 +17,14 @@ Even reckonings make long friends.
 * ayuda - consultas y sugerencias
 
 ### About
-Dineros lleva el registro de gastos comunes. Invítalo a tu grupo de amigos.
-Las cuentas claras conservan la amistad.
+¿Gastos compartidos con amigos? Invita a Dineros a tu grupos de Telegram y deja que se encargue de las cuentas.
 
 ### Description
+Dineros será de ayuda cada vez que compartas comidas, salidas y viajes con tus amigos. Es fantástico para el día a día de la convivencia y trabajo.
+
+Despreocúpate de los gastos compartidos, Dineros se ocupará de llevar las cuentas.
+
+Tiene dos modalidades de uso. En conversaciones grupales registra los gastos informados por todos. En conversaciones individuales es una calculadora que te permite repartir gastos con facilidad.
 
 
 ### TODO

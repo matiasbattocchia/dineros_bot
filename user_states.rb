@@ -57,8 +57,7 @@ class Machine
       end
     end
 
-    # TODO: If first time && users created
-    render(t[:first_time]) if @first_time
+    render(t[:first_time]) if @first_time && Alias.active_users(@chat.id).any?
 
     :final_state
   end
