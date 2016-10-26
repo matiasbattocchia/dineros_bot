@@ -1,4 +1,15 @@
 es:
+  :commands:
+    :calculation: cálculo
+    :payment: pago
+    :unequal_payment: pago desigual
+    :loan: préstamo
+    :balance: balance
+    :users: usuarios
+    :help: ayuda
+    :settings: configuración
+    :start: inicio
+
   :cancel: Cancelar
   :save: Guardar
   :delete: Eliminar
@@ -39,13 +50,18 @@ es:
     miembros en Dineros. Para ello presiona el siguiente enlace:
 
     /usuarios\_inicial.
-  :first_time: >
+  :first_time_ok: >
     *Grandioso*. Ahora puedes usar comandos como
 
-    /pago y /prestamo.
+    /pago y /prestamo. Luego quizás quieras consultar el /balance.
     También puedes explorar las posibilidades del comando
 
     /usuarios.
+  :first_time_not_ok: >
+    Se necesitan _al menos dos_ usuarios para compartir cosas en general,
+    entre ellas, gastos. Utiliza el comando
+
+    /usuarios\_inicial para registar a los faltantes.
   :start: >
     ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
 
@@ -289,7 +305,7 @@ es:
     :menu:
       - 1. Crear un usuario real
       - 2. Crear un usuario virtual
-      - 3. Asignar usuario virtual
+      - 3. Asignar un usuario virtual
       - 4. Eliminar un usuario
     :option?: >
       *Crea un usuario real* a partir de un miembro de este grupo para que
@@ -300,7 +316,7 @@ es:
       no usa Telegram.
 
 
-      *Asigna usuario virtual* a un miembro de este grupo manteniendo los
+      *Asigna un usuario virtual* a un miembro de este grupo manteniendo los
       pagos registrados a su nombre.
 
 

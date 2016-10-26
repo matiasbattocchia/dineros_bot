@@ -159,7 +159,7 @@ def one_on_one_initial_state(msg)
 
   render(t[:start])
 
-  if msg.text.match(/^\/start (?<rrpp_code>[A-Za-z0-9_\-]+)/i) &&
+  if msg.text.match(/^\/start (?<rrpp_code>[[:digit:]]+)/i) &&
       rrpp = RRPP[ Regexp.last_match[:rrpp_code] ]
 
     if rrpp.user_id != msg.from.id && !Recommendation[msg.from.id]

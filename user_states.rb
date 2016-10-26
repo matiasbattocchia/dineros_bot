@@ -57,7 +57,11 @@ class Machine
       end
     end
 
-    render(t[:first_time]) if @first_time && Alias.active_users(@chat.id).any?
+    if @first_time && Alias.active_users(@chat.id).count > 1
+      render(t[:first_time_ok])
+    else
+      render(t[:first_time_not_ok])
+    end
 
     :final_state
   end
