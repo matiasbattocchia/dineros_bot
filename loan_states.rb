@@ -23,11 +23,17 @@ class Machine
 
     @active_users.delete(@lender)
 
-    render(t[:loan][:borrower?] % {lender_name: escape(@lender.first_name)},
-      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
-    )
+    if @active_users.size == 1
+      loan_borrower_state(
+        message_helper( user_buttons(@active_users).first )
+      )
+    else
+      render(t[:loan][:borrower?] % {lender_name: escape(@lender.first_name)},
+        keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
+      )
 
-    :loan_borrower_state
+      :loan_borrower_state
+    end
   end
 
   def loan_borrower_state(msg)

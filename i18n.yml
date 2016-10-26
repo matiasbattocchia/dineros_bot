@@ -64,8 +64,8 @@ es:
 
     /usuarios.
   :first_time_not_ok: >
-    Se necesitan _al menos dos_ usuarios para compartir cosas en general,
-    entre ellas, gastos. Utiliza el comando
+    Se necesitan _al menos dos_ usuarios para compartir gastos.
+    Utiliza el comando
 
     /usuarios\_inicial para registar a los faltantes.
   :start: >
@@ -280,6 +280,7 @@ es:
       El nombre es demasiado largo. Se aceptan hasta 32 caracteres.
     :existent: >
       %{full_name} ya es un usuario real.
+
 
       %{full_name} puede salir del grupo y volver a entrar, de esta manerá
       liberará al usuario que controla y podrá crear otro.
