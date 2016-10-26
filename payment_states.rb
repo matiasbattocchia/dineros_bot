@@ -36,6 +36,12 @@ class Machine
         contrib = 0 if contrib.empty?
 
         user = Alias.find_user(@chat.id, _alias)
+
+        if payment[user]
+          raise BotCancelError,
+            t[:payment][:repeated_user] % {alias: user.alias}
+        end
+
         payment.contribution(user, contrib)
         payment.factor(user, factor)
 

@@ -117,12 +117,15 @@ es:
     :nan_factor: El factor de participación ingresado no es un número.
 
     :no_transactions: >
-      No tiene sentido guardar un pago en el que nadie participó.
+      El pago no tiene participantes. Se necesitan _al menos dos_
+      participantes para poder registrar un pago.
     :single_transaction: >
-      No tiene sentido guardar un pago en el que participó una sola persona.
+      El pago tiene un único participantes. Se necesitan _al menos dos_
+      participantes para poder registrar un pago.
     :no_contributions: >
-      No tiene sentido guardar un pago en el que ningún participante
-      contribuyó.
+      Ninguno de los participantes ha contribuido al pago. Se necesita
+      que _al menos un_ participante haga un aporte para poder registrar
+      un pago.
 
     :existent: >
       La operación %{concept} no fue guardada porque ya existe una
@@ -153,6 +156,9 @@ es:
 
       Los argumentos se separan entre sí con espacios pero no puede
       haberlos dentro de un mismo argumento.
+
+    :repeated_user: >
+      El apodo *%{alias}* figura repetido en el pago, revisa eso por favor.
 
     :unequal_payment: >
       En un _pago desigual_ además se pregunta por el *factor de

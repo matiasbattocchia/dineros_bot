@@ -57,5 +57,4 @@ General:
 * Machine instances timeout
 * Expert payment advice does not reflect the one-payer-all-participants
   feature, and the expert payment does not inform about the participants
-* Add a double alias appearance error in expert payment mode
 * Correct the calculation report for named non-contributors
