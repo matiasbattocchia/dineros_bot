@@ -58,7 +58,7 @@ class Machine
         render(t[:payment][:unequal_payment])
       end
 
-      render(t[:payment][:concept?])
+      render(t[:payment][:concept?], keyboard: keyboard(t[:cancel_payment]))
 
       :payment_concept_state
     end
@@ -68,10 +68,10 @@ class Machine
     @payment = # chat_id, payment_id, date, concept
       Payment.build(@chat.id, msg.message_id, date_helper(msg), msg.text)
 
-    render(t[:payment][:payment_advice])
+    render(t[:payment][:payment_advice]) unless @unequal_split
 
     render(t[:payment][:participants?] % {concept: escape(@payment.concept)},
-      keyboard: keyboard( user_buttons(@active_users) )
+      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_payment] )
     )
 
     :payment_user_state
@@ -87,16 +87,16 @@ class Machine
          code:    @payment.payment_id}
       )
 
-      render(t[:payment][:expert_payment_advice] %
-        {concept: escape(@payment.concept), transactions: @payment}
-      )
+      #render(t[:payment][:expert_payment_advice] %
+        #{concept: escape(@payment.concept), transactions: @payment}
+      #)
 
       :final_state
     else
       @user = Alias.find_user(@chat.id, alias_helper(msg))
 
       render(t[:payment][:contribution?] % {name: escape(@user.first_name)},
-        keyboard: keyboard( [t[:nothing]] )
+        keyboard: keyboard( [t[:nothing], t[:cancel_payment]] )
       )
 
       :payment_contribution_state
@@ -113,7 +113,7 @@ class Machine
     if @unequal_split
       render(t[:payment][:factor?] %
         {name: escape(@user.first_name), contribution: c},
-        keyboard: keyboard( [['0', '1', '2', '3']] )
+        keyboard: keyboard( [['0', '1', '2', '3'], t[:cancel_payment]] )
       )
 
       :payment_factor_state

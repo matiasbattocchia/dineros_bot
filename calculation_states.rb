@@ -1,6 +1,8 @@
 class Machine
   def calculation_initial_state(msg)
-    render(t[:calculation][:party_size?])
+    render(t[:calculation][:party_size?],
+      keyboard: keyboard(t[:cancel_calculation])
+    )
 
     :calculation_party_size_state
   end
@@ -13,7 +15,9 @@ class Machine
     @payment = # chat_id, payment_id, date, concept
       Payment.build(@chat.id, msg.message_id, date_helper(msg), 'calculation')
 
-    render(t[:calculation][:payers?] % {size: @party_size})
+    render(t[:calculation][:payers?] % {size: @party_size},
+      keyboard: keyboard(t[:cancel_calculation])
+    )
 
     :calculation_payer_state
   end
@@ -51,7 +55,8 @@ class Machine
         )
       else
         render(t[:calculation][:contribution?] %
-          {name: escape(@user.first_name)}
+          {name: escape(@user.first_name)},
+          keyboard: keyboard(t[:cancel_calculation])
         )
 
         :calculation_contribution_state

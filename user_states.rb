@@ -4,7 +4,7 @@ class Machine
       real_user_initial_state(msg)
     else
       render(t[:user][:option?],
-        keyboard: keyboard( [t[:cancel]] + t[:user][:menu] )
+        keyboard: keyboard(t[:user][:menu])
       )
 
       :users_options_state
@@ -23,7 +23,9 @@ class Machine
   end
 
   def real_user_initial_state(msg)
-    render(t[:real_user][:mentions?])
+    render(t[:real_user][:mentions?],
+      keyboard: keyboard(t[:cancel_real_user])
+    )
 
     :real_user_mentions_state
   end
@@ -57,17 +59,21 @@ class Machine
       end
     end
 
-    if @first_time && Alias.active_users(@chat.id).count > 1
-      render(t[:first_time_ok])
-    else
-      render(t[:first_time_not_ok])
+    if @first_time
+      if Alias.active_users(@chat.id).count >= 2
+        render(t[:first_time_ok])
+      else
+        render(t[:first_time_not_ok])
+      end
     end
 
     :final_state
   end
 
   def virtual_user_initial_state(msg)
-    render(t[:virtual_user][:name?])
+    render(t[:virtual_user][:name?],
+      keyboard: keyboard(t[:cancel_virtual_user])
+    )
 
     :virtual_user_name_state
   end
@@ -92,7 +98,9 @@ class Machine
     end
 
     render(t[:virtual_to_real_user][:virtual_user?],
-      keyboard: keyboard( user_buttons(virtual_users).unshift(t[:cancel]) )
+      keyboard: keyboard( user_buttons(virtual_users) <<
+        t[:cancel_virtual_to_real_user]
+      )
     )
 
     :virtual_to_real_user_virtual_user_state
@@ -107,7 +115,8 @@ class Machine
     end
 
     render(
-      t[:virtual_to_real_user][:mention?] % {name: escape(@user.first_name)}
+      t[:virtual_to_real_user][:mention?] % {name: escape(@user.first_name)},
+      keyboard: keyboard(t[:cancel_virtual_to_real_user])
     )
 
     :virtual_to_real_user_mention_state
@@ -126,6 +135,7 @@ class Machine
 
     if telegram_user = mention.user
       same_user = @user.user_id == telegram_user.id
+      old_full_name = @user.full_name
 
       @user.to_real_user(telegram_user)
 
@@ -135,7 +145,9 @@ class Machine
         )
       else
         render(t[:virtual_to_real_user][:success] %
-          {full_name: @user.full_name, mention: mention_text}
+          {old_full_name: old_full_name,
+           new_full_name: @user.full_name,
+           mention: mention_text}
         )
       end
     else

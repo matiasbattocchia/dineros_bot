@@ -1,14 +1,20 @@
+en:
+  :help: >
+    /calculation - cuenta rápida de un gasto
+    /payment - registrar gasto compartido
+    /unequal_payment - gasto no tan compartido
+    /loan - transferencia entre dos
+    /balance - estado de las cuentas
+    /users - gestión del grupo
+    /help - consultas y sugerencias
+
 es:
-  :commands:
-    :calculation: cálculo
-    :payment: pago
-    :unequal_payment: pago desigual
-    :loan: préstamo
-    :balance: balance
-    :users: usuarios
-    :help: ayuda
-    :settings: configuración
-    :start: inicio
+  :cancel_payment: Cancelar pago
+  :cancel_loan: Cancelar préstamo
+  :cancel_calculation: Cancelar cálculo
+  :cancel_real_user: Cancelar crear usuarios
+  :cancel_virtual_user: Cancelar crear usuario virtual
+  :cancel_virtual_to_real_user: Cancelar asignar usuario
 
   :cancel: Cancelar
   :save: Guardar
@@ -153,16 +159,12 @@ es:
       participación* de cada participante.
 
 
-      Por ejemplo se puede asignar un factor de 2 a alguien
+      Por ejemplo se puede asignar un factor 2 a alguien
       que le corresponda pagar el doble que los a los demás.
 
 
-      En un _pago igual_ todos los participantes implícitamente
-      tienen factor 1.
-
-
-      Alguien con factor 0 significa que aportó pero que no corresponde
-      hacerlo partícipe del gasto.
+      Alguien con factor 0 significa que no le corresponde pagar:
+      su aporte es un préstamo a los demás.
 
     :concept?: ¿Cuál es el concepto del pago?
     :payment_advice: >
@@ -307,6 +309,7 @@ es:
       - 2. Crear un usuario virtual
       - 3. Asignar un usuario virtual
       - 4. Eliminar un usuario
+      - Cancelar
     :option?: >
       *Crea un usuario real* a partir de un miembro de este grupo para que
       pueda usar Dineros.
@@ -386,11 +389,12 @@ es:
     :mention?: >
       Menciona al miembro del grupo que pasará a tener control de %{name}.
       _Las menciones comienzan con el caracter @_, por ejemplo @dineros\_bot;
-      escríbela y selecciona al miembro de la lista que se desplegará. El
-      miembro mencionado no debe poseer un usuario. _Escribe una @ sin
+      escríbela y selecciona al miembro de la lista que se desplegará. *El
+      miembro mencionado no debe poseer un usuario*. _Escribe una @ sin
       ninguna añadidura para mencionarte a ti mismo._
     :success: >
-      El usuario %{full_name} ahora pertenece a %{mention}. El
-      usuario quedará liberado si %{mention} abandona el grupo.
+      El usuario %{old_full_name} fue renombrado a %{new_full_name} y ahora
+      pertenece a %{mention}. El usuario quedará liberado si %{mention}
+      abandona el grupo.
     :same_user: >
-      %{full_name} es quien solía ser.
+      %{full_name} es quien solía ser... ahh, los viejos tiempos.

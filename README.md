@@ -7,7 +7,6 @@ Invite it to your Telegram groups!
 Even reckonings make long friends.
 
 ### Commands
-* cancelar - un comando interactivo
 * calculo - cuenta rápida de un gasto
 * pago - registrar gasto compartido
 * pago_desigual - gasto no tan compartido
@@ -17,7 +16,7 @@ Even reckonings make long friends.
 * ayuda - consultas y sugerencias
 
 ### About
-¿Gastos compartidos con amigos? Invita a Dineros a tu grupos de Telegram y deja que se encargue de las cuentas.
+¿Gastos compartidos con amigos? Invita a Dineros a tus grupos de Telegram y deja que se encargue de las cuentas.
 
 ### Description
 Dineros será de ayuda cada vez que compartas comidas, salidas y viajes con tus amigos. Es fantástico para el día a día de la convivencia y trabajo.

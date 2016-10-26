@@ -2,7 +2,7 @@ class Machine
   def loan_initial_state(msg)
     @active_users = active_users(@chat.id)
 
-    render(t[:loan][:concept?])
+    render(t[:loan][:concept?], keyboard: keyboard(t[:cancel_loan]))
 
     :loan_concept_state
   end
@@ -12,7 +12,7 @@ class Machine
       Payment.build(@chat.id, msg.message_id, date_helper(msg), msg.text)
 
     render(t[:loan][:lender?] % {concept: escape(@loan.concept)},
-      keyboard: keyboard( user_buttons(@active_users) )
+      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
     )
 
     :loan_lender_state
@@ -24,7 +24,7 @@ class Machine
     @active_users.delete(@lender)
 
     render(t[:loan][:borrower?] % {lender_name: escape(@lender.first_name)},
-      keyboard: keyboard( user_buttons(@active_users) )
+      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
     )
 
     :loan_borrower_state
@@ -36,7 +36,8 @@ class Machine
     raise BotError, t[:loan][:borrower_lender] if @borrower == @lender
 
     render(t[:loan][:contribution?] %
-      {borrower_name: escape(@borrower.first_name)}
+      {borrower_name: escape(@borrower.first_name)},
+      keyboard: keyboard(t[:cancel_loan])
     )
 
     :loan_contribution_state
@@ -62,9 +63,9 @@ class Machine
        code:    @loan.payment_id}
     )
 
-    render(t[:payment][:expert_payment_advice] %
-      {concept: escape(@loan.concept), transactions: @loan}
-    )
+    #render(t[:payment][:expert_payment_advice] %
+      #{concept: escape(@loan.concept), transactions: @loan}
+    #)
 
     :final_state
   end
