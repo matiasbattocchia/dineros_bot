@@ -70,6 +70,10 @@ class Payment
     @transactions.size
   end
 
+  def empty?
+    @transactions.empty?
+  end
+
   def contribution(user, contribution = 0)
     contribution.sub!(',','.') if contribution.is_a?(String)
 
@@ -94,12 +98,12 @@ class Payment
   end
 
   def total_contribution
-    @transactions.values.map(&:contribution).reduce(:+)
+    @transactions.values.map(&:contribution).reduce(:+) || BigDecimal(0)
   end
   alias total total_contribution
 
   def total_factor
-    @transactions.values.map(&:factor).reduce(:+)
+    @transactions.values.map(&:factor).reduce(:+) || BigDecimal(0)
   end
 
   def calculate

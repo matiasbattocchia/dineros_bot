@@ -24,7 +24,9 @@ class Machine
 
   def calculation_payer_state(msg)
     if msg.text.match /^#{t[:calculate]}/i
-      @payment.factor(Alias.new(user_id: :others), @others) if @others > 0
+      if (others = @party_size - @payment.total_factor) > 0
+        @payment.factor(Alias.new(user_id: :others), others)
+      end
 
       @payment.calculate
 
@@ -67,7 +69,7 @@ class Machine
   def calculation_contribution_state(msg)
     c = currency(@payment.contribution(@user, msg.text))
 
-    if (@others = @party_size - @payment.total_factor).zero?
+    if (@party_size - @payment.total_factor).zero?
       render(t[:calculation][:done] %
         {name: escape(@user.first_name), contribution: c}
       )
