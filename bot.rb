@@ -121,13 +121,7 @@ class Machine
         Alias.obliterate(@chat.id)
       else
         # A member was kicked from the chat instead.
-        if user = Alias[chat_id: @chat.id, user_id: msg.left_chat_member.id]
-          user.to_virtual_user
-
-          render(t[:bye] % {full_name: user.full_name})
-        end
-
-        render(t[:bye_bye] % {name: escape(msg.left_chat_member.first_name)})
+        render(t[:bye] % {name: escape(msg.left_chat_member.first_name)})
       end
     else
       puts 'Weird event.', msg, '----'

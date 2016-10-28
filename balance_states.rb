@@ -4,7 +4,6 @@ class Machine
       t[:balance][:item] %
         {name:    name(user[:first_name],
                        nil, # No last name.
-                       !user[:user_id], # Not user_id means virtual user.
                        user[:alias],
                        MONO),
          balance: currency(user[:balance] || 0)}

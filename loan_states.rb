@@ -19,7 +19,7 @@ class Machine
   end
 
   def loan_lender_state(msg)
-    @lender = Alias.find_user(@chat.id, alias_helper(msg))
+    @lender = Alias.find_or_create_user(@chat.id, msg.text)
 
     @active_users.delete(@lender)
 
@@ -28,7 +28,7 @@ class Machine
         message_helper( user_buttons(@active_users).first )
       )
     else
-      render(t[:loan][:borrower?] % {lender_name: escape(@lender.first_name)},
+      render(t[:loan][:borrower?] % {lender_name: @lender.name},
         keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
       )
 
@@ -37,12 +37,12 @@ class Machine
   end
 
   def loan_borrower_state(msg)
-    @borrower = Alias.find_user(@chat.id, alias_helper(msg))
+    @borrower = Alias.find_or_create_user(@chat.id, msg.text)
 
     raise BotError, t[:loan][:borrower_lender] if @borrower == @lender
 
     render(t[:loan][:contribution?] %
-      {borrower_name: escape(@borrower.first_name)},
+      {borrower_name: @borrower.name},
       keyboard: keyboard(t[:cancel_loan])
     )
 
@@ -58,9 +58,7 @@ class Machine
     end
 
     @loan.factor(@lender, 0)
-
     @loan.contribution(@borrower)
-
     @loan.save
 
     render(t[:payment][:success] %

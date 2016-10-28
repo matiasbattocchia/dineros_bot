@@ -51,10 +51,16 @@ General:
 12. Corrections during payment
 13. Numeral separator regular expression
 15. Use HTML instead of Markdown as it is more robust
+16. Translate written numbers to numbers from zero to twenty
+17. Some small talk ("I'm better than Splitwise" message when mentioned, <3 for appreciation, etc.)
 
 ### Bugs
 
 * Machine instances timeout
 * Expert payment advice does not reflect the one-payer-all-participants
   feature, and the expert payment does not inform about the participants
-* Correct the calculation report for named non-contributors
+* Correct the calculation report for
+    - named non-contributors,
+    - negative contributions,
+    - zero total contribution and
+    - perfectly even contributions

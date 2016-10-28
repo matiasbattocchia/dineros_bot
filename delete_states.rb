@@ -18,7 +18,7 @@ class Machine
 
       @user = Alias.find_user(@chat.id, _alias)
 
-      render(t[:user][:deactivate?] % {full_name: @user.full_name},
+      render(t[:user][:deactivate?] % {name: @user.name},
         keyboard: keyboard( [delete_buttons] )
       )
 
@@ -49,11 +49,9 @@ class Machine
       raise BotError, t[:unknown_command]
     end
 
-    full_name = @user.full_name
-
     @user.deactivate
 
-    render(t[:user][:deactivated] % {full_name: full_name})
+    render(t[:user][:deactivated] % {name: @user.name})
 
     :final_state
   end

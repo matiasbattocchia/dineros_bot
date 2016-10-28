@@ -37,28 +37,18 @@ module Kernel
   ITAL = '_'
   NONE = ''
 
-  def name(first_name, last_name, virtual_user = nil, _alias = nil,
-           style = BOLD)
+  def name(first_name, last_name, _alias = nil, style = BOLD)
 
     name = []
     name << "#{style}(" + _alias + ")#{style}" if _alias
     name << escape(first_name)
     name << escape(last_name) if last_name
-    name << '(' + t[:virtual] + ')' if virtual_user
 
     name.join(' ')
   end
 
   def message_helper(text)
     Telegram::Bot::Types::Message.new(text: text)
-  end
-
-  def self_mention_helper(msg)
-    # TODO: Not entirely convinced with the next regular expression.
-    return unless offset = msg.text =~ /@$|@\s/
-
-    Telegram::Bot::Types::MessageEntity.new(
-      length: 1, offset: offset, user: msg.from)
   end
 
   def pseudouser_helper(name)
@@ -71,7 +61,7 @@ module Kernel
   end
 
   def user_buttons(users)
-    users.map { |user| user.full_name(NONE) }
+    users.map(&:name)
   end
 
   def create_buttons
@@ -96,16 +86,17 @@ module Kernel
   end
 
   def active_users(chat_id)
-    active_users = Alias.active_users(chat_id).all
+    Alias.active_users(chat_id).all
+    #active_users = Alias.active_users(chat_id).all
 
-    case active_users.size
-    when 0
-      raise BotCancelError, t[:user][:no_active_users]
-    when 1
-      raise BotCancelError, t[:user][:single_active_user]
-    end
+    #case active_users.size
+    #when 0
+      #raise BotCancelError, t[:user][:no_active_users]
+    #when 1
+      #raise BotCancelError, t[:user][:single_active_user]
+    #end
 
-    active_users
+    #active_users
   end
 
   # Escapes markdown-related characters for Telegram Bot API

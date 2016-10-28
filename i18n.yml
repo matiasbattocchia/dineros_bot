@@ -84,10 +84,7 @@ es:
   :hello: >
     Bienvenido, %{name}. Recuerda crearte un usuario usando el comando
     /usuarios.
-  :bye: >
-    El usuario %{full_name} fue convertido en _usuario virtual_
-    por haber dejado el grupo quien lo controlaba.
-  :bye_bye: Te echaré de menos, %{name}.
+  :bye: Te echaré de menos, %{name}.
   :alias_error: > #
     No pude reconocer al usuario. Esperaba algo así:
     `(apodo) nombre del usuario`.
@@ -120,7 +117,7 @@ es:
       El pago no tiene participantes. Se necesitan _al menos dos_
       participantes para poder registrar un pago.
     :single_transaction: >
-      El pago tiene un único participantes. Se necesitan _al menos dos_
+      El pago tiene un único participante. Se necesitan _al menos dos_
       participantes para poder registrar un pago.
     :no_contributions: >
       Ninguno de los participantes ha contribuido al pago. Se necesita
@@ -135,7 +132,9 @@ es:
       La operación %{concept} (%{code}) ya se encontraba anulada.
     :inactive_user: >
       La operación %{concept} (%{code}) no puede ser anulada porque tiene
-      como participante a %{full_name}, un usuario eliminado.
+      como participante a %{full_name}, quien fue eliminado. El balance
+      general quedaría desbalanceado al no poder retrotraer su participación.
+      Puedes corregir manualmente este pago registrando un contrapago.
 
     :null_total_factor: >
       _La suma de factores de participación da cero_; la necesito para hacer
@@ -177,7 +176,10 @@ es:
       Si todos los miembros del grupo participaron y hubo un único pagador,
       puedes guardar el pago nombrando a esa sola persona; yo me encargaré de
       añadir al resto.
-    :participants?: '¿Quiénes participaron en %{concept}?'
+    :correction: >
+      Corrigiendo la participación de %{name}... ¿Cuánto aportó? o envía
+      _sacar_ para quitarlo del pago.
+    :participants?: '¿Quiénes participaron en %{concept}? Nombra a uno.'
     :contribution?: '¿Cuánto aportó %{name}?'
     :factor?: >
       %{name} aportó *$%{contribution}*. ¿Cuál fue su factor de participación?
@@ -276,6 +278,8 @@ es:
     :no_alias: No se proporcionó el apodo del usuario.
     :not_found: >
       No existe el usuario con el apodo *%{alias}*.
+    :bad_name: >
+      El nombre debe comenzar con una letra.
     :long_name: >
       El nombre es demasiado largo. Se aceptan hasta 32 caracteres.
     :existent: >
@@ -298,9 +302,9 @@ es:
     :already_virtual_user: >
       %{full_name} ya es un usuario virtual.
     :already_inactive_user: >
-      %{full_name} ya es un usuario inactivo.
+      %{name} ya es un usuario inactivo.
     :non_zero_balance: >
-      %{full_name} no puede ser eliminado ya que su balance
+      %{name} no puede ser eliminado ya que su balance
       es de *$%{balance}*. Sólo los usuarios con balance nulo pueden
       ser desactivados (no se les debe dinero ni lo deben).
     :no_aliases_left: >
@@ -358,9 +362,9 @@ es:
       Los usuarios sin enlace no tienen su balance en cero; arregla
       sus cuentas para poder eliminarlos.
     :deactivate?: >
-      ¿Eliminar al usuario %{full_name}?
+      ¿Eliminar al usuario %{name}?
     :deactivated: >
-      El usuario %{full_name} fue eliminado.
+      El usuario %{name} fue eliminado.
 
   :real_user:
     :mentions?: >
@@ -379,9 +383,6 @@ es:
 
   :virtual_user:
     :name?: ¿Cuál será el nombre del usuario virtual?
-    :no_name: >
-      Los nombres pueden contener números y espacios pero deben empezar
-      con una letra. Inténtalo nuevamente.
     :created: >
       El usuario %{full_name} ha sido creado.
 
