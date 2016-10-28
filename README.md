@@ -38,29 +38,24 @@ Group chat:
 
 General:
 
-1. /explain command
-2. Balance aggregation to reduce DB stress
-3. True i18n (commands, money, etc.)
-4. Periodic remainders (rent, bills, etc.)
-5. Payment follow-ups
-6. Payment templates (same participants)
-7. Monthly balance auto-calculation
-8. 'Next payer' recommendation
-9. Basic math operands
+1.  /explain command
+2.  Balance aggregation to reduce DB stress
+3.  True i18n (commands, money, etc.)
+4.  Periodic remainders (rent, bills, etc.)
+5.  Payment follow-ups
+6.  Payment templates (same participants)
+7.  Monthly balance auto-calculation
+8.  'Next payer' recommendation
+9.  Basic math operands
 10. Contribution amount list in the same message (eggs 10, milk 20, bread 30)
-12. Corrections during payment
-13. Numeral separator regular expression
-15. Use HTML instead of Markdown as it is more robust
-16. Translate written numbers to numbers from zero to twenty
-17. Some small talk ("I'm better than Splitwise" message when mentioned, <3 for appreciation, etc.)
+11. Corrections during payment
+12. Numeral separator regular expression
+13. Use HTML instead of Markdown as it is more robust
+14. Translate written numbers to numbers from zero to twenty
+15. Some small talk ("I'm better than Splitwise" message when mentioned, <3 for appreciation, etc.)
 
 ### Bugs
 
-* Machine instances timeout
-* Expert payment advice does not reflect the one-payer-all-participants
-  feature, and the expert payment does not inform about the participants
-* Correct the calculation report for
-    - named non-contributors,
-    - negative contributions,
-    - zero total contribution and
-    - perfectly even contributions
+* Expert payment advice does not reflect the one-payer-all-participants feature
+* Payments do not tell the participants included when doing one-payer-all-participants
+* Interactive command timeout.

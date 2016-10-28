@@ -52,9 +52,11 @@ es:
     ¡Pruébalo!
 
 
-    Me sacarás el máximo provecho en conversaciones grupales. Agrégame
-    a un grupo como lo harías normalmente con un contacto (mi nombre es
-    @dineros\_bot) o usa el siguiente enlace.
+    Me sacarás el máximo provecho en conversaciones grupales, donde se
+    puede usar comandos como
+
+    /pago y /balance. Agrégame a un grupo como lo harías normalmente con
+    un contacto (mi nombre es @dineros\_bot) o usa el siguiente enlace.
 
 
     https://telegram.me/dineros\_bot?startgroup=true
@@ -90,16 +92,21 @@ es:
     :not_found: >
       No existe la operación con código *%{code}*.
 
-    :empty_concept: El concepto no puede quedar en blanco.
-    :long_concept: El concepto puede tener hasta 32 caracteres de extensión.
+    :empty_concept: >
+      El concepto no puede quedar en blanco.
+    :long_concept: >
+      El concepto puede tener hasta 32 caracteres de extensión.
 
     :negative_contribution: >
       *Atención*: El aporte ingresado es negativo. Si bien puedes hacer
       cosas interesantes con aportes negativos, espero que sepas lo que
       estás haciendo.
-    :nan_contribution: El aporte ingresado no es un número.
-    :negative_factor: El factor de participación no puede ser negativo.
-    :nan_factor: El factor de participación ingresado no es un número.
+    :nan_contribution: >
+      El aporte ingresado no es un número.
+    :negative_factor: >
+      El factor de participación no puede ser negativo.
+    :nan_factor: >
+      El factor de participación ingresado no es un número.
 
     :no_transactions: >
       El pago no tiene participantes. Se necesitan _al menos dos_
@@ -219,11 +226,12 @@ es:
       ¿Entre cuántas personas hay que repartir el gasto?
     :small_party: >
       El cálculo rápido tiene sentido para grupos de 3 personas en adelante.
+      ¿Cuántas personas participaron?
     :payers?: >
       Bien, se trata de un grupo de %{size} personas. ¿Quiénes gastaron?
       Nombra a uno.
     :no_name: >
-      No entiendo el nombre. Usa letras en lo posible.
+      No entiendo el nombre. Esta vez, usa letras en lo posible.
     :repeated_user: >
       Ya ingresaste a una persona llamada %{name}, ponle un nombre
       distinto así no te las confundes.
@@ -232,11 +240,26 @@ es:
       ¿Acaso no sabías que los bots tenemos memoria limitada?
     :contribution?: >
       ¿Cuánto aportó %{name}?
+    :no_contribution: >
+      *Consejo*, si bien no hay inconvenientes en informar aportes nulos ($0),
+      tampoco es necesario, ya que soy capaz de deducir cuántas personas no
+      han aportado (es la diferencia entre el tamaño del grupo y las que sí
+      aportaron).
+    :negative_contribution: >
+      Las contribuciones negativas no están permitidas en este cálculo.
+      Por favor ingresa una contribución válida.
     :next_payer?: >
       %{name} aportó *$%{contribution}*. ¿Quién más gastó? o envía _calcular_
       si nadie más aportó.
     :done: >
       %{name} aportó *$%{contribution}*.
+
+    :null_total_contribution: >
+      ¿Nadie aportó nada? Es una cuenta sencilla:
+      no hace falta repartir nada.
+    :evenly_split: >
+      ¿Todos aportaron lo mismo? Es una cuenta sencilla:
+      no hace falta repartir nada.
 
     :report_header: >
       Cálculo por un total de $%{total} para un grupo de %{party_size}

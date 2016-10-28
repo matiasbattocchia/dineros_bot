@@ -24,11 +24,7 @@ class Machine
 
   def calculation_payer_state(msg)
     if msg.text.match /^#{t[:calculate]}/i
-      if (others = @party_size - @payment.total_factor) > 0
-        @payment.factor(Alias.new(user_id: :others), others)
-      end
-
-      @payment.calculate
+      @payment.calculate(@party_size)
 
       render(@payment.calculation_report)
 
@@ -46,7 +42,7 @@ class Machine
 
       if @payment[@user]
         raise BotError,
-          t[:calculation][:repeated_user] % {name: escape(@user.first_name)}
+          t[:calculation][:repeated_user] % {name: @user.name}
       end
 
       raise BotCancelError, t[:calculation][:user_limit] if @payment.size > 26
@@ -57,7 +53,7 @@ class Machine
         )
       else
         render(t[:calculation][:contribution?] %
-          {name: escape(@user.first_name)},
+          {name: @user.name},
           keyboard: keyboard(t[:cancel_calculation])
         )
 
@@ -67,17 +63,25 @@ class Machine
   end
 
   def calculation_contribution_state(msg)
-    c = currency(@payment.contribution(@user, msg.text))
+    c = @payment.contribution(@user, msg.text)
+
+    if c.zero?
+      render(t[:calculation][:no_contribution])
+    elsif c.negative?
+      raise BotError, t[:calculation][:negative_contribution]
+    end
+
+    c = currency(c)
 
     if (@party_size - @payment.total_factor).zero?
       render(t[:calculation][:done] %
-        {name: escape(@user.first_name), contribution: c}
+        {name: @user.name, contribution: c}
       )
 
       calculation_payer_state(message_helper(t[:calculate]))
     else
       render(t[:calculation][:next_payer?] %
-        {name: escape(@user.first_name), contribution: c},
+        {name: @user.name, contribution: c},
         keyboard: keyboard( [calculate_buttons] )
       )
 

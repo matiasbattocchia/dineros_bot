@@ -106,7 +106,29 @@ class Payment
     @transactions.values.map(&:factor).reduce(:+) || BigDecimal(0)
   end
 
-  def calculate
+  def calculate(party_size = nil)
+    if party_size
+      @transactions.delete_if do |_, t|
+        t.contribution.zero?
+      end
+
+      if @transactions.empty?
+        raise BotCancelError, t[:calculation][:null_total_contribution]
+      end
+
+      others = party_size - total_factor
+
+      if others.zero?
+        c = @transactions.values.map(&:contribution).sort
+
+        if c.first == c.last
+          raise BotCancelError, t[:calculation][:evenly_split]
+        end
+      else
+        factor(Alias.new(user_id: :others), others)
+      end
+    end
+
     average_contribution = total_contribution / total_factor
 
     unless average_contribution.finite?
@@ -226,9 +248,8 @@ class Payment
       sum + pair.last.amount
     end || 0
 
-    if creditors
-      report << creditors.unshift(t[:calculation][:report_creditors]).join
-    end
+    # Creditors are always present.
+    report << creditors.unshift(t[:calculation][:report_creditors]).join
 
     evens = groups[BigDecimal::SIGN_POSITIVE_ZERO]&.map do |pair|
       t[:calculation][:report_even_item] %
@@ -260,10 +281,15 @@ class Payment
       end
     end
 
-    footer = t[:calculation][:report_footer] %
-      {to_collect: currency(debt)}
+    number_of_debtors = groups[BigDecimal::SIGN_NEGATIVE_FINITE]&.size || 0
+    number_of_others  = others&.factor || 0
 
-    report << footer
+    unless number_of_debtors + number_of_others == 1
+      footer = t[:calculation][:report_footer] %
+        {to_collect: currency(debt)}
+
+      report << footer
+    end
 
     report.join("\n")
   end
