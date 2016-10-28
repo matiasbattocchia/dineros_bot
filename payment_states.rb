@@ -146,7 +146,7 @@ class Machine
       factor  = 1 if factor.empty?
       contrib = 0 if contrib.empty?
 
-      user = Alias.find_user(@chat.id, _alias)
+      user = Alias.find_by_alias(@chat.id, _alias)
 
       if payment[user]
         raise BotCancelError,

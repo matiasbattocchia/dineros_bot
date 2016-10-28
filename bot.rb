@@ -69,7 +69,8 @@ class Machine
   end
 
   def render(text, keyboard: HIDE_KB, chat_id: nil)
-    puts "SENT to #{@chat.title || @chat.id}", text, '----'
+    puts "SENT to #{@originator.first_name} @ #{@chat.title || @chat.id}",
+      text, '----'
 
     @bot.api.send_message(
       chat_id: chat_id || @chat.id,
@@ -84,7 +85,7 @@ class Machine
 
     if msg.text
       if msg.text.match(/^\/?cancelar/i)
-        render(t[:canceled])
+        render(t[:canceled_command])
         @state = :final_state
 
       elsif @state != :initial_state && command_helper(msg)

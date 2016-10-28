@@ -9,25 +9,25 @@ en:
     /help - consultas y sugerencias
 
 es:
+  :cancel: Cancelar
   :cancel_payment: Cancelar pago
   :cancel_loan: Cancelar préstamo
   :cancel_calculation: Cancelar cálculo
-  :cancel_real_user: Cancelar crear usuarios
-  :cancel_virtual_user: Cancelar crear usuario virtual
-  :cancel_virtual_to_real_user: Cancelar asignar usuario
 
-  :cancel: Cancelar
+  :calculate: Calcular
   :save: Guardar
   :delete: Eliminar
   :nothing: Nada
-  :calculate: Calcular
-  :unknown_command: Lo siento, no entendí la solicitud.
+
+  :unknown_command: >
+    Lo siento, no entendí la solicitud.
   :ongoing_command: >
     No puedo ejecutar %{command} porque hay otro comando en progreso.
     Puedes presionar
 
     /cancelar para salir del mismo.
-  :canceled: Operación cancelada.
+  :canceled_command: Operación cancelada.
+
   :help: >
     Si necesitas ayuda o tienes sugerencias, contacta a @matias\_battocchia.
 
@@ -40,9 +40,24 @@ es:
 
 
     *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
+
   :group_chat_only: >
     El comando %{command} está pensado para conversaciones grupales.
     Méteme en un grupo y pruébalo, ¡será divertido!
+
+  :start: >
+    ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
+
+    /calculo, que permite hacer una cuenta rápida de repartición de gastos.
+    ¡Pruébalo!
+
+
+    Me sacarás el máximo provecho en conversaciones grupales. Agrégame
+    a un grupo como lo harías normalmente con un contacto (mi nombre es
+    @dineros\_bot) o usa el siguiente enlace.
+
+
+    https://telegram.me/dineros\_bot?startgroup=true
   :welcome: >
     ¡Hola!, soy *Dineros*. Llevo el registro de los gastos grupales.
 
@@ -61,27 +76,8 @@ es:
 
     Si en algún momento quieres borrar todos los datos que tengo del grupo,
     simplemente sácame del mismo.
-
-  :start: >
-    ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
-
-    /calculo, que permite hacer una cuenta rápida de repartición de gastos.
-    ¡Pruébalo!
-
-
-    Me sacarás el máximo provecho en conversaciones grupales. Agrégame
-    a un grupo como lo harías normalmente con un contacto (mi nombre es
-    @dineros\_bot) o usa el siguiente enlace.
-
-
-    https://telegram.me/dineros\_bot?startgroup=true
   :hello: 'Bienvenido, %{name}.'
   :bye: 'Te echaré de menos, %{name}.'
-  :alias_error: > #
-    No pude reconocer al usuario. Esperaba algo así:
-    `(apodo) nombre del usuario`.
-
-  :virtual: virtual
 
   :to_share: >
     El enlace a difundir es:
@@ -132,7 +128,7 @@ es:
       _La suma de factores de participación da cero_; la necesito para hacer
       una división... Mi tío intentó dividir por cero y voló en pedazos.
 
-    #### Payment states ####
+    #### Expert payment ####
 
     :argument_error: >
       No pude entender el argumento *%{chunk}*.
@@ -150,6 +146,8 @@ es:
 
     :repeated_user: >
       El apodo *%{alias}* figura repetido en el pago, revisa eso por favor.
+
+    #### Normal payment ####
 
     :unequal_payment: >
       En un _pago desigual_ además se pregunta por el *factor de
@@ -202,18 +200,23 @@ es:
       El código de la anulación es *%{amendment_code}*.
 
   :loan:
-    :concept?: ¿Cuál es el concepto del préstamo?
-    :lender?: '¿Quién prestó para %{concept}?'
-    :borrower?: '¿Quién recibió el préstamo de %{lender_name}?'
+    :concept?: >
+      ¿Cuál es el concepto del préstamo?
+    :lender?: >
+      ¿Quién prestó para %{concept}?
+    :borrower?: >
+      ¿Quién recibió el préstamo de %{lender_name}?
     :borrower_lender: >
       El prestador y el prestatario no pueden ser la misma persona.
-    :contribution?: '¿Cuánto dinero recibió %{borrower_name}?'
+    :contribution?: >
+      ¿Cuánto dinero recibió %{borrower_name}?
     :non_positive_contribution: >
       El monto prestado tiene que ser mayor a cero; el ingresado fue
       *$%{contribution}*.
 
   :calculation:
-    :party_size?: '¿Entre cuántas personas hay que repartir el gasto?'
+    :party_size?: >
+      ¿Entre cuántas personas hay que repartir el gasto?
     :small_party: >
       El cálculo rápido tiene sentido para grupos de 3 personas en adelante.
     :payers?: >
@@ -227,11 +230,13 @@ es:
     :user_limit: >
       Has superado el límite de 26 contribuyentes. Prueba con menos.
       ¿Acaso no sabías que los bots tenemos memoria limitada?
-    :contribution?: '¿Cuánto aportó %{name}?'
+    :contribution?: >
+      ¿Cuánto aportó %{name}?
     :next_payer?: >
       %{name} aportó *$%{contribution}*. ¿Quién más gastó? o envía _calcular_
       si nadie más aportó.
-    :done: '%{name} aportó *$%{contribution}*.'
+    :done: >
+      %{name} aportó *$%{contribution}*.
 
     :report_header: >
       Cálculo por un total de $%{total} para un grupo de %{party_size}
@@ -265,38 +270,23 @@ es:
       _Saldo positivo, acreedor; saldo negativo, deudor._
 
   :alias:
-    :no_alias: No se proporcionó el apodo del usuario.
+    :no_alias: >
+      No se proporcionó el apodo del usuario.
     :not_found: >
       No existe el usuario con el apodo *%{alias}*.
+
     :bad_name: >
       El nombre debe comenzar con una letra.
     :long_name: >
       El nombre es demasiado largo. Se aceptan hasta 32 caracteres.
-    :existent: >
-      %{full_name} ya es un usuario real.
 
-
-      %{full_name} puede salir del grupo y volver a entrar, de esta manerá
-      liberará al usuario que controla y podrá crear otro.
-    :already_real_user: >
-      %{real_user_full_name} ya es un usuario real, por lo tanto
-      no puede ser controlado por %{telegram_user_full_name}.
-    :already_existent_user: >
-      %{telegram_user_full_name} ya es un usuario real, por lo tanto
-      no puede controlar a %{virtual_user_full_name}.
-
-
-      %{telegram_user_full_name} puede salir del grupo y volver a entrar,
-      de esta manerá liberará al usuario que controla y podrá elegir a
-      %{virtual_user_full_name}.
-    :already_virtual_user: >
-      %{full_name} ya es un usuario virtual.
     :already_inactive_user: >
       %{name} ya es un usuario inactivo.
     :non_zero_balance: >
       %{name} no puede ser eliminado ya que su balance
       es de *$%{balance}*. Sólo los usuarios con balance nulo pueden
-      ser desactivados (no se les debe dinero ni lo deben).
+      ser olvidados (no se les debe dinero ni lo deben).
+
     :no_aliases_left: >
       No puedo crear un usuario para %{full_name} porque la cantidad máxima
       de usuarios activos para este grupo ha sido alcanzada (26 usuarios).
@@ -304,15 +294,16 @@ es:
 
       /ayuda si es necesario eludir esta restricción.
 
-    :no_users: >
-      No hay usuarios registrados en el grupo. Si alguna vez los hubo,
-      han acabado con todos.
+  :user:
     :deletable_item: >
       %{full_name}
 
       /eliminar\_%{alias}
     :undeletable_item: >
       %{full_name}: %{balance}
+    :no_users: >
+      No hay usuarios registrados en el grupo. Si alguna vez los hubo,
+      han acabado con todos.
     :delete_legend: >
       _Presiona el enlace correspondiente para eliminar al usuario_.
       Como condición debe tener _balance en cero_ (no debe ser deudor ni
@@ -322,44 +313,3 @@ es:
       ¿Eliminar al usuario %{name}?
     :deactivated: >
       El usuario %{name} fue eliminado.
-
-  :real_user:
-    :mentions?: >
-      Menciona a los miembros del grupo. _Las menciones comienzan con el
-      caracter @_, por ejemplo @dineros\_bot; escríbela y selecciona al
-      miembro de la lista que se desplegará. Puedes mencionarlos a todos
-      en el mismo mensaje. _Escribe una @ sin ninguna añadidura para
-      mencionarte a ti mismo._
-    :no_mentions: >
-      No has mencionado a nadie. Recurre al poder de la arroba.
-    :created: >
-      El usuario %{full_name} ha sido creado para %{mention}.
-    :no_telegram_user: >
-      La mención %{mention} no corresponde a ninguno de los miembros
-      de este grupo. _Agrega a la persona al grupo_ previo a registrarla.
-
-  :virtual_user:
-    :name?: ¿Cuál será el nombre del usuario virtual?
-    :created: >
-      El usuario %{full_name} ha sido creado.
-
-  :virtual_to_real_user:
-    :no_virtual_users: >
-      Nada que hacer, no hay usuarios virtuales por el momento.
-    :virtual_user?: >
-      Elige al usuario virtual que pasará a ser controlado por un miembro
-      del grupo.
-    :not_a_virtual_user: >
-      %{full_name} no es un usuario virtual.
-    :mention?: >
-      Menciona al miembro del grupo que pasará a tener control de %{name}.
-      _Las menciones comienzan con el caracter @_, por ejemplo @dineros\_bot;
-      escríbela y selecciona al miembro de la lista que se desplegará. *El
-      miembro mencionado no debe poseer un usuario*. _Escribe una @ sin
-      ninguna añadidura para mencionarte a ti mismo._
-    :success: >
-      El usuario %{old_full_name} fue renombrado a %{new_full_name} y ahora
-      pertenece a %{mention}. El usuario quedará liberado si %{mention}
-      abandona el grupo.
-    :same_user: >
-      %{full_name} es quien solía ser... ahh, los viejos tiempos.

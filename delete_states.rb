@@ -1,10 +1,8 @@
 class Machine
   def delete_initial_state(msg)
     case msg.text
-    when /^\/eliminar(?:_|\s+)([[:digit:]]+)/
-      code = Regexp.last_match[1]
-
-      @payment = Payment.find(@chat.id, code)
+    when /^\/eliminar(?:_|\s+)(?<code>[[:digit:]]+)/
+      @payment = Payment.find(@chat.id, Regexp.last_match[:code])
 
       render(t[:payment][:amend?] %
         {concept: escape(@payment.concept), code: @payment.payment_id},
@@ -13,10 +11,8 @@ class Machine
 
       :delete_payment_confirmation_status
 
-    when /^\/eliminar(?:_|\s+)([[:alpha:]]+)/
-      _alias = Regexp.last_match[1]
-
-      @user = Alias.find_user(@chat.id, _alias)
+    when /^\/eliminar(?:_|\s+)(?<alias>[[:alpha:]]+)/
+      @user = Alias.find_user(@chat.id, Regexp.last_match[:alias])
 
       render(t[:user][:deactivate?] % {name: @user.name},
         keyboard: keyboard( [delete_buttons] )

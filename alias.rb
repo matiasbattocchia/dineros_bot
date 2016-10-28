@@ -11,7 +11,7 @@ class Alias < Sequel::Model
       .order(:first_name, :last_name)
   end
 
-  def self.find_user(chat_id, _alias)
+  def self.find_by_alias(chat_id, _alias)
     raise BotError, t[:alias][:no_alias] if _alias.nil?
 
     user = Alias[chat_id: chat_id, alias: _alias]
@@ -27,7 +27,7 @@ class Alias < Sequel::Model
     raise BotError, t[:alias][:bad_name] if name !~ /^[[:alpha:]]/
     raise BotError, t[:alias][:long_name] if name.length > 32
 
-    user = first(chat_id: chat_id, first_name: name)
+    user = first(chat_id: chat_id, first_name: name).exclude(alias: nil)
 
     return user if user
 
