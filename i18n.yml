@@ -52,22 +52,16 @@ es:
     la contabilidad de la conversación diaria mediante un grupo paralelo.
 
 
-    Si el grupo está preparado para comenzar, procede a inscribir a sus
-    miembros en Dineros. Para ello presiona el siguiente enlace:
+    Procede a registrar un
 
-    /usuarios\_inicial.
-  :first_time_ok: >
-    *Grandioso*. Ahora puedes usar comandos como
+    /pago o un /prestamo. Estos comandos impactan sobre el
 
-    /pago y /prestamo. Luego quizás quieras consultar el /balance.
-    También puedes explorar las posibilidades del comando
+    /balance del grupo.
 
-    /usuarios.
-  :first_time_not_ok: >
-    Se necesitan _al menos dos_ usuarios para compartir gastos.
-    Utiliza el comando
 
-    /usuarios\_inicial para registar a los faltantes.
+    Si en algún momento quieres borrar todos los datos que tengo del grupo,
+    simplemente sácame del mismo.
+
   :start: >
     ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
 
@@ -81,10 +75,8 @@ es:
 
 
     https://telegram.me/dineros\_bot?startgroup=true
-  :hello: >
-    Bienvenido, %{name}. Recuerda crearte un usuario usando el comando
-    /usuarios.
-  :bye: Te echaré de menos, %{name}.
+  :hello: 'Bienvenido, %{name}.'
+  :bye: 'Te echaré de menos, %{name}.'
   :alias_error: > #
     No pude reconocer al usuario. Esperaba algo así:
     `(apodo) nombre del usuario`.
@@ -268,9 +260,7 @@ es:
       %{name}: %{balance}
     :no_users: >
       Me es imposible mostrar el estado de las cuentas porque no hay
-      usuarios registrados. Utiliza el comando
-
-      /usuarios\_inicial para registar algunos usuarios.
+      pagos registrados.
     :legend: >
       _Saldo positivo, acreedor; saldo negativo, deudor._
 
@@ -314,43 +304,9 @@ es:
 
       /ayuda si es necesario eludir esta restricción.
 
-  :user:
-    :menu:
-      - 1. Crear un usuario real
-      - 2. Crear un usuario virtual
-      - 3. Asignar un usuario virtual
-      - 4. Eliminar un usuario
-      - Cancelar
-    :option?: >
-      *Crea un usuario real* a partir de un miembro de este grupo para que
-      pueda usar Dineros.
-
-
-      *Crea un usuario virtual* para representar a una persona que todavía
-      no usa Telegram.
-
-
-      *Asigna un usuario virtual* a un miembro de este grupo manteniendo los
-      pagos registrados a su nombre.
-
-
-      *Elimina a un usuario*. Como condición debe tener _balance en cero_
-      (no debe ser deudor ni acreedor).
-
-    :no_active_users: >
-      No hay usuarios registrados. Se necesitan _al menos dos_
-      usuarios para compartir un gasto. Utiliza el comando
-
-      /usuarios\_inicial para registar algunos usuarios.
-    :single_active_user: >
-      Hay un único usuario registrado. Se necesitan _al menos dos_
-      usuarios para compartir un gasto. Utiliza el comando
-
-      /usuarios para registar a un usuario más.
-
     :no_users: >
-      No hay usuarios para eliminar. Si alguna vez los hubo, han acabado
-      con todos.
+      No hay usuarios registrados en el grupo. Si alguna vez los hubo,
+      han acabado con todos.
     :deletable_item: >
       %{full_name}
 
@@ -359,7 +315,8 @@ es:
       %{full_name}: %{balance}
     :delete_legend: >
       _Presiona el enlace correspondiente para eliminar al usuario_.
-      Los usuarios sin enlace no tienen su balance en cero; arregla
+      Como condición debe tener _balance en cero_ (no debe ser deudor ni
+      acreedor). Los usuarios sin enlace no tienen su balance en cero; arregla
       sus cuentas para poder eliminarlos.
     :deactivate?: >
       ¿Eliminar al usuario %{name}?
