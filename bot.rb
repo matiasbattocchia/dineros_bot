@@ -50,17 +50,18 @@ class Machine
     .new(hide_keyboard: true)
 
   def self.dispatch(bot, msg)
-    m = @@machines[msg.chat.id] ||= Machine.new(bot, msg.chat)
+    m = @@machines[msg.chat.id] ||= Machine.new(bot, msg)
     m.dispatch(msg)
 
     @@machines.delete(msg.chat.id) if m.closed?
     return m
   end
 
-  def initialize(bot, chat)
-    @bot     = bot
-    @chat    = chat
-    @state   = :initial_state
+  def initialize(bot, msg)
+    @bot   = bot
+    @chat  = msg.chat
+    @state = :initial_state
+    @originator = msg.from
   end
 
   def closed?
@@ -89,7 +90,7 @@ class Machine
       elsif @state != :initial_state && command_helper(msg)
         render(t[:ongoing_command] % {command: escape(command_helper(msg))})
 
-      else
+      elsif @originator.id == msg.from.id
         @state =
           begin
             # State methods must return the next state.
@@ -148,8 +149,8 @@ class Machine
       # If an instance of Machine do not reach a final state it will not
       # be garbage collected. On the other hand in an active conversation
       # frequent messages will instantiate often...
-      #:final_state
-      @state
+      :final_state
+      #@state
     end
   end
 end
