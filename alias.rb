@@ -27,7 +27,7 @@ class Alias < Sequel::Model
     raise BotError, t[:alias][:bad_name] if name !~ /^[[:alpha:]]/
     raise BotError, t[:alias][:long_name] if name.length > 32
 
-    user = first(chat_id: chat_id, first_name: name).exclude(alias: nil)
+    user = where(chat_id: chat_id, first_name: name).exclude(alias: nil).first
 
     return user if user
 
