@@ -4,7 +4,7 @@ class Machine
       msg.text.match(/^\/p\s+(?<concept>.+)\s*:\s*(?<contributions>.+)\s*/i)
 
     if arguments # Command with arguments.
-      expert_payment(arguments[:concept], arguments[:contributions])
+      expert_payment(msg, arguments[:concept], arguments[:contributions])
 
       :final_state
     else # Step-by-step process.
@@ -116,7 +116,7 @@ class Machine
     end
   end
 
-  def expert_payment(concept, contributions)
+  def expert_payment(msg, concept, contributions)
     payment = # chat_id, payment_id, date, concept
       Payment.build(@chat.id, msg.message_id, date_helper(msg), concept)
 
