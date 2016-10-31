@@ -1,5 +1,7 @@
 class Machine
   def payment_initial_state(msg)
+    set_originator(msg)
+
     arguments =
       msg.text.match(/^\/p\s+(?<concept>.+)\s*:\s*(?<contributions>.+)\s*/i)
 
@@ -83,37 +85,37 @@ class Machine
 
       :payment_factor_state
     else
-      if @existent_users && @active_users.empty?
-        render(t[:payment][:done_without_factor] %
-          {name: @user.name, contribution: c}
-        )
+      #if @existent_users && @active_users.empty?
+        #render(t[:payment][:done_without_factor] %
+          #{name: @user.name, contribution: c}
+        #)
 
-        payment_user_state(message_helper(t[:save]))
-      else
+        #payment_user_state(message_helper(t[:save]))
+      #else
         render(t[:payment][:next_participant_without_factor?] %
           {name: @user.name, contribution: c},
           keyboard: keyboard( user_buttons(@active_users) << create_buttons )
         )
 
         :payment_user_state
-      end
+      #end
     end
   end
 
   def payment_factor_state(msg)
     f = number(@payment.factor(@user, msg.text))
 
-    if @existent_users && @active_users.empty?
-      render(t[:payment][:done] % {name: @user.name, factor: f})
+    #if @existent_users && @active_users.empty?
+      #render(t[:payment][:done] % {name: @user.name, factor: f})
 
-      payment_user_state(message_helper(t[:save]))
-    else
+      #payment_user_state(message_helper(t[:save]))
+    #else
       render(t[:payment][:next_participant?] % {name: @user.name, factor: f},
         keyboard: keyboard( user_buttons(@active_users) << create_buttons )
       )
 
       :payment_user_state
-    end
+    #end
   end
 
   def expert_payment(msg, concept, contributions)

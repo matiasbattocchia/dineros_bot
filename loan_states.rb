@@ -1,5 +1,7 @@
 class Machine
   def loan_initial_state(msg)
+    set_originator(msg)
+
     @active_users = active_users(@chat.id)
 
     render(t[:loan][:concept?], keyboard: keyboard(t[:cancel_loan]))
@@ -23,17 +25,17 @@ class Machine
 
     @active_users.delete(@lender)
 
-    if @active_users.size == 1
-      loan_borrower_state(
-        message_helper( user_buttons(@active_users).first )
-      )
-    else
+    #if @active_users.size == 1
+      #loan_borrower_state(
+        #message_helper( user_buttons(@active_users).first )
+      #)
+    #else
       render(t[:loan][:borrower?] % {lender_name: @lender.name},
         keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
       )
 
       :loan_borrower_state
-    end
+    #end
   end
 
   def loan_borrower_state(msg)

@@ -1,5 +1,7 @@
 class Machine
   def delete_initial_state(msg)
+    set_originator(msg)
+
     case msg.text
     when /^\/eliminar(?:_|\s+)(?<code>[[:digit:]]+)/
       @payment = Payment.find(@chat.id, Regexp.last_match[:code])

@@ -22,8 +22,8 @@ es:
   :unknown_command: >
     Lo siento, no entendí la solicitud.
   :ongoing_command: >
-    No puedo ejecutar %{command} porque hay otro comando en progreso.
-    Puedes presionar
+    No puedo ejecutar %{command}; el comando %{ongoing_command} comenzado por
+    %{originator} está todavía en progreso. Puedes presionar
 
     /cancelar para salir del mismo.
   :canceled_command: Operación cancelada.
@@ -41,6 +41,15 @@ es:
 
     *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
 
+
+    _Para llevar un historial de gastos prolijo recomiendo usarme en
+    un grupo destinado exclusivamente a tal fin._ Me refiero a separar
+    la contabilidad de la conversación diaria mediante un grupo paralelo.
+
+
+    Si en algún momento quieres borrar todos los datos que tengo del grupo,
+    simplemente sácame del mismo.
+
   :group_chat_only: >
     El comando %{command} está pensado para conversaciones grupales.
     Méteme en un grupo y pruébalo, ¡será divertido!
@@ -53,7 +62,7 @@ es:
 
 
     Me sacarás el máximo provecho en conversaciones grupales, donde se
-    puede usar comandos como
+    pueden usar comandos como
 
     /pago y /balance. Agrégame a un grupo como lo harías normalmente con
     un contacto (mi nombre es @dineros\_bot) o usa el siguiente enlace.
@@ -64,20 +73,11 @@ es:
     ¡Hola!, soy *Dineros*. Llevo el registro de los gastos grupales.
 
 
-    _Para llevar un historial de gastos prolijo recomiendo usarme en
-    un grupo destinado exclusivamente a tal fin._ Me refiero a separar
-    la contabilidad de la conversación diaria mediante un grupo paralelo.
-
-
     Procede a registrar un
 
     /pago o un /prestamo. Estos comandos impactan sobre el
 
     /balance del grupo.
-
-
-    Si en algún momento quieres borrar todos los datos que tengo del grupo,
-    simplemente sácame del mismo.
   :hello: 'Bienvenido, %{name}.'
   :bye: 'Te echaré de menos, %{name}.'
 

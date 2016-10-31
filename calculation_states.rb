@@ -1,5 +1,7 @@
 class Machine
   def calculation_initial_state(msg)
+    set_originator(msg)
+
     render(t[:calculation][:party_size?],
       keyboard: keyboard(t[:cancel_calculation])
     )

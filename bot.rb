@@ -57,26 +57,31 @@ class Machine
     return m
   end
 
-  def initialize(bot, msg)
-    @bot   = bot
-    @chat  = msg.chat
-    @state = :initial_state
+  def set_originator(msg)
     @originator = msg.from
+    @command    = command_helper(msg)
+  end
+
+  def initialize(bot, msg)
+    @bot     = bot
+    @chat    = msg.chat
+    @state   = :initial_state
   end
 
   def closed?
     @state == :final_state
   end
 
-  def render(text, keyboard: HIDE_KB, chat_id: nil)
-    puts "SENT to #{@originator.first_name} @ #{@chat.title || @chat.id}",
+  def render(text, keyboard: HIDE_KB)
+    puts "SENT to #{@chat.first_name} @ #{@chat.title || @chat.id}",
       text, '----'
 
     @bot.api.send_message(
-      chat_id: chat_id || @chat.id,
+      chat_id: @chat.id,
       text: text,
       parse_mode: 'Markdown',
-      reply_markup: keyboard)
+      reply_markup: keyboard
+    )
   end
 
   def dispatch(msg)
@@ -89,9 +94,13 @@ class Machine
         @state = :final_state
 
       elsif @state != :initial_state && command_helper(msg)
-        render(t[:ongoing_command] % {command: escape(command_helper(msg))})
+        render(t[:ongoing_command] %
+          {command: escape(command_helper(msg)),
+           ongoing_command: escape(@command),
+           originator: @originator.first_name}
+        )
 
-      elsif @originator.id == msg.from.id
+      elsif @originator.nil? || @originator.id == msg.from.id
         @state =
           begin
             # State methods must return the next state.
@@ -113,7 +122,9 @@ class Machine
         render(t[:welcome])
       else
         # The chat has a new member.
-        render(t[:hello] % {name: escape(msg.new_chat_member.first_name)})
+        render(t[:hello] % {name: escape(msg.new_chat_member.first_name)},
+          keyboard: nil
+        )
       end
     elsif msg.left_chat_member
       if msg.left_chat_member.username == BOT_NAME
@@ -122,7 +133,9 @@ class Machine
         Alias.obliterate(@chat.id)
       else
         # A member was kicked from the chat instead.
-        render(t[:bye] % {name: escape(msg.left_chat_member.first_name)})
+        render(t[:bye] % {name: escape(msg.left_chat_member.first_name)},
+          keyboard: nil
+        )
       end
     else
       puts 'Weird event.', msg, '----'
@@ -144,8 +157,8 @@ class Machine
       # If an instance of Machine do not reach a final state it will not
       # be garbage collected. On the other hand in an active conversation
       # frequent messages will instantiate often...
-      :final_state
-      #@state
+      #:final_state
+      @state
     end
   end
 end
