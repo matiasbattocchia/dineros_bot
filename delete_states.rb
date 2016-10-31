@@ -3,7 +3,7 @@ class Machine
     set_originator(msg)
 
     case msg.text
-    when /^\/eliminar(?:_|\s+)(?<code>[[:digit:]]+)/
+    when /^\/#{t[:delete]}(?:_|\s+)(?<code>[[:digit:]]+)/i
       @payment = Payment.find(@chat.id, Regexp.last_match[:code])
 
       render(t[:payment][:amend?] %
@@ -11,22 +11,22 @@ class Machine
         keyboard: keyboard( [delete_buttons] )
       )
 
-      :delete_payment_confirmation_status
+      :delete_payment_confirmation_state
 
-    when /^\/eliminar(?:_|\s+)(?<alias>[[:alpha:]]+)/
+    when /^\/#{t[:delete]}(?:_|\s+)(?<alias>[[:alpha:]]+)/i
       @user = Alias.find_user(@chat.id, Regexp.last_match[:alias])
 
       render(t[:user][:deactivate?] % {name: @user.name},
         keyboard: keyboard( [delete_buttons] )
       )
 
-      :delete_user_confirmation_status
+      :delete_user_confirmation_state
     else
       raise BotError, t[:unknown_command]
     end
   end
 
-  def delete_payment_confirmation_status(msg)
+  def delete_payment_confirmation_state(msg)
     unless msg.text.match /^#{t[:delete]}/i
       raise BotError, t[:unknown_command]
     end
@@ -42,7 +42,7 @@ class Machine
     :final_state
   end
 
-  def delete_user_confirmation_status(msg)
+  def delete_user_confirmation_state(msg)
     unless msg.text.match /^#{t[:delete]}/i
       raise BotError, t[:unknown_command]
     end

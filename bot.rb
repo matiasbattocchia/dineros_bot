@@ -73,7 +73,7 @@ class Machine
   end
 
   def render(text, keyboard: HIDE_KB)
-    puts "SENT to #{@chat.first_name} @ #{@chat.title || @chat.id}",
+    puts "SENT to #{@chat.first_name || '*'} @ #{@chat.title || @chat.id}",
       text, '----'
 
     @bot.api.send_message(
@@ -150,6 +150,7 @@ class Machine
     when /^\/c[aá]lculo/i  then calculation_initial_state(msg)
     when /^\/usuarios/i    then users_initial_state( group_chat_only(msg) )
     when /^\/eliminar/i    then delete_initial_state( group_chat_only(msg) )
+    when /^\/explicar/i    then explain_initial_state( group_chat_only(msg) )
     when /^\/start/i       then one_on_one_initial_state(msg)
     when /^\/ayuda/i       then help_initial_state(msg)
     when /^\/rrpp/i        then rrpp_initial_state(msg)

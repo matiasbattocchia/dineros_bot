@@ -17,13 +17,15 @@ es:
   :calculate: Calcular
   :save: Guardar
   :delete: Eliminar
+  :explain_command: Explicar
   :nothing: Nada
+  :unequal_split: pago_desigual
 
   :unknown_command: >
     Lo siento, no entendí la solicitud.
   :ongoing_command: >
-    No puedo ejecutar %{command}; el comando %{ongoing_command} comenzado por
-    %{originator} está todavía en progreso. Puedes presionar
+    No puedo ejecutar %{command} debido a que el comando %{ongoing_command}
+    comenzado por %{originator} está todavía en progreso. Puedes presionar
 
     /cancelar para salir del mismo.
   :canceled_command: Operación cancelada.
@@ -191,7 +193,15 @@ es:
     :done: >
       %{name} participó con un factor de *%{factor}*.
     :success: >
-      Operación %{concept} registrada por un total de *$%{total}*.
+      Pago registrado por un total de *$%{total}* en concepto de %{concept}.
+
+
+      *Resumen*
+
+      %{report}
+
+
+      Presionar /explicar\_%{code} para ver el detalle de la operación.
 
 
       Presionar /eliminar\_%{code} para anularla.
@@ -201,7 +211,7 @@ es:
 
       /pago %{concept}: %{transactions}
     :amend?: >
-      ¿Anular la operación %{concept} (%{code})?
+      ¿Eliminar la operación %{concept} (%{code})?
     :amended: >
       La operación %{concept} (%{payment_code}) fue anulada.
       El código de la anulación es *%{amendment_code}*.
@@ -220,6 +230,46 @@ es:
     :non_positive_contribution: >
       El monto prestado tiene que ser mayor a cero; el ingresado fue
       *$%{contribution}*.
+    :success: >
+      Transferencia de %{lender} a %{borrower} registrada por
+      un total de *$%{total}* en concepto de %{concept}.
+
+
+      Presionar /eliminar\_%{code} para anularla.
+
+  :explain:
+    :equal_split:
+      :header: >
+        Gasto de $%{total} compartido por %{party_size} personas en concepto
+        de %{concept}.
+
+
+        El gasto por persona fue de *$%{individual_expenditure}*.
+      :positive_item: >
+        *•* %{name} aportó $%{contribution}, sumó $%{amount} a su cuenta.
+      :zero_item: >
+        *•* %{name} aportó $%{contribution}, no modificó su cuenta.
+      :negative_item: >
+        *•* %{name} aportó $%{contribution}, restó $%{amount} de su cuenta.
+    :unequal_split:
+      :header: >
+        Gasto de *$%{total}* repartido en %{total_factor} partes en concepto
+        de %{concept}.
+
+
+        El gasto por parte fue de *$%{unitary_expenditure}*.
+      :positive_item: >
+        *•* %{name} aportó $%{contribution},
+        gastó $%{expenditure} (factor %{factor}),
+        sumó $%{amount} a su cuenta.
+      :zero_item: >
+        *•* %{name} aportó $%{contribution},
+        gastó $%{expenditure} (factor %{factor}),
+        no modificó su cuenta.
+      :negative_item: >
+        *•* %{name} aportó $%{contribution},
+        gastó $%{expenditure} (factor %{factor}),
+        restó $%{amount} de su cuenta.
 
   :calculation:
     :party_size?: >
@@ -262,7 +312,7 @@ es:
       no hace falta repartir nada.
 
     :report_header: >
-      Cálculo por un total de $%{total} para un grupo de %{party_size}
+      Cálculo por un total de *$%{total}* para un grupo de %{party_size}
       personas.
     :report_creditors: >
       *Pagar a*

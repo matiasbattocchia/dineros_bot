@@ -38,7 +38,7 @@ Group chat:
 
 General:
 
-1.  /explain command
+1.  Better negative money formatting
 2.  Balance aggregation to reduce DB stress
 3.  True i18n (commands, money, etc.)
 4.  Periodic remainders (rent, bills, etc.)
@@ -56,6 +56,4 @@ General:
 
 ### Bugs
 
-* Expert payment advice does not reflect the one-payer-all-participants feature
-* Payments do not tell the participants included when doing one-payer-all-participants
 * Interactive command timeout.

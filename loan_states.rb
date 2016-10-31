@@ -63,10 +63,12 @@ class Machine
     @loan.contribution(@borrower)
     @loan.save
 
-    render(t[:payment][:success] %
-      {concept: escape(@loan.concept),
-       total:   currency(@loan.total),
-       code:    @loan.payment_id}
+    render(t[:loan][:success] %
+      {concept:  escape(@loan.concept),
+       total:    currency(@loan.total),
+       code:     @loan.payment_id,
+       lender:   @lender.name,
+       borrower: @borrower.name}
     )
 
     #render(t[:payment][:expert_payment_advice] %

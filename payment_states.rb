@@ -13,7 +13,7 @@ class Machine
       @active_users = active_users(@chat.id)
       @existent_users = @active_users.any?
 
-      if @unequal_split = msg.text.match(/^\/pago_desigual/)
+      if @unequal_split = msg.text.match(/^\/#{t[:unequal_split]}/i)
         render(t[:payment][:unequal_payment])
       end
 
@@ -43,7 +43,8 @@ class Machine
       render(t[:payment][:success] %
         {concept: escape(@payment.concept),
          total:   currency(@payment.total),
-         code:    @payment.payment_id}
+         code:    @payment.payment_id,
+         report:  @payment.report}
       )
 
       #render(t[:payment][:expert_payment_advice] %
@@ -167,7 +168,20 @@ class Machine
       t[:payment][:success] %
         {concept: escape(payment.concept),
          total:   currency(payment.total),
-         code:    payment.payment_id}
+         code:    payment.payment_id,
+         report:  payment.report}
     )
+  end
+
+  def explain_initial_state(msg)
+    if msg.text =~ /^\/#{t[:explain_command]}(?:_|\s+)(?<code>[[:digit:]]+)/i
+      @payment = Payment.find(@chat.id, Regexp.last_match[:code])
+
+      render(@payment.explain)
+
+      :final_state
+    else
+      raise BotError, t[:unknown_command]
+    end
   end
 end

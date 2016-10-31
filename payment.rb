@@ -228,6 +228,66 @@ class Payment
     end.join(' ')
   end
 
+  def report
+    @transactions.map do |u, t|
+      line = ['*•* ']
+      line << currency(t.factor) + ' × ' unless t.factor == 1
+      line << u.name
+      line << ': ' + currency(t.contribution) unless t.contribution == 0
+      line.join
+    end.join("\n")
+  end
+
+  def explain
+    report = []
+
+    c = @transactions.values.map(&:factor).sort
+
+    if c.first == c.last # Equal split.
+      report << t[:explain][:equal_split][:header] %
+        {concept: concept,
+         total: currency(total),
+         party_size: size,
+         individual_expenditure: currency(total / size)}
+
+      report << @transactions.map do |u, tr|
+        if tr.amount.positive?
+          t[:explain][:equal_split][:positive_item]
+        elsif tr.amount.zero?
+          t[:explain][:equal_split][:zero_item]
+        else # Negative.
+          t[:explain][:equal_split][:negative_item]
+        end % {name: u.name,
+               contribution: currency(tr.contribution),
+               amount: currency(tr.amount.abs)}
+      end.join("\n")
+    else # Unequal split.
+      unitary_expenditure = total / total_factor
+
+      report << t[:explain][:unequal_split][:header] %
+        {concept: concept,
+         total: currency(total),
+         total_factor: currency(total_factor),
+         unitary_expenditure: currency(unitary_expenditure)}
+
+      report << @transactions.map do |u, tr|
+        if tr.amount.positive?
+          t[:explain][:unequal_split][:positive_item]
+        elsif tr.amount.zero?
+          t[:explain][:unequal_split][:zero_item]
+        else # Negative.
+          t[:explain][:unequal_split][:negative_item]
+        end % {name: u.name,
+               contribution: currency(tr.contribution),
+               amount: currency(tr.amount.abs),
+               expenditure: currency(unitary_expenditure * tr.factor),
+               factor: currency(tr.factor)}
+      end.join("\n")
+    end
+
+    report.join("\n")
+  end
+
   def calculation_report
     report = []
 
