@@ -14,7 +14,7 @@ class Machine
       :delete_payment_confirmation_state
 
     when /^\/#{t[:delete]}(?:_|\s+)(?<alias>[[:alpha:]]+)/i
-      @user = Alias.find_user(@chat.id, Regexp.last_match[:alias])
+      @user = Alias.find_by_alias(@chat.id, Regexp.last_match[:alias])
 
       render(t[:user][:deactivate?] % {name: @user.name},
         keyboard: keyboard( [delete_buttons] )
