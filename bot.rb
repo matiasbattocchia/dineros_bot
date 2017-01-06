@@ -46,7 +46,7 @@ end
 class Machine
   @@machines = {}
 
-  HIDE_KB = Telegram::Bot::Types::ReplyKeyboardHide
+  HIDE_KB = Telegram::Bot::Types::ReplyKeyboardRemove
     .new(hide_keyboard: true)
 
   def self.dispatch(bot, msg)
@@ -72,12 +72,12 @@ class Machine
     @state == :final_state
   end
 
-  def render(text, keyboard: HIDE_KB)
+  def render(text, keyboard: HIDE_KB, chat_id: @chat.id)
     puts "SENT to #{@chat.first_name || '*'} @ #{@chat.title || @chat.id}",
       text, '----'
 
     @bot.api.send_message(
-      chat_id: @chat.id,
+      chat_id: chat_id,
       text: text,
       parse_mode: 'Markdown',
       reply_markup: keyboard
