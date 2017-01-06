@@ -16,16 +16,16 @@ DB = Sequel.connect('postgres://localhost/dineros')
 require_relative 'helpers'
 
 # Models
-require_relative 'alias'
-require_relative 'payment'
+require_relative 'models/alias'
+require_relative 'models/payment'
 
 # States
-require_relative 'calculation_states'
-require_relative 'payment_states'
-require_relative 'loan_states'
-require_relative 'balance_states'
-require_relative 'user_states'
-require_relative 'delete_states'
+require_relative 'states/calculation'
+require_relative 'states/payment'
+require_relative 'states/loan'
+require_relative 'states/balance'
+require_relative 'states/user'
+require_relative 'states/delete'
 
 class BotError < StandardError
 end
@@ -144,13 +144,13 @@ class Machine
 
   def initial_state(msg)
     case msg.text
-    when /^\/(p\s|pago)/i  then payment_initial_state( group_chat_only(msg) )
-    when /^\/pr[eé]stamo/i then loan_initial_state( group_chat_only(msg) )
-    when /^\/balance/i     then balance_initial_state( group_chat_only(msg) )
+    when /^\/(p\s|pago)/i  then payment_initial_state(msg)
+    when /^\/pr[eé]stamo/i then loan_initial_state(msg)
+    when /^\/balance/i     then balance_initial_state(msg)
     when /^\/c[aá]lculo/i  then calculation_initial_state(msg)
-    when /^\/usuarios/i    then users_initial_state( group_chat_only(msg) )
-    when /^\/eliminar/i    then delete_initial_state( group_chat_only(msg) )
-    when /^\/explicar/i    then explain_initial_state( group_chat_only(msg) )
+    when /^\/usuarios/i    then users_initial_state(msg)
+    when /^\/eliminar/i    then delete_initial_state(msg)
+    when /^\/explicar/i    then explain_initial_state(msg)
     when /^\/start/i       then one_on_one_initial_state(msg)
     when /^\/ayuda/i       then help_initial_state(msg)
     when /^\/rrpp/i        then rrpp_initial_state(msg)

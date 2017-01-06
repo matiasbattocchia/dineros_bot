@@ -48,29 +48,27 @@ es:
     un grupo destinado exclusivamente a tal fin._ Me refiero a separar
     la contabilidad de la conversación diaria mediante un grupo paralelo.
 
-
     Si en algún momento quieres borrar todos los datos que tengo del grupo,
     simplemente sácame del mismo.
+
+    https://telegram.me/dineros\_bot?startgroup=true
 
   :group_chat_only: >
     El comando %{command} está pensado para conversaciones grupales.
     Méteme en un grupo y pruébalo, ¡será divertido!
 
   :start: >
-    ¡Hola! En conversaciones uno-a-uno como esta el comando más útil es
+    ¡Hola! En una conversación conmigo el comando más útil es
 
     /calculo, que permite hacer una cuenta rápida de repartición de gastos.
     ¡Pruébalo!
 
 
-    Me sacarás el máximo provecho en conversaciones grupales, donde se
-    pueden usar comandos como
+    Me sacarás el máximo provecho en *conversaciones grupales*, usando
+    los comandos
 
     /pago y /balance. Agrégame a un grupo como lo harías normalmente con
-    un contacto (mi nombre es @dineros\_bot) o usa el siguiente enlace.
-
-
-    https://telegram.me/dineros\_bot?startgroup=true
+    un contacto (mira la /ayuda si necesitas saber cómo hacerlo).
   :welcome: >
     ¡Hola!, soy *Dineros*. Llevo el registro de los gastos grupales.
 
@@ -201,10 +199,10 @@ es:
       %{report}
 
 
-      Presionar /explicar\_%{code} para ver el detalle de la operación.
+      Presiona /explicar\_%{code} para ver el detalle de la operación.
 
 
-      Presionar /eliminar\_%{code} para anularla.
+      Presiona /eliminar\_%{code} para anularla.
     :expert_payment_advice: >
       La próxima vez puedes usar la forma abreviada.
 
@@ -235,13 +233,13 @@ es:
       un total de *$%{total}* en concepto de %{concept}.
 
 
-      Presionar /eliminar\_%{code} para anularla.
+      Presiona /eliminar\_%{code} para anularla.
 
   :explain:
     :equal_split:
       :header: >
-        Gasto de $%{total} compartido por %{party_size} personas en concepto
-        de %{concept}.
+        Detalle de gasto de $%{total} compartido por %{party_size}
+        personas en concepto de %{concept}.
 
 
         El gasto por persona fue de *$%{individual_expenditure}*.
@@ -253,8 +251,8 @@ es:
         *•* %{name} aportó $%{contribution}, restó $%{amount} de su cuenta.
     :unequal_split:
       :header: >
-        Gasto de *$%{total}* repartido en %{total_factor} partes en concepto
-        de %{concept}.
+        Detalle de gasto de *$%{total}* repartido en %{total_factor}
+        partes en concepto de %{concept}.
 
 
         El gasto por parte fue de *$%{unitary_expenditure}*.
