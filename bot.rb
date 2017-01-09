@@ -47,7 +47,7 @@ class Machine
   @@machines = {}
 
   HIDE_KB = Telegram::Bot::Types::ReplyKeyboardRemove
-    .new(hide_keyboard: true)
+    .new(remove_keyboard: true)
 
   def self.dispatch(bot, msg)
     m = @@machines[msg.chat.id] ||= Machine.new(bot, msg)
