@@ -37,10 +37,14 @@ es:
 
 
     Me sacarás el máximo provecho en conversaciones grupales.
-    Crea un grupo con tus contactos y agrégame. Hay dos formas:
+    Crea un grupo con tus contactos y agrégame. Hay tres formas:
 
 
-    *Desde el perfil del grupo* > Añadir miembro > Buscar @dineros\_bot.
+    *Usando este enlace*:
+    https://telegram.me/dineros\_bot?startgroup=true
+
+
+    *Desde el perfil del grupo* > Añadir miembro > Buscar a Dineros (@dineros\_bot).
 
 
     *Desde mi perfil* >  Menú (*⋮*) > Añadir a un grupo > Elegir el grupo.
@@ -53,29 +57,19 @@ es:
     Si en algún momento quieres borrar todos los datos que tengo del grupo,
     simplemente sácame del mismo.
 
-    https://telegram.me/dineros\_bot?startgroup=true
-
-  :start: >
-    ¡Hola! En una conversación conmigo el comando más útil es
-
-    /calculo, que permite hacer una cuenta rápida de repartición de gastos.
-    ¡Pruébalo!
-
-
-    Me sacarás el máximo provecho en *conversaciones grupales*, usando
-    los comandos
-
-    /pago y /balance. Agrégame a un grupo como lo harías normalmente con
+  :start_private: >
+    Me sacarás el máximo provecho en *conversaciones grupales*.
+    Agrégame a un grupo como lo harías normalmente con
     un contacto (mira la /ayuda si necesitas saber cómo hacerlo).
-  :welcome: >
-    ¡Hola!, soy *Dineros*. Llevo el registro de los gastos grupales.
+  :start: >
+    ¡Hola!, soy *Dineros*. Llevo el registro de los gastos compartidos.
 
 
     Procede a registrar un
 
-    /pago o un /prestamo. Estos comandos impactan sobre el
+    /pago compartido o un /prestamo. Estos comandos impactan sobre el
 
-    /balance del grupo.
+    /balance de las cuentas.
   :hello: 'Bienvenido, %{name}.'
   :bye: 'Te echaré de menos, %{name}.'
 
@@ -189,11 +183,9 @@ es:
     :done: >
       %{name} participó con un factor de *%{factor}*.
     :success: >
-      Pago registrado.
+      Pago registrado:
 
-      Concepto: %{concept}
-
-      Total: *$%{total}*
+      %{concept} - *$%{total}*
 
 
       *Resumen*

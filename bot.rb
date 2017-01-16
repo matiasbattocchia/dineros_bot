@@ -119,7 +119,7 @@ class Machine
       if msg.new_chat_member.username == BOT_NAME
         # Dineros has been invited to a chat.
         # ^_^
-        render(t[:welcome])
+        render(t[:start])
       else
         # The chat has a new member.
         render(
@@ -149,8 +149,8 @@ class Machine
         when /(p\s|pago)/i  then payment_initial_state(msg)
         when /pr[eé]stamo/i then loan_initial_state(msg)
         when /balance/i     then balance_initial_state(msg)
-        when /c[aá]lculo/i  then calculation_initial_state(msg)
-        when /usuarios/i    then users_initial_state(msg)
+        #when /c[aá]lculo/i  then calculation_initial_state(msg)
+        when /nombres/i    then users_initial_state(msg)
         when /eliminar/i    then delete_initial_state(msg)
         when /explicar/i    then explain_initial_state(msg)
         when /start/i       then one_on_one_initial_state(msg)
@@ -181,6 +181,7 @@ def one_on_one_initial_state(msg)
   return :final_state unless private?
 
   render(t[:start])
+  render(t[:start_private])
 
   if msg.text.match(/^\/start (?<rrpp_code>[[:digit:]]+)/i) &&
       rrpp = RRPP[ Regexp.last_match[:rrpp_code] ]

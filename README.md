@@ -12,7 +12,7 @@ Even reckonings make long friends.
 * pago_desigual - gasto no tan compartido
 * prestamo - transferencia entre dos
 * balance - estado de las cuentas
-* usuarios - gestión del grupo
+* nombres - borrar un nombre
 * ayuda - consultas y sugerencias
 
 ### About
@@ -22,8 +22,6 @@ Even reckonings make long friends.
 Dineros será de ayuda cada vez que compartas comidas, salidas y viajes con tus amigos. Es fantástico para el día a día de la convivencia y trabajo.
 
 Despreocúpate de los gastos compartidos, Dineros se ocupará de llevar las cuentas.
-
-Tiene dos modalidades de uso. En conversaciones grupales registra los gastos informados por todos. En conversaciones individuales es una calculadora que te permite repartir gastos con facilidad.
 
 
 ### TODO
@@ -55,6 +53,7 @@ General:
 14. Translate written numbers to numbers from zero to twenty
 15. Some small talk ("I'm better than Splitwise" message when mentioned, <3 for appreciation, etc.)
 16. List of N-last payments
+17. Message broadcasting
 
 ### Bugs
 

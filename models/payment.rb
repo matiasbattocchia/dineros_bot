@@ -33,8 +33,6 @@ class Payment
     raise BotError, t[:payment][:empty_concept] if concept.empty?
     raise BotError, t[:payment][:long_concept]  if concept.length > 32
 
-    concept.downcase!
-
     transactions = Hash.new do |hash, key| # The key is an alias.
       t = Transaction.new
 
