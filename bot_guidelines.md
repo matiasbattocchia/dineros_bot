@@ -31,6 +31,10 @@ with it by mistake.
 In an interactive command you may want to abort the whole command
 or ask the user to re-respond the last request, depending on the error.
 
+5. Commands need to be canceled versus new command cancels previous command.
+
+
+
 ---
 
 ## Users

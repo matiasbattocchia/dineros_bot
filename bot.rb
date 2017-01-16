@@ -46,38 +46,53 @@ end
 class Machine
   @@machines = {}
 
-  HIDE_KB = Telegram::Bot::Types::ReplyKeyboardRemove
+  RM_KB = Telegram::Bot::Types::ReplyKeyboardRemove
     .new(remove_keyboard: true)
 
   def self.dispatch(bot, msg)
-    m = @@machines[msg.chat.id] ||= Machine.new(bot, msg)
+    puts "RECEIVED from #{msg.from.first_name} @ " \
+         "#{msg.chat.title || msg.chat.id} at " \
+         "#{Time.now.strftime '%b %d %H:%M:%S'}",
+         msg.text,
+         '----'
+
+    m = @@machines[msg.from.id] ||= Machine.new(bot, msg)
     m.dispatch(msg)
 
-    @@machines.delete(msg.chat.id) if m.closed?
-    return m
+    @@machines.delete(msg.from.id) if @@machines[msg.from.id].closed?
   end
 
-  def set_originator(msg)
-    @originator = msg.from
-    @command    = command_helper(msg)
+  def self.redispatch(bot, msg)
+    m = @@machines[msg.from.id] = Machine.new(bot, msg)
+    m.dispatch(msg)
   end
 
   def initialize(bot, msg)
-    @bot     = bot
-    @chat    = msg.chat
-    @state   = :initial_state
+    @bot   = bot
+    @from  = msg.from
+    @chat  = msg.chat
+    @state = :initial_state
   end
 
   def closed?
-    @state == :final_state
+    @state == :final_state || @state == :initial_state
   end
 
-  def render(text, keyboard: HIDE_KB, chat_id: @chat.id)
-    puts "SENT to #{@chat.first_name || '*'} @ #{@chat.title || @chat.id}",
-      text, '----'
+  def private?
+    # type: private, group, supergroup, channel
+    @chat.type == 'private'
+  end
+
+  def render(text, keyboard: RM_KB, chat_id: nil, private: false)
+    target = chat_id
+    puts "SENT to #{@from.first_name} @ " \
+         "#{@chat.title || @chat.id} at " \
+         "#{Time.now.strftime '%b %d %H:%M:%S'}",
+         text,
+         '----'
 
     @bot.api.send_message(
-      chat_id: chat_id,
+      chat_id: chat_id || private ? @from.id : @chat.id,
       text: text,
       parse_mode: 'Markdown',
       reply_markup: keyboard
@@ -85,36 +100,21 @@ class Machine
   end
 
   def dispatch(msg)
-    puts "RECEIVED from #{msg.from.first_name} @ #{@chat.title || @chat.id}",
-      msg.text, '----'
-
     if msg.text
-      if msg.text.match(/^\/?cancelar/i)
-        render(t[:canceled_command])
-        @state = :final_state
-
-      elsif @state != :initial_state && command_helper(msg)
-        render(t[:ongoing_command] %
-          {command: escape(command_helper(msg)),
-           ongoing_command: escape(@command),
-           originator: @originator.first_name}
-        )
-
-      elsif @originator.nil? || @originator.id == msg.from.id
-        @state =
-          begin
-            # State methods must return the next state.
-            send(@state, msg)
-          rescue BotError => e
-            # keyboard: nil should maintain the present keyboard before
-            # the exception.
-            render(e.message, keyboard: nil)
-            @state == :initial_state ? :final_state : @state
-          rescue BotCancelError => e
-            render(e.message)
-            :final_state
-          end
-      end
+      @state =
+        begin
+          # State methods must return the next state.
+          #send(@state, msg)
+          route(msg)
+        rescue BotError => e
+          # keyboard: nil should maintain the present keyboard before
+          # the exception.
+          render(e.message, keyboard: nil, private: true)
+          @state
+        rescue BotCancelError => e
+          render(e.message, private: @state != :initial_state)
+          :final_state
+        end
     elsif msg.new_chat_member
       if msg.new_chat_member.username == BOT_NAME
         # Dineros has been invited to a chat.
@@ -122,7 +122,8 @@ class Machine
         render(t[:welcome])
       else
         # The chat has a new member.
-        render(t[:hello] % {name: escape(msg.new_chat_member.first_name)},
+        render(
+          t[:hello] % {name: escape(msg.new_chat_member.first_name)},
           keyboard: nil
         )
       end
@@ -133,39 +134,51 @@ class Machine
         Alias.obliterate(@chat.id)
       else
         # A member was kicked from the chat instead.
-        render(t[:bye] % {name: escape(msg.left_chat_member.first_name)},
+        render(
+          t[:bye] % {name: escape(msg.left_chat_member.first_name)},
           keyboard: nil
         )
       end
-    else
-      puts 'Weird event.', msg, '----'
     end
   end
 
-  def initial_state(msg)
-    case msg.text
-    when /^\/(p\s|pago)/i  then payment_initial_state(msg)
-    when /^\/pr[eé]stamo/i then loan_initial_state(msg)
-    when /^\/balance/i     then balance_initial_state(msg)
-    when /^\/c[aá]lculo/i  then calculation_initial_state(msg)
-    when /^\/usuarios/i    then users_initial_state(msg)
-    when /^\/eliminar/i    then delete_initial_state(msg)
-    when /^\/explicar/i    then explain_initial_state(msg)
-    when /^\/start/i       then one_on_one_initial_state(msg)
-    when /^\/ayuda/i       then help_initial_state(msg)
-    when /^\/rrpp/i        then rrpp_initial_state(msg)
+  def route(msg)
+    if msg.text.match /^\// # It is a command (possibly).
+      if @state == :initial_state
+        case msg.text
+        when /(p\s|pago)/i  then payment_initial_state(msg)
+        when /pr[eé]stamo/i then loan_initial_state(msg)
+        when /balance/i     then balance_initial_state(msg)
+        when /c[aá]lculo/i  then calculation_initial_state(msg)
+        when /usuarios/i    then users_initial_state(msg)
+        when /eliminar/i    then delete_initial_state(msg)
+        when /explicar/i    then explain_initial_state(msg)
+        when /start/i       then one_on_one_initial_state(msg)
+        when /ayuda/i       then help_initial_state(msg)
+        when /rrpp/i        then rrpp_initial_state(msg)
+        else
+          render(t[:unknown_command])
+          :final_state
+        end
+      else # There is an ongoing command.
+        Machine.redispatch(@bot, msg)
+        :limbo_state
+      end
+    elsif @state != :initial_state && msg.chat.type == 'private'
+      if msg.text.match /#{t[:cancel]}/i
+        render(t[:canceled_command], private: true)
+        :final_state
+      else
+        send(@state, msg)
+      end
     else
-      # If an instance of Machine do not reach a final state it will not
-      # be garbage collected. On the other hand in an active conversation
-      # frequent messages will instantiate often...
-      #:final_state
       @state
     end
   end
 end
 
 def one_on_one_initial_state(msg)
-  return :final_state unless msg.chat.type == 'private'
+  return :final_state unless private?
 
   render(t[:start])
 

@@ -1,10 +1,22 @@
 class Machine
   def loan_initial_state(msg)
-    set_originator(msg)
-
     @active_users = active_users(@chat.id)
 
-    render(t[:loan][:concept?], keyboard: keyboard(t[:cancel_loan]))
+    text = t[:loan][:concept?]
+
+    unless private?
+      render(
+        t[:initial_private_message] % {name: escape(@from.first_name)}
+      )
+
+      text += ' (' + escape(@chat.title) + ')'
+    end
+
+    render(
+      text,
+      keyboard: keyboard(t[:cancel_loan]),
+      private: true
+    )
 
     :loan_concept_state
   end
@@ -13,8 +25,10 @@ class Machine
     @loan = # chat_id, payment_id, date, concept
       Payment.build(@chat.id, msg.message_id, date_helper(msg), msg.text)
 
-    render(t[:loan][:lender?] % {concept: escape(@loan.concept)},
-      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
+    render(
+      t[:loan][:lender?] % {concept: escape(@loan.concept)},
+      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] ),
+      private: true
     )
 
     :loan_lender_state
@@ -30,8 +44,10 @@ class Machine
         #message_helper( user_buttons(@active_users).first )
       #)
     #else
-      render(t[:loan][:borrower?] % {lender_name: @lender.name},
-        keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] )
+      render(
+        t[:loan][:borrower?] % {lender_name: @lender.name},
+        keyboard: keyboard( user_buttons(@active_users) << t[:cancel_loan] ),
+        private: true
       )
 
       :loan_borrower_state
@@ -43,9 +59,10 @@ class Machine
 
     raise BotError, t[:loan][:borrower_lender] if @borrower == @lender
 
-    render(t[:loan][:contribution?] %
-      {borrower_name: @borrower.name},
-      keyboard: keyboard(t[:cancel_loan])
+    render(
+      t[:loan][:contribution?] % {borrower_name: @borrower.name},
+      keyboard: keyboard(t[:cancel_loan]),
+      private: true
     )
 
     :loan_contribution_state
@@ -62,6 +79,11 @@ class Machine
     @loan.factor(@lender, 0)
     @loan.contribution(@borrower)
     @loan.save
+
+    render(
+      t[:final_private_message],
+      private: true
+    ) unless private?
 
     render(t[:loan][:success] %
       {concept:  escape(@loan.concept),

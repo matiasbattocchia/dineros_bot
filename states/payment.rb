@@ -1,7 +1,5 @@
 class Machine
   def payment_initial_state(msg)
-    set_originator(msg)
-
     arguments =
       msg.text.match(/^\/p\s+(?<concept>.+)\s*:\s*(?<contributions>.+)\s*/i)
 
@@ -14,10 +12,24 @@ class Machine
       @existent_users = @active_users.any?
 
       if @unequal_split = msg.text.match(/^\/#{t[:unequal_split]}/i)
-        render(t[:payment][:unequal_payment])
+        render(t[:payment][:unequal_payment], private: true)
       end
 
-      render(t[:payment][:concept?], keyboard: keyboard(t[:cancel_payment]))
+      text = t[:payment][:concept?]
+
+      unless private?
+        render(
+          t[:initial_private_message] % {name: escape(@from.first_name)}
+        )
+
+        text += ' (' + escape(@chat.title) + ')'
+      end
+
+      render(
+        text,
+        keyboard: keyboard(t[:cancel_payment]),
+        private: true
+      )
 
       :payment_concept_state
     end
@@ -29,8 +41,10 @@ class Machine
 
     #render(t[:payment][:payment_advice]) unless @unequal_split
 
-    render(t[:payment][:participants?] % {concept: escape(@payment.concept)},
-      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_payment] )
+    render(
+      t[:payment][:participants?] % {concept: escape(@payment.concept)},
+      keyboard: keyboard( user_buttons(@active_users) << t[:cancel_payment] ),
+      private: true
     )
 
     :payment_user_state
@@ -40,11 +54,17 @@ class Machine
     if msg.text.match /^#{t[:save]}/i
       @payment.save
 
-      render(t[:payment][:success] %
-        {concept: escape(@payment.concept),
-         total:   currency(@payment.total),
-         code:    @payment.payment_id,
-         report:  @payment.report}
+      render(
+        t[:final_private_message],
+        private: true
+      ) unless private?
+
+      render(
+        t[:payment][:success] %
+          {concept: escape(@payment.concept),
+           total:   currency(@payment.total),
+           code:    @payment.payment_id,
+           report:  @payment.report}
       )
 
       #render(t[:payment][:expert_payment_advice] %
@@ -58,12 +78,16 @@ class Machine
       @active_users.delete(@user)
 
       if @payment[@user]
-        render(t[:payment][:correction] % {name: @user.name},
-          keyboard: keyboard( [t[:nothing], t[:cancel_payment]] )
+        render(
+          t[:payment][:correction] % {name: @user.name},
+          keyboard: keyboard( [t[:nothing], t[:cancel_payment]] ),
+          private: true
         )
       else
-        render(t[:payment][:contribution?] % {name: @user.name},
-          keyboard: keyboard( [t[:nothing], t[:cancel_payment]] )
+        render(
+          t[:payment][:contribution?] % {name: @user.name},
+          keyboard: keyboard( [t[:nothing], t[:cancel_payment]] ),
+          private: true
         )
       end
 
@@ -74,14 +98,18 @@ class Machine
   def payment_contribution_state(msg)
     c = @payment.contribution(@user, msg.text)
 
-    render(t[:payment][:negative_contribution]) if c.negative?
+    render(
+      t[:payment][:negative_contribution],
+      private: true
+    ) if c.negative?
 
     c = currency(c)
 
     if @unequal_split
-      render(t[:payment][:factor?] %
-        {name: @user.name, contribution: c},
-        keyboard: keyboard( [['0', '1', '2', '3'], t[:cancel_payment]] )
+      render(
+        t[:payment][:factor?] % {name: @user.name, contribution: c},
+        keyboard: keyboard( [['0', '1', '2', '3'], t[:cancel_payment]] ),
+        private: true
       )
 
       :payment_factor_state
@@ -93,9 +121,11 @@ class Machine
 
         #payment_user_state(message_helper(t[:save]))
       #else
-        render(t[:payment][:next_participant_without_factor?] %
-          {name: @user.name, contribution: c},
-          keyboard: keyboard( user_buttons(@active_users) << create_buttons )
+        render(
+          t[:payment][:next_participant_without_factor?] %
+            {name: @user.name, contribution: c},
+          keyboard: keyboard( user_buttons(@active_users) << create_buttons ),
+          private: true
         )
 
         :payment_user_state
@@ -111,8 +141,10 @@ class Machine
 
       #payment_user_state(message_helper(t[:save]))
     #else
-      render(t[:payment][:next_participant?] % {name: @user.name, factor: f},
-        keyboard: keyboard( user_buttons(@active_users) << create_buttons )
+      render(
+        t[:payment][:next_participant?] % {name: @user.name, factor: f},
+        keyboard: keyboard( user_buttons(@active_users) << create_buttons ),
+        private: true
       )
 
       :payment_user_state
@@ -181,7 +213,7 @@ class Machine
 
       :final_state
     else
-      raise BotError, t[:unknown_command]
+      raise BotCancelError, t[:bad_solitude]
     end
   end
 end

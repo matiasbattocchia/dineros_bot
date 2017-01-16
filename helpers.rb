@@ -66,15 +66,6 @@ module Kernel
     [t[:cancel], t[:calculate]]
   end
 
-  def group_chat_only(msg)
-    if msg.chat.type != 'group'
-      raise BotCancelError,
-        t[:group_chat_only] % {command: escape( command_helper(msg) )}
-    end
-
-    msg
-  end
-
   def active_users(chat_id)
     Alias.active_users(chat_id).all
   end

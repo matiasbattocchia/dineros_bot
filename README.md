@@ -31,6 +31,7 @@ Private chat:
 
 1. Categories for complex quick calculations
 2. General balance (all groups involved)
+3. Group operations (actually the group is selected sending a command to a conversation)
 
 Group chat:
 
@@ -53,6 +54,7 @@ General:
 13. Use HTML instead of Markdown as it is more robust
 14. Translate written numbers to numbers from zero to twenty
 15. Some small talk ("I'm better than Splitwise" message when mentioned, <3 for appreciation, etc.)
+16. List of N-last payments
 
 ### Bugs
 

@@ -22,13 +22,15 @@ es:
   :unequal_split: pago_desigual
 
   :unknown_command: >
+    No conozco ese comando.
+  :bad_solitude: >
     Lo siento, no entendí la solicitud.
-  :ongoing_command: >
-    No puedo ejecutar %{command} debido a que el comando %{ongoing_command}
-    comenzado por %{originator} está todavía en progreso. Puedes presionar
-
-    /cancelar para salir del mismo.
   :canceled_command: Operación cancelada.
+
+  :initial_private_message: >
+    %{name} te escribí por privado.
+  :final_private_message: >
+    Listo. Envié al grupo el resultado de la operación.
 
   :help: >
     Si necesitas ayuda o tienes sugerencias, contacta a @matias\_battocchia.
@@ -52,10 +54,6 @@ es:
     simplemente sácame del mismo.
 
     https://telegram.me/dineros\_bot?startgroup=true
-
-  :group_chat_only: >
-    El comando %{command} está pensado para conversaciones grupales.
-    Méteme en un grupo y pruébalo, ¡será divertido!
 
   :start: >
     ¡Hola! En una conversación conmigo el comando más útil es
@@ -191,7 +189,11 @@ es:
     :done: >
       %{name} participó con un factor de *%{factor}*.
     :success: >
-      Pago registrado por un total de *$%{total}* en concepto de %{concept}.
+      Pago registrado.
+
+      Concepto: %{concept}
+
+      Total: *$%{total}*
 
 
       *Resumen*
@@ -199,10 +201,10 @@ es:
       %{report}
 
 
-      Presiona /explicar\_%{code} para ver el detalle de la operación.
+      /explicar\_%{code} para ver el detalle de la operación.
 
 
-      Presiona /eliminar\_%{code} para anularla.
+      /eliminar\_%{code} para anularla.
     :expert_payment_advice: >
       La próxima vez puedes usar la forma abreviada.
 
@@ -244,11 +246,11 @@ es:
 
         El gasto por persona fue de *$%{individual_expenditure}*.
       :positive_item: >
-        *•* %{name} aportó $%{contribution}, sumó $%{amount} a su cuenta.
+        *•* %{name} aportó $%{contribution}, prestó $%{amount}.
       :zero_item: >
-        *•* %{name} aportó $%{contribution}, no modificó su cuenta.
+        *•* %{name} aportó $%{contribution}, justo.
       :negative_item: >
-        *•* %{name} aportó $%{contribution}, restó $%{amount} de su cuenta.
+        *•* %{name} aportó $%{contribution}, se le prestó $%{amount}.
     :unequal_split:
       :header: >
         Detalle de gasto de *$%{total}* repartido en %{total_factor}
@@ -258,16 +260,16 @@ es:
         El gasto por parte fue de *$%{unitary_expenditure}*.
       :positive_item: >
         *•* %{name} aportó $%{contribution},
-        gastó $%{expenditure} (factor %{factor}),
-        sumó $%{amount} a su cuenta.
+        gastó $%{expenditure} (%{factor} partes),
+        prestó $%{amount}.
       :zero_item: >
         *•* %{name} aportó $%{contribution},
-        gastó $%{expenditure} (factor %{factor}),
-        no modificó su cuenta.
+        gastó $%{expenditure} (%{factor} partes),
+        justo.
       :negative_item: >
         *•* %{name} aportó $%{contribution},
-        gastó $%{expenditure} (factor %{factor}),
-        restó $%{amount} de su cuenta.
+        gastó $%{expenditure} (%{factor} partes),
+        se le prestó $%{amount}.
 
   :calculation:
     :party_size?: >
