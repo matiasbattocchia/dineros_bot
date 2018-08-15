@@ -50,6 +50,15 @@ module Kernel
       keyboard: buttons, resize_keyboard: true)
   end
 
+  def inline_keyboard(buttons)
+    Telegram::Bot::Types::InlineKeyboardMarkup.new(
+      inline_keyboard: buttons)
+  end
+
+  def inline_button(options)
+    Telegram::Bot::Types::InlineKeyboardButton.new(options)
+  end
+
   def user_buttons(users)
     users.map(&:name)
   end

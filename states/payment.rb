@@ -18,8 +18,12 @@ class Machine
       text = t[:payment][:concept?]
 
       unless private?
-        render(
-          t[:initial_private_message] % {name: escape(@from.first_name)}
+        @response = render(
+          t[:initial_private_message] % {name: escape(@from.first_name)},
+          keyboard: inline_keyboard([[inline_button(
+            text: 'Ir a la conversación',
+            url:  'https://telegram.me/dev_dineros_bot')]]
+          )
         )
 
         text += ' (' + escape(@chat.title) + ')'
@@ -64,7 +68,14 @@ class Machine
           {concept: escape(@payment.concept),
            total:   currency(@payment.total),
            code:    @payment.payment_id,
-           report:  @payment.report}
+           report:  @payment.report},
+        edit: @response,
+        inline_keyboard: inline_keyboard([[
+          inline_button(text: 'Explicar',
+                        callback_data: "explicar #{@payment.payment_id}"),
+          inline_button(text: 'Eliminar',
+                        callback_data: "eliminar #{@payment.payment_id}")
+        ]])
       )
 
       #render(t[:payment][:expert_payment_advice] %
@@ -209,7 +220,7 @@ class Machine
     if msg.text =~ /^\/#{t[:explain_command]}(?:_|\s+)(?<code>[[:digit:]]+)/i
       @payment = Payment.find(@chat.id, Regexp.last_match[:code])
 
-      render(@payment.explain)
+      render(@payment.explain, edit: msg)
 
       :final_state
     else

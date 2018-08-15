@@ -6,14 +6,10 @@ DB.create_table? :aliases do
   primary_key :id
 
   Bignum :chat_id, null: false
-  Fixnum :user_id
   String :alias, size: 1, fixed: true
 
-  String :first_name, size: 32, null: false
-  String :last_name,  size: 32
-  String :username,   size: 32
+  String :name, size: 32, null: false
 
-  unique [:chat_id, :user_id]
   unique [:chat_id, :alias]
 end
 
@@ -45,16 +41,23 @@ DB.create_table? :accounts do
   index :alias_id
 end
 
-DB.create_table? :rrpps do
-  Fixnum :user_id, primary_key: true
+DB.create_table? :users do
+  foreign_key :referred_by_id, :users
+
+  Fixnum :id, primary_key: true
   String :first_name, size: 32, null: false
   String :last_name,  size: 32
+  String :username,   size: 32
 end
 
-DB.create_table? :recommendations do
-  foreign_key :rrpp_id
+DB.create_table? :chats do
+  Bignum :id,   primary_key: true
+  String :type, null: false
+end
 
-  Fixnum :user_id, primary_key: true
-  String :first_name, size: 32, null: false
-  String :last_name,  size: 32
+DB.create_table? :users_chats do
+  foreign_key :chat_id, :chats
+  foreign_key :user_id, :users
+
+  unique [:chat_id, :user_id]
 end

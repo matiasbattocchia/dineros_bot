@@ -191,12 +191,6 @@ es:
       *Resumen*
 
       %{report}
-
-
-      /explicar\_%{code} para ver el detalle de la operación.
-
-
-      /eliminar\_%{code} para anularla.
     :expert_payment_advice: >
       La próxima vez puedes usar la forma abreviada.
 

@@ -1,5 +1,5 @@
 class Machine
-  def delete_initial_state(msg)
+  def delete_payment(msg)
     case msg.text
     when /^\/#{t[:delete]}(?:_|\s+)(?<code>[[:digit:]]+)/i
       @payment = Payment.find(@chat.id, Regexp.last_match[:code])
@@ -21,7 +21,9 @@ class Machine
         private: true
       )
 
-      :delete_payment_confirmation_state
+   end
+
+   def delete_alias(msg)
 
     when /^\/#{t[:delete]}(?:_|\s+)(?<alias>[[:alpha:]]+)/i
       @user = Alias.find_by_alias(@chat.id, Regexp.last_match[:alias])

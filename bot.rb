@@ -33,15 +33,16 @@ end
 class BotCancelError < StandardError
 end
 
-class RRPP < Sequel::Model
-  unrestrict_primary_key
-  one_to_many :recommendations
+class Telegram::Bot::Types::CallbackQuery
+  def chat
+    message.chat
+  end
+
+  def text
+    data
+  end
 end
 
-class Recommendation < Sequel::Model
-  unrestrict_primary_key
-  many_to_one :rrpp
-end
 
 class Machine
   @@machines = {}
@@ -49,16 +50,36 @@ class Machine
   RM_KB = Telegram::Bot::Types::ReplyKeyboardRemove
     .new(remove_keyboard: true)
 
-  def self.dispatch(bot, msg)
+  LOG = true
+
+  def self.log_input(msg)
+    return unless LOG
+
     puts "RECEIVED from #{msg.from.first_name} @ " \
          "#{msg.chat.title || msg.chat.id} at " \
          "#{Time.now.strftime '%b %d %H:%M:%S'}",
          msg.text,
          '----'
+  end
+
+  def self.log_output(msg)
+    return unless LOG
+
+    puts "SENT to #{@from.first_name} @ " \
+         "#{@chat.title || @chat.id} at " \
+         "#{Time.now.strftime '%b %d %H:%M:%S'}",
+         text,
+         '----'
+  end
+
+  def self.dispatch(bot, msg)
+    log_input(msg)
 
     m = @@machines[msg.from.id] ||= Machine.new(bot, msg)
     m.dispatch(msg)
 
+    # The machine can change in the middle (redispatched), that is why we
+    # retrieve it from '@@machines' again instead of calling 'm'.
     @@machines.delete(msg.from.id) if @@machines[msg.from.id].closed?
   end
 
@@ -83,23 +104,40 @@ class Machine
     @chat.type == 'private'
   end
 
-  def render(text, keyboard: RM_KB, chat_id: nil, private: false)
-    target = chat_id
-    puts "SENT to #{@from.first_name} @ " \
-         "#{@chat.title || @chat.id} at " \
-         "#{Time.now.strftime '%b %d %H:%M:%S'}",
-         text,
-         '----'
+  def render(text, keyboard: RM_KB, inline_keyboard: nil, chat_id: nil,
+             private: false, edit: nil)
+    Machine.log_output(msg)
 
-    @bot.api.send_message(
-      chat_id: chat_id || private ? @from.id : @chat.id,
-      text: text,
-      parse_mode: 'Markdown',
-      reply_markup: keyboard
-    )
+    if edit
+      @bot.api.edit_message_text(
+        chat_id: edit['result']['chat']['id'],
+        message_id: edit['result']['message_id'],
+        text: text,
+        parse_mode: 'Markdown',
+        reply_markup: inline_keyboard
+      )
+    else
+      @bot.api.send_message(
+        chat_id: chat_id || private ? @from.id : @chat.id,
+        text: text,
+        parse_mode: 'Markdown',
+        reply_markup: keyboard
+      )
+    end
   end
 
   def dispatch(msg)
+    case msg
+    when Telegram::Bot::Types::Message
+      dispatch_message(msg)
+    when Telegram::Bot::Types::CallbackQuery
+      dispatch_callback_query(msg)
+    else
+      puts "Message is a #{msg.class}, not managed by #dispatch."
+    end
+  end
+
+  def dispatch_message(msg)
     if msg.text
       @state =
         begin
@@ -117,8 +155,7 @@ class Machine
         end
     elsif msg.new_chat_member
       if msg.new_chat_member.username == BOT_NAME
-        # Dineros has been invited to a chat.
-        # ^_^
+        # The bot has been invited to a chat.  ^_^
         render(t[:start])
       else
         # The chat has a new member.
@@ -129,8 +166,7 @@ class Machine
       end
     elsif msg.left_chat_member
       if msg.left_chat_member.username == BOT_NAME
-        # Dineros was kicked from the chat.
-        # x_x
+        # The bot was kicked from the chat.  x_x
         Alias.obliterate(@chat.id)
       else
         # A member was kicked from the chat instead.
@@ -142,6 +178,16 @@ class Machine
     end
   end
 
+  dispatch_callback_query(msg)
+    case msg.data
+    when /eliminar/i then delete_initial_state(msg)
+    when /explicar/i then explain_initial_state(msg)
+    else
+      render(t[:unknown_command])
+      :final_state
+    end
+  end
+
   def route(msg)
     if msg.text.match /^\// # It is a command (possibly).
       if @state == :initial_state
@@ -150,9 +196,9 @@ class Machine
         when /pr[eé]stamo/i then loan_initial_state(msg)
         when /balance/i     then balance_initial_state(msg)
         #when /c[aá]lculo/i  then calculation_initial_state(msg)
-        when /nombres/i    then users_initial_state(msg)
-        when /eliminar/i    then delete_initial_state(msg)
-        when /explicar/i    then explain_initial_state(msg)
+        #when /nombres/i    then users_initial_state(msg)
+        #when /eliminar/i    then delete_initial_state(msg)
+        #when /explicar/i    then explain_initial_state(msg)
         when /start/i       then one_on_one_initial_state(msg)
         when /ayuda/i       then help_initial_state(msg)
         when /rrpp/i        then rrpp_initial_state(msg)
