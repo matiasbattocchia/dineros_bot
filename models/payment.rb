@@ -77,7 +77,12 @@ class Payment
   def contribution(user, contribution = 0)
     contribution.sub!(',','.') if contribution.is_a?(String)
 
-    contribution = BigDecimal(contribution)
+    contribution =
+      begin
+        BigDecimal(contribution)
+      rescue ArgumentError
+        BigDecimal(0)
+      end
 
     raise BotError, t[:payment][:nan_contribution] unless contribution.finite?
 
@@ -88,7 +93,12 @@ class Payment
   def factor(user, factor = 1)
     factor.sub!(',','.') if factor.is_a?(String)
 
-    factor = BigDecimal(factor)
+    factor =
+      begin
+        BigDecimal(factor)
+      rescue ArgumentError
+        BigDecimal(1)
+      end
 
     raise BotError, t[:payment][:nan_factor] unless factor.finite?
     raise BotError, t[:payment][:negative_factor] if factor.negative?

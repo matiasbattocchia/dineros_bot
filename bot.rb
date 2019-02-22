@@ -229,4 +229,8 @@ rescue Faraday::ConnectionFailed => e
   puts e.message, '----'
   sleep 10
   retry
+rescue Telegram::Bot::Exceptions::ResponseError => e
+  puts e.message, '----'
+  sleep 10
+  retry
 end
